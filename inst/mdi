@@ -1,0 +1,80 @@
+#!/bin/bash
+
+# the main executable script that establishes the job manager
+# also acts a surrogate/alias for direct calls to pipeline executables
+# and as a command line shortcut for launching the MDI web server
+
+TARGET=$1
+
+#----------------------------------------------------------------------
+# Stage 2 shortcuts to mdi R functions via Rscript
+#----------------------------------------------------------------------
+
+# shortcut for launching the web server
+if [ "$TARGET" = "server" ]; then
+    ACTION=$2 # any function exported by mdi R package, e.g., run, develop or version
+    if [ "$ACTION" = "" ]; then ACTION="run"; fi # default to run if action not specified
+    exec Rscript -e "mdi::$ACTION()"
+    
+# shortcut for reinstalling the MDI (could also use 'mdi server install')
+elif [ "$TARGET" = "reinstall" ]; then
+    exec Rscript -e "mdi::install()"
+
+#----------------------------------------------------------------------
+# Stage 1 pipeline execution via the job manager
+#----------------------------------------------------------------------
+else
+
+# set script paths
+export MDI_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+JOB_MANAGER_DIR=$MDI_DIR/frameworks/mdi-pipelines-framework/job_manager
+JOB_MANAGER_TARGET=$JOB_MANAGER_DIR/jobManager
+JOB_MANAGER_COMMANDS=$(cd $JOB_MANAGER_DIR/lib/commands && ls -1 *.pl |  cut -d '.' -f 1) # TODO: or simply type them here?
+
+# handle a direct call to initialize the job manager (called by mdi::install())
+if [ "$TARGET" = "initialize" ]; then
+    exec perl $JOB_MANAGER_DIR/initialize.pl
+
+# handle job manager functions (submit, report, etc.)
+# also handle mdi called with no arguments
+elif [[ "$TARGET" = "" || " $JOB_MANAGER_COMMANDS " =~ " $TARGET " ]]; then
+    
+    # ensure that the job manager target script has been initialized
+    if [ ! -e "$JOB_MANAGER_TARGET" ]; then
+        perl $JOB_MANAGER_DIR/initialize.pl
+    fi    
+
+    # fork the call to the job manager utility (a close relative of 'q')
+    if [ -e "$JOB_MANAGER_TARGET" ]; then
+        exec $JOB_MANAGER_TARGET "$@"
+    fi
+
+# capture and pass calls to pipeline executable if using job manager as a surrogate
+# thus, pipelines cannot have the same name as a job manager command (submit, report, etc.)
+else
+
+    # use purpose-specific YAML parser to recover an ordered list of pipelines suites
+    PIPELINES_SUITES=$(
+        grep -A 100 '^pipelines:' $MDI_DIR/config.yml |
+        grep -v '^pipelines:' |
+        grep -B 100 '^apps:' |
+        grep -v '^apps:' |
+        perl -ne '$_ =~ m/(.+)\/(.+)\.git/ and print $2'
+    )
+    
+    # fork to the first matching pipeline name in order given in config.yml
+    for PIPELINES_SUITE in $PIPELINES_SUITES; do
+        DIR="$MDI_DIR/suites/$PIPELINES_SUITE/pipelines/$TARGET"
+        if [ -d $DIR ]; then
+            exec perl $DIR/"$@"
+        fi   
+    done
+   
+    # TARGET not known; throw an error
+    echo "unknown target: $TARGET"
+    exit 1    
+
+fi
+
+fi
+

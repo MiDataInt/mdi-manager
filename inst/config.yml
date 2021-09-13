@@ -1,0 +1,67 @@
+---
+#----------------------------------------------------------------------
+# This file contains configuration data for a Michigan Data Interface 
+# installation. It is must be present in the mdi root directory.
+#----------------------------------------------------------------------
+
+#----------------------------------------------------------------------
+# REQUIRED
+#----------------------------------------------------------------------
+# identify the definitive, upstream pipelines and apps suites use by this MDI
+# entries must be arrays of valid, clonable GitHub repositories
+# name conflicts are resolved by taking the first match in the order listed
+#----------------------------------------------------------------------
+# Stage 1: HPC analysis pipelines
+pipelines:
+    - https://github.com/UMAGC/agc-pipelines.git
+
+# Stage 2: interactive web apps
+apps:
+    - https://github.com/UMAGC/agc-apps.git
+
+#----------------------------------------------------------------------
+# OPTIONAL
+#----------------------------------------------------------------------
+# this section contains:
+#   1) the Globus client application key and secret
+#   2) the UUID of a Globus Connect endpoint for your computer
+#   3) the UUID of a MDI Users group (advanced users only!)
+#----------------------------------------------------------------------
+# learn about setting up your Globus client application here:
+#       https://docs.globus.org/api/auth/
+# and create your client application here:
+#       https://developers.globus.org/
+# Note: 'key' is synonymous with 'client ID'
+#----------------------------------------------------------------------
+# learn about setting up a Globus Connect Personal endpoint here:
+#       https://www.globus.org/globus-connect-personal
+# and create it here:
+#       https://app.globus.org/endpoints
+# then get the endpoint UUID here:
+#       https://app.globus.org/endpoints?scope=administered-by-me
+#----------------------------------------------------------------------
+# Globus is only required if your web server needs to:
+#    transfer files for data analysis (instead of uploading them into the web page)
+#    upload job definitions to run pipelines on a cluster server
+#    run on a public web server, where authentication is required
+# leave values as null if you will not use Globus
+#----------------------------------------------------------------------
+globus: 
+
+# the client application (app) you created in your Globus account
+    client:
+        key:    null
+        secret: null
+
+# a random string to sign keys; required if you specify a client application
+# try: https://www.grc.com/passwords.htm
+    signature:  null
+
+# the Globus Connect endpoint you created in your Globus account for your computer
+    endpoint:
+        id:        null
+        localPath: null
+
+# the UUID of the MDI Users group (most people should leave this as null)
+    usersGroup: null
+
