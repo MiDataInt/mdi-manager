@@ -24,6 +24,7 @@ execution and help launch the Stage 2 web apps.
 See these repositories for the pipelines and apps frameworks:
 
 https://github.com/MiDataInt/mdi-pipelines-framework
+
 https://github.com/MiDataInt/mdi-apps-framework
 
 ## Quick start on the Michigan Great Lakes cluster
