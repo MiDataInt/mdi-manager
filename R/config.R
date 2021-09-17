@@ -6,8 +6,7 @@ copyConfigFile <- function(dirs){
     message('checking for a config.yml file')
     fileName <- 'config.yml'
     filePath <- file.path(dirs$root, fileName)
-    fileTemplate <- system.file(fileName, package='mdi')
+    fileTemplate <- system.file(fileName, package = 'mdi')
     file.copy(fileTemplate, filePath, overwrite = FALSE, recursive = FALSE)
     filePath
 }
-

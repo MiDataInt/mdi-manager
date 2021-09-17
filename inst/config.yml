@@ -10,17 +10,24 @@
 # identify the definitive, upstream pipelines and apps suites use by this MDI
 # entries must be arrays of valid, clonable GitHub repositories
 # name conflicts are resolved by taking the first match in the order listed
+# note: developers should _not_ list their forks of repos here
 #----------------------------------------------------------------------
 # Stage 1: HPC analysis pipelines
 pipelines:
-    - https://github.com/UMAGC/agc-pipelines.git
+    - https://github.com/UMAGC/agc-mdi-pipelines.git
 
 # Stage 2: interactive web apps
 apps:
-    - https://github.com/UMAGC/agc-apps.git
+    - https://github.com/UMAGC/agc-mdi-apps.git
 
 #----------------------------------------------------------------------
 # OPTIONAL
+#----------------------------------------------------------------------
+# Globus is only required if your web server needs to:
+#    transfer files for data analysis (instead of uploading them into the web page)
+#    upload job definitions to run pipelines on a cluster server
+#    run on a public web server, where authentication is required
+# leave values as null if you will not use Globus
 #----------------------------------------------------------------------
 # this section contains:
 #   1) the Globus client application key and secret
@@ -40,12 +47,6 @@ apps:
 # then get the endpoint UUID here:
 #       https://app.globus.org/endpoints?scope=administered-by-me
 #----------------------------------------------------------------------
-# Globus is only required if your web server needs to:
-#    transfer files for data analysis (instead of uploading them into the web page)
-#    upload job definitions to run pipelines on a cluster server
-#    run on a public web server, where authentication is required
-# leave values as null if you will not use Globus
-#----------------------------------------------------------------------
 globus: 
 
 # the client application (app) you created in your Globus account
@@ -64,4 +65,3 @@ globus:
 
 # the UUID of the MDI Users group (most people should leave this as null)
     usersGroup: null
-

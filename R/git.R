@@ -73,16 +73,22 @@ getRepoDir <- Vectorize(function(rootDir, type, fork, url){
 })
 
 #---------------------------------------------------------------------------
+# set a user's GitHub PAT into the proper environment variable
+#---------------------------------------------------------------------------
+setPersonalAccessToken <- function(token){ 
+    if(!is.null(token)) Sys.setenv(GITHUB_PAT = token)
+}
+
+#---------------------------------------------------------------------------
 # clone or pull a code repository
 # always maintain each of the two core branches (main and develop)
 #---------------------------------------------------------------------------
-downloadGitRepo <- Vectorize(function(type, stage, remote, fork, url, dir, ...) {
+downloadGitRepo <- Vectorize(function(dir, url, fork, ...) { # repo always on branch main when done
 
     # get up-to-date repo from the server
-    if(!is.null(token)) Sys.setenv(GITHUB_PAT = token)
     if(isGitRepo(dir)){
         if(!gitRepoMatches(dir, url)) stop(paste(dir, 'is not a clone of', url))
-        message(paste('pulling (i.e. updating)', url))
+        message(paste('pulling', url))
         tryCatch( 
             { pullGitMain(dir) },
             error = function(e) checkoutGitBranch(dir, silent = TRUE)
@@ -114,10 +120,6 @@ downloadGitRepo <- Vectorize(function(type, stage, remote, fork, url, dir, ...) 
         # ensure that at least a null user is present in config
         setGitConfigUser(dir)
     }
-
-    # return the latest tagged version, i.e., release
-    
-
 })
 pullGitMain <- function(dir){
     checkoutGitBranch(dir, silent = TRUE) 
@@ -136,7 +138,7 @@ isGitRepo <- function(dir, require = FALSE, repo = NULL) {
     isGitRepo
 }    
 gitRepoMatches <- function(dir, url){
-    git2r::remote_url(dir, originRemote) == url
+    git2r::remote_url(dir, remotes$origin) == url
 }
 
 #---------------------------------------------------------------------------
@@ -204,7 +206,6 @@ checkGitConfiguration <- function(dir, gitConfig, user=NULL){
         user
     }
 }
-
 
 
 

@@ -86,21 +86,21 @@ install <- function(rootDir = '~',
     repos <- parseGitRepos(dirs, configFilePath, gitUser)
     
     # for most users, download (clone or pull) the most current version of the git repositories
+    setPersonalAccessToken(token)
+    if(clone) do.call(downloadGitRepo, repos)
+    if(!clone) for(dir in repos[repos$fork == forks$definitive, 'dir']){
+        if(!dir.exists(dir)) stop(paste('missing repository:', dir))
+    }
 
-    # TODO: WORKING HERE, next step is to get version information from each repo
-    if(clone) versions$repos <- do.call(downloadGitRepo, repos)
-
-
-
-
-
-
-
+    # get latest tagged versions of all repos
+    repos$version <- do.call(getLatestVersions, repos)
 
 
+    # digest of repos$version, or ordered repos, should provide a unique key to the R library
+    # but only need to consider apps repos
 
-    # TODO: clone or pull repos
-    # scroll backwards through tags to find 
+
+
     
     version <- version(quiet = TRUE, message = TRUE)
     
@@ -113,28 +113,20 @@ install <- function(rootDir = '~',
         if(is.null(version)) stop('unable to obtain resolve MDI version')
         dirs <- parseDirectories(rootDir, version, message = TRUE)
     }
+
     backupCodeVersions(dirs)
     
-    # ensure the presence of a valid config file (even if values are NULL)
-    configFilePath <- copyConfigFile(dirs)    
-    
-    # determine the complete set of git code repositories we will track
-    repos <- parseGitRepos(dirs, configFilePath, gitUser)
-    if(!clone) checkUpstreamRepos(repos)
-    # for(repoKey in repoKeys){
-    #    dir <- dirs[[repoKey]]
-    #    if(!dir.exists(dir)) stop(paste('missing directory:', dir))
-    #}
+
 
     # if caller requests an override, just install those specific packages and stop
     if(!is.null(packages)){
         return( installPackages(version, dirs, unique(unname(unlist(packages))), force, ondemand) )
     }
 
-    # for most users, download (clone or pull) the most current version of the git repositories
-    if(clone) for (repoKey in repoKeys){
-        downloadGitRepo(repoKey, dirs, repos, token)
-    }
+    # # for most users, download (clone or pull) the most current version of the git repositories
+    # if(clone) for (repoKey in repoKeys){
+    #     downloadGitRepo(repoKey, dirs, repos, token)
+    # }
     
     # check for appropriate git installations (i.e. clone success)
     # set <...>-apps head to the appropriate version
@@ -153,15 +145,17 @@ install <- function(rootDir = '~',
     message('collecting R repository information')
     rRepos <- list(R = cranRepo)
     rRepos$Bioconductor <- unname(BiocManager::repositories()['BioCsoft'])    
+
    
     # collect the complete list of packages used by the framework and all apps
     pkgLists <- getAppsPackages(dirs, rRepos)   
-
-    # record the version associated with the current set of library packages
-    # used by run to determine if latest version has pending package installations
-    versionFile <- file.path(dirs$versionLibrary, 'version.yml')
-    cat("MDIVersion: ", version$MDIVersion, sep = "", "\n\n", file = versionFile)    
     
+
+    # record the versions associated with the current set of library packages
+    # used by run to determine if latest version has pending package installations
+    versionsFile <- file.path(dirs$versionLibrary, 'versions.rds')
+    saveRDS(list(versions = versions, repos = repos), versionsFile)
+
     # install or update all required packages
     installPackages(version, dirs, unique(unname(unlist(pkgLists))), force, ondemand)
 }
@@ -216,4 +210,3 @@ getInstalledVersion <- function(dirs){
     version <- yaml::read_yaml(versionFile)
     version$MDIVersion
 }
-

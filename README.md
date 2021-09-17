@@ -16,7 +16,7 @@ and Stage 2 web applications (i.e., **apps**).
 
 ### Repository contents
 
-This is the repository for the **MDI manager utility**.
+This is the repository for the **MDI manager** utility.
 It will help you install and run the interface on your server,
 desktop or laptop computer. Functions initialize Stage 1 pipeline
 execution and help launch the Stage 2 web apps.
@@ -90,7 +90,7 @@ mdi server
 ```
 
 Either way, in a few seconds, a web browser will open and you will be 
-ready to load your data and run an associated app.
+ready to load your data and run an associated Stage 2 app.
 
 ### Configure the available pipelines and apps
 
@@ -139,4 +139,3 @@ A high speed local disk drive will be faster and is recommended.
 **Solution**: You were already running the web server (or another Shiny app)
 from your R session. Please start from a freshly opened R console when
 starting the web server.
-

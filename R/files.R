@@ -88,4 +88,3 @@ throwRootDirError <- function(rootDir){
     message()
     stop('unknown rootDir')
 }
-
