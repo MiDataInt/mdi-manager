@@ -84,7 +84,12 @@ install <- function(rootDir = '~',
     dirs <- parseDirectories(rootDir, versions, message = TRUE)
     configFilePath <- copyConfigFile(dirs) 
     repos <- parseGitRepos(dirs, configFilePath, gitUser)
-    
+
+    # if caller requests an override, just install those specific packages and stop
+    if(!is.null(packages)){
+        return( installPackages(versions, dirs, unique(unname(unlist(packages))), force, ondemand) )
+    }
+
     # for most users, download (clone or pull) the most current version of the git repositories
     setPersonalAccessToken(token)
     if(clone) do.call(downloadGitRepo, repos)
@@ -99,34 +104,24 @@ install <- function(rootDir = '~',
     # digest of repos$version, or ordered repos, should provide a unique key to the R library
     # but only need to consider apps repos
 
-
-
-    
-    version <- version(quiet = TRUE, message = TRUE)
+    # version <- version(quiet = TRUE, message = TRUE)
     
 
-    # parse needed code versions and file paths
-    version <- version(quiet = TRUE, message = TRUE)
-    dirs <- parseDirectories(rootDir, version, message = TRUE)
-    if(is.null(version)){ # in case remote recovery of versions failed
-        version <- version(quiet = TRUE, message = TRUE, dirs = dirs)
-        if(is.null(version)) stop('unable to obtain resolve MDI version')
-        dirs <- parseDirectories(rootDir, version, message = TRUE)
-    }
+    # # parse needed code versions and file paths
+    # version <- version(quiet = TRUE, message = TRUE)
+    # dirs <- parseDirectories(rootDir, version, message = TRUE)
+    # if(is.null(version)){ # in case remote recovery of versions failed
+    #     version <- version(quiet = TRUE, message = TRUE, dirs = dirs)
+    #     if(is.null(version)) stop('unable to obtain resolve MDI version')
+    #     dirs <- parseDirectories(rootDir, version, message = TRUE)
+    # }
+
 
     backupCodeVersions(dirs)
     
 
 
-    # if caller requests an override, just install those specific packages and stop
-    if(!is.null(packages)){
-        return( installPackages(version, dirs, unique(unname(unlist(packages))), force, ondemand) )
-    }
 
-    # # for most users, download (clone or pull) the most current version of the git repositories
-    # if(clone) for (repoKey in repoKeys){
-    #     downloadGitRepo(repoKey, dirs, repos, token)
-    # }
     
     # check for appropriate git installations (i.e. clone success)
     # set <...>-apps head to the appropriate version
@@ -157,13 +152,13 @@ install <- function(rootDir = '~',
     saveRDS(list(versions = versions, repos = repos), versionsFile)
 
     # install or update all required packages
-    installPackages(version, dirs, unique(unname(unlist(pkgLists))), force, ondemand)
+    installPackages(versions, dirs, unique(unname(unlist(pkgLists))), force, ondemand)
 }
 
 #---------------------------------------------------------------------------
 # use BiocManager to install all packages (whether CRAN or Bioconductor)
 #---------------------------------------------------------------------------
-installPackages <- function(version, dirs, packages, force, ondemand){
+installPackages <- function(versions, dirs, packages, force, ondemand){
     if(ondemand) return(NULL)
     dir <- dirs$versionLibrary
     newPackages <- if(force) packages else {
@@ -183,7 +178,7 @@ installPackages <- function(version, dirs, packages, force, ondemand){
             ask = FALSE,
             checkBuilt = FALSE,
             force = TRUE,
-            version = version$BioconductorRelease
+            version = versions$BioconductorRelease
             #,
             #type = .Platform$pkgType
         )         
