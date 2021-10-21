@@ -84,6 +84,7 @@ setPersonalAccessToken <- function(token){
 # always maintain each of the two core branches (main and develop)
 #---------------------------------------------------------------------------
 downloadGitRepo <- Vectorize(function(dir, url, fork, ...) { # repo always on branch main when done
+    if(is.null(url)) return()
 
     # get up-to-date repo from the server
     if(isGitRepo(dir)){
@@ -132,9 +133,9 @@ pullGitMain <- function(dir){
 #---------------------------------------------------------------------------
 # check for a valid repository
 #---------------------------------------------------------------------------
-isGitRepo <- function(dir, require = FALSE, repo = NULL) {
-    isGitRepo <- dir.exists(file.path(dir, '.git'))
-    if(require && !isGitRepo) stop(paste(dir, 'is not a valid clone of', repo))
+isGitRepo <- function(dir, require = FALSE) {
+    isGitRepo <- dir.exists(dir) && dir.exists(file.path(dir, '.git'))
+    if(require && !isGitRepo) stop(paste(dir, 'is not a git repository'))
     isGitRepo
 }    
 gitRepoMatches <- function(dir, url){
@@ -222,6 +223,10 @@ getAllBranches <- function(dir){
         upstream = upstreamBranches, # only main and develop
         origin = branches[!(branches %in% upstreamBranches)] # anything EXCEPT main and develop
     )
+}
+branchExists <- function(dir, branch){
+    branches <- names(git2r::branches(dir, flags = "local"))
+    branch %in% branches
 }
 
 #---------------------------------------------------------------------------

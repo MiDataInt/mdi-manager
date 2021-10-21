@@ -43,8 +43,9 @@
 #' @param gitUser character. Developers should use \code{gitUser} to provide 
 #' the username of the GitHub account that holds their forks of any
 #' frameworks or suites repositories. Code editing is done in these forks,
-#' which will be cloned locally into frameworks/developer and/or suites/developer
-#' and used by \code{mdi::develop()} instead of the upstream repos, when available.
+#' which will be cloned locally into frameworks/developer-forks and/or 
+#' suites/developer-forks and used by \code{mdi::develop()} instead of the 
+#' upstream repos, when available.
 #'
 #' @param token character. The GitHub Personal Access Token (PAT) that grants
 #' permissions for accessing forked repositories in the \code{gitUser} account,
@@ -79,7 +80,7 @@ install <- function(rootDir = '~',
                     checkout = NULL,
                     ondemand = FALSE){
     
-    # parse needed versions, file paths, git repos
+    # parse needed versions and file paths
     versions <- getRBioconductorVersions()
     dirs <- parseDirectories(rootDir, versions, message = TRUE)
 
@@ -98,73 +99,64 @@ install <- function(rootDir = '~',
 
     # for most users, download (clone or pull) the most current version of the git repositories
     setPersonalAccessToken(token)
-
-    if(clone) do.call(downloadGitRepo, repos)    
-
+    if(clone) do.call(downloadGitRepo, repos)  
     if(!clone) for(dir in repos[repos$fork == forks$definitive, 'dir']){
         if(!dir.exists(dir)) stop(paste('missing repository:', dir))
+        isGitRepo(dir, require = TRUE)
     }
 
-    # get latest tagged versions of all repos
+    # get the latest tagged versions of all repos
     repos$version <- do.call(getLatestVersions, repos)
 
+    # checkout the appropriate repo versions to continue with the installation
+    #   git checkout <tag> is fine but results in a detached head    
+    sink <- mapply(function(dir, fork, version){
+        if(!is.null(dir) && !is.na(dir)){
 
-    # digest of repos$version, or ordered repos, should provide a unique key to the R library
-    # but only need to consider apps repos
+            branch <- if(is.null(checkout)){
+                if(fork == forks$definitive) paste0('v', version)
+                else cascadeDeveloperBranch()
+            } else {
+                if(fork == forks$definitive) 'main'
+                else cascadeDeveloperBranch(checkout)
+            }
 
-    # version <- version(quiet = TRUE, message = TRUE)
-    
+            # # or maybe we should be staying on the current developer branch? mimic run()/develop() behavior
 
-    # # parse needed code versions and file paths
-    # version <- version(quiet = TRUE, message = TRUE)
-    # dirs <- parseDirectories(rootDir, version, message = TRUE)
-    # if(is.null(version)){ # in case remote recovery of versions failed
-    #     version <- version(quiet = TRUE, message = TRUE, dirs = dirs)
-    #     if(is.null(version)) stop('unable to obtain resolve MDI version')
-    #     dirs <- parseDirectories(rootDir, version, message = TRUE)
-    # }
-
-
-    backupCodeVersions(dirs)
-    
+            # branch <- if(!is.null(checkout) && branchExists(dir, checkout)) checkout # use developer's requested branch if it exists # nolint
+            #      else if(fork == forks$developer) branches$main # else use the tip of main for developer-forks
+            #      else paste0('v', version) # otherwise default to the most recent tagged version
+            # checkoutGitBranch(dir, branch)  
+        }        
+    }, repos$dir, repos$fork, repos$version)
 
 
+    # initialize the Stage 1 pipelines management utility
 
-    
-    # check for appropriate git installations (i.e. clone success)
-    # set <...>-apps head to the appropriate version
-    #   git checkout <tag> is fine but results in a detached head
-    for(repoKey in repoKeys){
-        dir <- dirs[[repoKey]]
-        isGitRepo(dir, require = TRUE)
-        # TODO: implement versioning of <...>-pipelines
-        if(repoKey == appsRepoKey) {
-            if(is.null(checkout)) checkout <- paste0('v', version$MDIVersion) 
-            checkoutGitBranch(dir, checkout)
-        }
-    } 
 
     # set the public R package repositories
     message('collecting R repository information')
     rRepos <- list(R = cranRepo)
     rRepos$Bioconductor <- unname(BiocManager::repositories()['BioCsoft'])    
 
-   
-    # collect the complete list of packages used by the framework and all apps
+
+    # collect the complete list of packages used by the framework and all Stage 2 apps
+    # (pipelines repos don't depend on R packages installed here, they use conda)
     pkgLists <- getAppsPackages(dirs, rRepos)   
+    packages <- unique(unname(unlist(pkgLists)))
     
 
-    # record the versions associated with the current set of library packages
-    # used by run to determine if latest version has pending package installations
+    # record the app versions that led to the current set of installed R library packages
+    # used by run() to determine if latest app versions have missing package installations
     versionsFile <- file.path(dirs$versionLibrary, 'versions.rds')
-    saveRDS(list(versions = versions, repos = repos), versionsFile)
+    saveRDS(list(versions = versions, repos = repos, packages = packages), versionsFile)
 
-    # install or update all required packages
-    installPackages(versions, dirs, unique(unname(unlist(pkgLists))), force, ondemand)
+    # install or update all required apps R packages
+    installPackages(versions, dirs, packages, force, ondemand)
 }
 
 #---------------------------------------------------------------------------
-# use BiocManager to install all packages (whether CRAN or Bioconductor)
+# use BiocManager to install all apps R packages (whether CRAN or Bioconductor)
 #---------------------------------------------------------------------------
 installPackages <- function(versions, dirs, packages, force, ondemand){
     if(ondemand) return(NULL)
@@ -203,13 +195,3 @@ installPackages <- function(versions, dirs, packages, force, ondemand){
 #In miniCRAN::pkgDep(unique(pkgLists[[x]]), repos = rRepos[[x]],  :
 #  Package not recognized: rtracklayer, Biostrings, SummarizedExperiment, GenomicRanges, GenomicFeatures, GenomeInfoDb
 #Execution halted
-
-#---------------------------------------------------------------------------
-# get the currently installed version, i.e. set of R packages in the matching library
-#---------------------------------------------------------------------------
-getInstalledVersion <- function(dirs){
-    versionFile <- file.path(dirs$versionLibrary, 'version.yml')
-    if(!file.exists(versionFile)) stop(paste('missing version file:', versionFile))
-    version <- yaml::read_yaml(versionFile)
-    version$MDIVersion
-}
