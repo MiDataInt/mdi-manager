@@ -13,7 +13,7 @@
 #' without prompting. Otherwise, a subdirectory of that name will be 
 #' created in \code{rootDir} after prompting for confirmation.
 #'
-#' If they do not already exist, \code{install} will create a series of
+#' If they do not already exist, \code{mdi::install()} will create a series of
 #' subdirectories in \code{rootDir} without prompting, as follows:
 #' \itemize{
 #'   \item data = project-specific input and output files
@@ -26,7 +26,7 @@
 #' }
 #'
 #' @param rootDir character. Path to the directory where the MDI
-#' will be/has previously been installed. Defaults to your home directory.
+#' will be/has been installed. Defaults to your home directory.
 #'
 #' @param cranRepo character. The base URL of the R repository to use, e.g., the
 #' URL of a CRAN mirror. Defaults to the University of Michigan CRAN mirror.
@@ -44,7 +44,7 @@
 #' the username of the GitHub account that holds their forks of any
 #' frameworks or suites repositories. Code editing is done in these forks,
 #' which will be cloned locally into frameworks/developer and/or suites/developer
-#' and used by \code{develop()} instead of the upstream repos, when available.
+#' and used by \code{mdi::develop()} instead of the upstream repos, when available.
 #'
 #' @param token character. The GitHub Personal Access Token (PAT) that grants
 #' permissions for accessing forked repositories in the \code{gitUser} account,
@@ -57,8 +57,8 @@
 #' or they will be pulled from the server to update a repository if they have been 
 #' cloned previously. Developers might want to set this option to FALSE.
 #'
-#' @param checkout character. If NULL (the default), \code{install} will set
-#' all repositories to the latest version compatible with your R version.
+#' @param checkout character. If NULL (the default), \code{mdi::install()} will 
+#' set all repositories to the latest version compatible with your R version.
 #' Developers might want to specify a code branch.
 #'
 #' @param ondemand logical. If TRUE, the installer will not install _any_ R
