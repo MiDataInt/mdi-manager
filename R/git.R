@@ -10,7 +10,7 @@ gitHubUrl <- 'https://github.com'
 #---------------------------------------------------------------------------
 mdiGitUser <- 'MiDataInt' # the name of the MDI GitHub Organization
 remotes <- c(upstream = "upstream", origin = "origin")
-forks <- c(definitive = "definitive", developer = "developer")
+forks <- c(definitive = "definitive", developer = "developer-forks")
 branches <- c(main = "main", develop = "develop")
 #---------------------------------------------------------------------------
 # there are two different framework repositories, corresponding to the two main stages of execution

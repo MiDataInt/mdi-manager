@@ -12,11 +12,11 @@
 # name conflicts are resolved by taking the first match in the order listed
 # note: developers should _not_ list their forks of repos here
 #----------------------------------------------------------------------
-# Stage 1: HPC analysis pipelines
+# Stage 1: HPC analysis pipeline suites
 pipelines:
     - https://github.com/UMAGC/agc-mdi-pipelines.git
 
-# Stage 2: interactive web apps
+# Stage 2: interactive web app suites
 apps:
     - https://github.com/UMAGC/agc-mdi-apps.git
 

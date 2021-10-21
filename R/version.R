@@ -19,7 +19,7 @@ getRRelease <- function(){
 }
 
 #---------------------------------------------------------------------------
-# get the latest semantic version tags, i.e., release, of main branch of upstream, definitive repos
+# get the latest semantic version tags, i.e., release, of the main branch of upstream, definitive repos
 #---------------------------------------------------------------------------
 semVerToIntegers <- function(semVer){ # major.minor.patch
     x <- as.integer(strsplit(semVer, "\\.")[[1]])

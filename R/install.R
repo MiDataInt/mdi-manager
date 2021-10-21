@@ -82,17 +82,25 @@ install <- function(rootDir = '~',
     # parse needed versions, file paths, git repos
     versions <- getRBioconductorVersions()
     dirs <- parseDirectories(rootDir, versions, message = TRUE)
-    configFilePath <- copyConfigFile(dirs) 
-    repos <- parseGitRepos(dirs, configFilePath, gitUser)
 
     # if caller requests an override, just install those specific packages and stop
     if(!is.null(packages)){
         return( installPackages(versions, dirs, unique(unname(unlist(packages))), force, ondemand) )
     }
 
+    # initialize MDI root files
+    copyRootFile(dirs, 'mdi') 
+    if(.Platform$OS.type != "unix") copyRootFile(dirs, 'mdi.bat')     
+    configFilePath <- copyRootFile(dirs, 'config.yml') 
+
+    # establish a list of all framework and suite repositories for this installation
+    repos <- parseGitRepos(dirs, configFilePath, gitUser)
+
     # for most users, download (clone or pull) the most current version of the git repositories
     setPersonalAccessToken(token)
-    if(clone) do.call(downloadGitRepo, repos)
+
+    if(clone) do.call(downloadGitRepo, repos)    
+
     if(!clone) for(dir in repos[repos$fork == forks$definitive, 'dir']){
         if(!dir.exists(dir)) stop(paste('missing repository:', dir))
     }
@@ -167,7 +175,7 @@ installPackages <- function(versions, dirs, packages, force, ondemand){
     }    
     if(length(newPackages) > 0 || # missing packages
        length(packages) == 0) {   # user just requested an update of current packages
-        message('installing/updating packages in private library')
+        message('installing/updating R packages in private library')
         message(dir)        
         BiocManager::install(
             newPackages,

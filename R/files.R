@@ -5,7 +5,7 @@
 #       environments
 #       frameworks
 #           definitive
-#           developer
+#           developer-forks
 #       library
 #           <BioconductorRelease>
 #       resources
@@ -13,7 +13,7 @@
 #           <sessionId>
 #       suites
 #           definitive
-#           developer
+#           developer-forks
 #---------------------------------------------------------------------------
 parseDirectories <- function(rootDir, versions,
                              create=TRUE, message=FALSE,
