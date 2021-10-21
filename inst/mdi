@@ -49,7 +49,7 @@ elif [[ "$TARGET" = "" || " $JOB_MANAGER_COMMANDS " =~ " $TARGET " ]]; then
         exec $JOB_MANAGER_TARGET "$@"
     fi
 
-# capture and pass calls to pipeline executable if using job manager as a surrogate
+# capture and pass calls to a pipeline executable if using job manager as a surrogate
 # thus, pipelines cannot have the same name as a job manager command (submit, report, etc.)
 else
 

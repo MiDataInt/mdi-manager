@@ -7,7 +7,7 @@
 #----------------------------------------------------------------------
 # REQUIRED
 #----------------------------------------------------------------------
-# identify the definitive, upstream pipelines and apps suites use by this MDI
+# identify the definitive, upstream pipelines and apps suites use by this MDI instance
 # entries must be arrays of valid, clonable GitHub repositories
 # name conflicts are resolved by taking the first match in the order listed
 # note: developers should _not_ list their forks of repos here
