@@ -6,6 +6,8 @@ installing and running a variety of HPC data analysis pipelines
 and interactive R Shiny data visualization applications
 within a standardized design and implementation interface.
 
+<https://midataint.github.io/>
+
 ## Organization and contents
 
 ### MDI code stages
@@ -17,39 +19,39 @@ and Stage 2 web applications (i.e., **apps**).
 ### Repository contents
 
 This is the repository for the **MDI manager** utility.
-It will help you install and run the interface on your server,
+It will help you install and run the MDI on your server,
 desktop or laptop computer. Functions initialize Stage 1 pipeline
 execution and help launch the Stage 2 web apps.
 
 See these repositories for the pipelines and apps frameworks:
 
-https://github.com/MiDataInt/mdi-pipelines-framework
+<https://github.com/MiDataInt/mdi-pipelines-framework>
 
-https://github.com/MiDataInt/mdi-apps-framework
+<https://github.com/MiDataInt/mdi-apps-framework>
 
 ## Quick start on the Michigan Great Lakes cluster
 
 If you will be working as an end user on Great Lakes, you
 don't need to follow the instructions below. Instead,
-FINAL INSTRUCTIONS HERE.
+TODO: CREATE FINAL INSTRUCTIONS HERE.
 
 ## Installation and Use
 
 ### System requirements
 
-The Michigan Data Interface is an R Shiny-based web server.
+The MDI manager utility and the Stage 2 web apps are R programs.
 Accordingly R must be installed on the host machine. See:
 
-https://www.r-project.org/
+<https://www.r-project.org/>
 
 We recommend updating to the most recent stable R release prior
-to installing the interface. Similar to Bioconductor, code
-versions are tied to specific releases of R (hint: you can install
+to installing the MDI. Similar to [https://www.bioconductor.org/](Bioconductor), 
+code versions are tied to specific releases of R (hint: you can install
 multiple R versions on your computer).
 
 ### Install the server manager and framework
 
-Install the R package created by this repository from within an
+Install the R package contained in this repository from within an
 R console using the following commands. They install 'remotes',
 which is used to install the 'mdi-manager' R package, which in turn  
 is used to install the data analysis suites.
@@ -61,7 +63,7 @@ mdi::install()
 ```
 
 The first two steps are relatively quick and will give you access
-to the install and run functions, which are similar to
+to the <code>install()</code> and <code>run()</code> functions, which are similar to
 how BiocManager helps you install version-controlled Bioconductor
 packages.
 
@@ -82,6 +84,12 @@ R
 mdi::run()
 ```
 
+or
+
+```
+Rscript -e 'mdi::run()'
+```
+
 Alternatively, you can use the 'mdi' command line helper utility
 to launch the web server without using an R console:
 
@@ -89,15 +97,14 @@ to launch the web server without using an R console:
 mdi server
 ```
 
-Either way, in a few seconds, a web browser will open and you will be 
-ready to load your data and run an associated Stage 2 app.
+Regardless of how you call <code>mdi::run()</code>, in a few seconds, a web browser will open and you will be ready to load your data and run an associated app.
 
 ### Configure the available pipelines and apps
 
-<code>mdi::install()</code> will download a standard series
+<code>mdi::install()</code> will download a standard series of
 pipelines and apps supported by Michigan core facilities. You can
-add any other, custom or non-standard pipelines and/or apps suites
-by editing file 'config.yml' in the 'mdi' directory.
+add any other custom or non-standard pipelines and/or apps suites
+by editing file 'config.yml' in the 'mdi' root directory.
 You should then call <code>mdi::install()</code> again to configure 
 any new package dependencies, or, from the command line:
 
