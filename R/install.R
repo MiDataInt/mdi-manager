@@ -28,18 +28,10 @@
 #' @param rootDir character. Path to the directory where the MDI
 #' will be/has been installed. Defaults to your home directory.
 #'
-#' @param cranRepo character. The base URL of the R repository to use, e.g., the
-#' URL of a CRAN mirror. Defaults to the University of Michigan CRAN mirror.
-#'
-#' @param packages character vector. If not NULL (the default), only install
-#' these specific R packages (useful for developers to quickly update selected
-#' packages). The apps and pipelines repositories will not be cloned or pulled.
-#'
-#' @param force logical.  When FALSE (the default), \code{mdi::install()}
-#' does not attempt to update R packages that have previously been installed,
-#' regardless of version. When TRUE, all packages are installed without further
-#' prompting.
-#'
+#' @param stages integer vector. The number(s) of the MDI analysis stages to install,
+#' where 1=pipelines, 2=apps. The default (1:2) will attempt to install both
+#' Stage 1 pipelines and Stage 2 apps for use on the computer or server.
+#' 
 #' @param gitUser character. Developers should use \code{gitUser} to provide 
 #' the username of the GitHub account that holds their forks of any
 #' frameworks or suites repositories. Code editing is done in these forks,
@@ -57,7 +49,19 @@
 #' repositories will be cloned anew from GitHub if they do not already exist, 
 #' or they will be pulled from the server to update a repository if they have been 
 #' cloned previously. Developers might want to set this option to FALSE.
+#' 
+#' @param cranRepo character. The base URL of the R repository to use, e.g., the
+#' URL of a CRAN mirror. Defaults to the University of Michigan CRAN mirror.
 #'
+#' @param packages character vector. If not NULL (the default), only install
+#' these specific R packages (useful for developers to quickly update selected
+#' packages). No other actions will be taken.
+#' 
+#' @param force logical.  When FALSE (the default), \code{mdi::install()}
+#' does not attempt to update R packages that have previously been installed,
+#' regardless of version. When TRUE, all packages are installed without further
+#' prompting.
+#' 
 #' @param ondemand logical. If TRUE, the installer will not install _any_ R
 #' packages, as they will be used from the managed host installation. Default
 #' is FALSE.
@@ -67,30 +71,27 @@
 #' @export
 #---------------------------------------------------------------------------
 install <- function(rootDir = '~',
-                    cranRepo = 'https://repo.miserver.it.umich.edu/cran/',                    
-                    packages = NULL,
-                    force = FALSE,
+                    stages = 1:2,
                     gitUser = NULL,
                     token = NULL,                    
                     clone = TRUE,
-
-
-                    checkout = NULL,
-
-
-                    ondemand = FALSE){
+                    cranRepo = 'https://repo.miserver.it.umich.edu/cran/',                    
+                    packages = NULL,
+                    force = FALSE,
+                    ondemand = FALSE
+){
     
     # parse needed versions and file paths
     versions <- getRBioconductorVersions()
     dirs <- parseDirectories(rootDir, versions, message = TRUE)
 
-    # if caller requests an override, just install those specific packages and stop
+    # if caller requests an override, just install those specific R packages and stop
     if(!is.null(packages)){
         return( installPackages(versions, dirs, unique(unname(unlist(packages))), force, ondemand) )
     }
 
     # initialize MDI root files
-    copyRootFile(dirs, 'mdi') 
+    mdiPath <- copyRootFile(dirs, 'mdi') 
     if(.Platform$OS.type != "unix") copyRootFile(dirs, 'mdi.bat')     
     configFilePath <- copyRootFile(dirs, 'config.yml') 
 
@@ -120,7 +121,8 @@ install <- function(rootDir = '~',
     }, repos$dir, repos$fork, repos$version)
 
     # initialize the Stage 1 pipelines management utility
-
+    if(1 %in% stages && .Platform$OS.type == "unix") initializeJobManager(mdiPath)
+    if(!(2 %in% stages)) return(NULL)    
 
     # set the public R package repositories
     message('collecting R repository information')
