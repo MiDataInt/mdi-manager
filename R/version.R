@@ -43,7 +43,7 @@ getLatestVersion <- function(tags){ # return most recent version tag as major.mi
     semVer[ which.max( semVerToSortableInteger(semVer) ) ]
 }
 getLatestVersions <- Vectorize(function(dir, fork, ...) {
-    if(fork == forks$definitive){
+    if(fork == Forks$definitive){
         tags <- git2r::tags(dir) # tag (name) = commit data list (value)
         getLatestVersion( names(tags) )
     } else {

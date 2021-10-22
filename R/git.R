@@ -9,9 +9,11 @@ gitHubUrl <- 'https://github.com'
 #   local = a clone of the user's fork of remotes/origin, on their computer
 #---------------------------------------------------------------------------
 mdiGitUser <- 'MiDataInt' # the name of the MDI GitHub Organization
-remotes <- c(upstream = "upstream", origin = "origin")
-forks <- c(definitive = "definitive", developer = "developer-forks")
-branches <- c(main = "main", develop = "develop")
+Remotes  <- list(upstream = "upstream", origin = "origin")
+Forks    <- list(definitive = "definitive", developer = "developer-forks")
+Branches <- list(main = "main", develop = "develop")
+Types    <- list(framework = 'frameworks', suite = 'suites')
+Stages   <- list(pipelines = 'pipelines', apps = 'apps')
 #---------------------------------------------------------------------------
 # there are two different framework repositories, corresponding to the two main stages of execution
 #   mdi-pipelines-framework = code that runs mostly non-interactively, stage 1, resource-intensive processing
@@ -31,24 +33,32 @@ parseGitRepos <- function(dirs, configFilePath, gitUser){
     # prepend the frameworks repos to the suites repos
     upstreamUrls <- sapply(c(pipelinesFrameworkRepo, appsFrameworkRepo), assembleGitUrl, mdiGitUser)
     upstreamUrls <- c(upstreamUrls, config$pipelines, config$apps) 
-    types <- c(rep('frameworks', 2), rep('suites', length(upstreamUrls - 2)))
-    stages <- c('pipelines', 'apps', rep('pipelines', length(config$pipelines)), rep('apps', length(config$apps)))
+    types <- c(
+        rep(Types$framework, 2), 
+        rep(Types$suite, length(upstreamUrls - 2))
+    )
+    stages <- c(
+        Stages$pipelines, 
+        Stages$apps, 
+        rep(Stages$pipelines, length(config$pipelines)), 
+        rep(Stages$apps, length(config$apps))
+    )
     
     # assemble and return an ordered table of all repos known to this MDI instance
     x <- rbind(   
         data.frame( # repos with remote==upstream are the definitive public source code
             type    = types,
             stage   = stages,
-            remote  = remotes$upstream,
-            fork    = forks$definitive,
+            remote  = Remotes$upstream,
+            fork    = Forks$definitive,
             url     = upstreamUrls,
             stringsAsFactors = FALSE
         ),
         data.frame( # repos with remote==origin are a developer's forks, if any
             type    = types,
             stage   = stages,
-            remote  = remotes$origin,
-            fork    = forks$developer,
+            remote  = Remotes$origin,
+            fork    = Forks$developer,
             url     = switchGitUser(upstreamUrls, gitUser), # NB: some forked repos might not exist
         )
     )
@@ -92,7 +102,7 @@ downloadGitRepo <- Vectorize(function(dir, url, fork, ...) {
     if(isGitRepo(dir)){
         if(!gitRepoMatches(dir, url)) stop(paste(dir, 'is not a clone of', url))
         message(paste('pulling', url))
-        if(fork == forks$definitive) checkoutGitBranch(dir, silent = TRUE)
+        if(fork == Forks$definitive) checkoutGitBranch(dir, silent = TRUE)
         tryCatch( 
             { git2r::pull(                                  
                 repo = dir,
@@ -114,16 +124,16 @@ downloadGitRepo <- Vectorize(function(dir, url, fork, ...) {
         checkoutGitBranch(dir, silent = TRUE)
         
         # initialize the tracked develop branch on developer forks
-        if(fork == forks$developer){
-            # checkoutGitBranch(dir, branches$develop, create = TRUE, silent = TRUE)
+        if(fork == Forks$developer){
+            # checkoutGitBranch(dir, Branches$develop, create = TRUE, silent = TRUE)
             # git2r::branch_set_upstream(
             #     git2r::repository_head(dir),
-            #     paste(remotes$origin, branches$develop, sep = '/')
+            #     paste(Remotes$origin, Branches$develop, sep = '/')
             # )            
-            # checkoutGitBranch(dir, branches$main, silent = TRUE)
+            # checkoutGitBranch(dir, Branches$main, silent = TRUE)
 
             # set the "upstream" remote to the definitive repository
-            git2r::remote_add(dir, remotes$upstream, switchGitUser(url, mdiGitUser)) 
+            git2r::remote_add(dir, Remotes$upstream, switchGitUser(url, mdiGitUser)) 
         }
         
         # ensure that at least a null user is present in config
@@ -147,7 +157,7 @@ isGitRepo <- function(dir, require = FALSE) {
     isGitRepo
 }    
 gitRepoMatches <- function(dir, url){
-    git2r::remote_url(dir, remotes$origin) == url
+    git2r::remote_url(dir, Remotes$origin) == url
 }
 
 #---------------------------------------------------------------------------
@@ -325,7 +335,7 @@ fetchAndMergeRemote <- function(remote, branches, dir){
     }    
 }
 throwMergeError <- function(remote, branch){
-    isUpstream <- remote == remotes$upstream
+    isUpstream <- remote == Remotes$upstream
     message()
     message(paste('You have code conflicts with the remote repository:', remote))
     message(paste0(
