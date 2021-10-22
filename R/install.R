@@ -58,10 +58,6 @@
 #' or they will be pulled from the server to update a repository if they have been 
 #' cloned previously. Developers might want to set this option to FALSE.
 #'
-#' @param checkout character. If NULL (the default), \code{mdi::install()} will 
-#' set all repositories to the latest version compatible with your R version.
-#' Developers might want to specify a code branch.
-#'
 #' @param ondemand logical. If TRUE, the installer will not install _any_ R
 #' packages, as they will be used from the managed host installation. Default
 #' is FALSE.
@@ -77,7 +73,11 @@ install <- function(rootDir = '~',
                     gitUser = NULL,
                     token = NULL,                    
                     clone = TRUE,
+
+
                     checkout = NULL,
+
+
                     ondemand = FALSE){
     
     # parse needed versions and file paths
@@ -108,28 +108,15 @@ install <- function(rootDir = '~',
     # get the latest tagged versions of all repos
     repos$version <- do.call(getLatestVersions, repos)
 
-    # checkout the appropriate repo versions to continue with the installation
-    #   git checkout <tag> is fine but results in a detached head    
-    sink <- mapply(function(dir, fork, version){
-        if(!is.null(dir) && !is.na(dir)){
-
-            branch <- if(is.null(checkout)){
-                if(fork == forks$definitive) paste0('v', version)
-                else cascadeDeveloperBranch()
-            } else {
-                if(fork == forks$definitive) 'main'
-                else cascadeDeveloperBranch(checkout)
-            }
-
-            # # or maybe we should be staying on the current developer branch? mimic run()/develop() behavior
-
-            # branch <- if(!is.null(checkout) && branchExists(dir, checkout)) checkout # use developer's requested branch if it exists # nolint
-            #      else if(fork == forks$developer) branches$main # else use the tip of main for developer-forks
-            #      else paste0('v', version) # otherwise default to the most recent tagged version
-            # checkoutGitBranch(dir, branch)  
+    # checkout the appropriate repository versions to continue with the installation
+    #   definitive repositories use the most recent tagged version
+    #   developer-forks stay where the developer had them (tip of 'main' if a new installation)
+    mapply(function(dir, fork, version){
+        if(!is.null(dir) && !is.na(dir) && fork == forks$definitive){
+            branch <- paste0('v', version)
+            checkoutGitBranch(dir, branch) # git checkout <tag> is fine but results in a detached head
         }        
     }, repos$dir, repos$fork, repos$version)
-
 
     # initialize the Stage 1 pipelines management utility
 

@@ -83,19 +83,26 @@ setPersonalAccessToken <- function(token){
 # clone or pull a code repository
 # always maintain each of the two core branches (main and develop)
 #---------------------------------------------------------------------------
-downloadGitRepo <- Vectorize(function(dir, url, fork, ...) { # repo always on branch main when done
+downloadGitRepo <- Vectorize(function(dir, url, fork, ...) { 
     if(is.null(url)) return()
 
     # get up-to-date repo from the server
+    #   definitive repos set to tip of 'main' prior to pulling
+    #   don't change branches on developer-forks, attempt to pull on the current branch
     if(isGitRepo(dir)){
         if(!gitRepoMatches(dir, url)) stop(paste(dir, 'is not a clone of', url))
         message(paste('pulling', url))
+        if(fork == forks$definitive) checkoutGitBranch(dir, silent = TRUE)
         tryCatch( 
-            { pullGitMain(dir) },
-            error = function(e) checkoutGitBranch(dir, silent = TRUE)
+            { git2r::pull(                                  
+                repo = dir,
+                credentials = git2r::cred_token()
+            ) },
+            error = function(e) NULL # checkoutGitBranch(dir, silent = TRUE)
         )
 
     # or clone it on first encounter
+    #   all repos set to tip of 'main' on first installation
     } else {
         message(paste('cloning', url))
         git2r::clone(
@@ -104,15 +111,16 @@ downloadGitRepo <- Vectorize(function(dir, url, fork, ...) { # repo always on br
             credentials = git2r::cred_token(),
             progress = TRUE
         )
+        checkoutGitBranch(dir, silent = TRUE)
         
         # initialize the tracked develop branch on developer forks
         if(fork == forks$developer){
-            checkoutGitBranch(dir, branches$develop, create = TRUE, silent = TRUE)
-            git2r::branch_set_upstream(
-                git2r::repository_head(dir),
-                paste(remotes$origin, branches$develop, sep = '/')
-            )            
-            checkoutGitBranch(dir, branches$main, silent = TRUE)
+            # checkoutGitBranch(dir, branches$develop, create = TRUE, silent = TRUE)
+            # git2r::branch_set_upstream(
+            #     git2r::repository_head(dir),
+            #     paste(remotes$origin, branches$develop, sep = '/')
+            # )            
+            # checkoutGitBranch(dir, branches$main, silent = TRUE)
 
             # set the "upstream" remote to the definitive repository
             git2r::remote_add(dir, remotes$upstream, switchGitUser(url, mdiGitUser)) 
@@ -207,8 +215,6 @@ checkGitConfiguration <- function(dir, gitConfig, user=NULL){
         user
     }
 }
-
-
 
 #---------------------------------------------------------------------------
 # get information on known git branches
