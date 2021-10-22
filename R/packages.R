@@ -2,54 +2,40 @@
 # collect the complete list of packages used by the framework and all apps
 #---------------------------------------------------------------------------
 getAppsPackages <- function(repos, rRepos) {
-    message('collecting R package dependencies of available MDI apps')
-    pattern <- "(packages\\.yml|config\\.yml|module\\.yml)"
-    unique(unname(unlist(lapply(repos, function(repo){
-        if(repo$stage != Stages$apps) return(NULL)
-        files <- list.files(path = repo$dir, pattern = pattern, full.names = TRUE, recursive = TRUE)
-        lapply(files, function(file){
-            app <- yaml::read_yaml(file) 
-            if(is.null(app$packages)) return(NULL) 
-            if(!is.null(app$packages)){
-                for(x in names(pkgLists)) if(!is.null(app$packages[[x]])){
-                    pkgLists[[x]] <- c(pkgLists[[x]], app$packages[[x]])
-                }
-            }               
-        })
-        for(file in files){
-            app <- yaml::read_yaml(file)        
 
-        }
-
-    # get the R packages required by the framework
-    frameworkPackages <- yaml::read_yaml( file.path(sharedDir, 'global', 'packages', 'packages.yml') )
+    # initialize
     pkgLists <- list(
-        R = unname(unlist(frameworkPackages$R)),
-        Bioconductor = unname(unlist(frameworkPackages$Bioconductor))
+        R = character(),
+        Bioconductor = character()
     )
+    addYmlPackages <- function(yml){
+        if(is.null(yml)) return()
+        for(x in names(pkgLists)) if(!is.null(yml[[x]])){
+            pkgLists[[x]] <<- c(pkgLists[[x]], unname(unlist(yml[[x]])))
+        }     
+    }
 
-    }))))
-    
+    # get the R packages required by the apps framework   
+    message('collecting R package dependencies of MDI framework')
+    targetRepos <- repos[repos$type  == Types$framework & 
+                         repos$stage == Stages$apps & 
+                         repos$exists, ] # one definitive and maybe a forked repo
+    for(repo in targetRepos){
+        file <- file.path(repo$dir, 'shiny', 'shared', 'global', 'packages', 'packages.yml')
+        yml <- yaml::read_yaml(file)
+        addYmlPackages(yml)    
+    }
 
-
-
-
-    
-
-    
-    # get the R packages required by all specific apps, modules and analysis types
-    appDependsFiles <- c(
-        list.files(path = sharedDir, pattern = 'config.yml', full.names = TRUE, recursive = TRUE),
-        list.files(path = sharedDir, pattern = 'module.yml', full.names = TRUE, recursive = TRUE),
-        list.files(path = appsDir,   pattern = 'config.yml', full.names = TRUE, recursive = TRUE),
-        list.files(path = appsDir,   pattern = 'module.yml', full.names = TRUE, recursive = TRUE)
-    )
-    for(appDependsFile in appDependsFiles){
-        app <- yaml::read_yaml(appDependsFile)        
-        if(!is.null(app$packages)){
-            for(x in names(pkgLists)) if(!is.null(app$packages[[x]])){
-                pkgLists[[x]] <- c(pkgLists[[x]], app$packages[[x]])
-            }
+    # add R packages requested by individual apps
+    message('collecting R package dependencies of MDI apps')
+    targetRepos <- repos[repos$stage == Stages$apps & 
+                         repos$exists, ] # will query all apps defined in framework and suites 
+    pattern <- "(config\\.yml|module\\.yml)"
+    for(repo in targetRepos){
+        files <- list.files(path = repo$dir, pattern = pattern, full.names = TRUE, recursive = TRUE)
+        for(file in files){
+            yml <- yaml::read_yaml(file)
+            addYmlPackages(yml$packages)              
         }
     }
 
@@ -57,7 +43,7 @@ getAppsPackages <- function(repos, rRepos) {
     message('recursively expanding package dependencies')
     suppressWarnings( for(x in names(pkgLists)) {
         pkgLists[[x]] <- miniCRAN::pkgDep(
-            unique(pkgLists[[x]]), # the packages called by magc-portal framework and apps (not nested yet)
+            unique(pkgLists[[x]]), # the packages named by the MDI framework and apps
             repos = rRepos[[x]],
             type = "source",
             depends = TRUE,

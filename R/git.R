@@ -43,7 +43,7 @@ parseGitRepos <- function(dirs, configFilePath, gitUser){
         rep(Stages$pipelines, length(config$pipelines)), 
         rep(Stages$apps, length(config$apps))
     )
-    
+
     # assemble and return an ordered table of all repos known to this MDI instance
     x <- rbind(   
         data.frame( # repos with remote==upstream are the definitive public source code
@@ -159,6 +159,11 @@ isGitRepo <- function(dir, require = FALSE) {
 gitRepoMatches <- function(dir, url){
     git2r::remote_url(dir, Remotes$origin) == url
 }
+repoExists <- Vectorize(function(dir){
+    !is.na(dir) &&
+    !is.null(dir) &&
+    isGitRepo(dir)
+})
 
 #---------------------------------------------------------------------------
 # checkout (i.e. change to) a specific branch

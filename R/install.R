@@ -106,6 +106,7 @@ install <- function(rootDir = '~',
     }
 
     # get the latest tagged versions of all repos
+    repos$exists <- repoExists(repos$dir)
     repos$version <- do.call(getLatestVersions, repos)
 
     # checkout the appropriate repository versions to continue with the installation
@@ -126,12 +127,10 @@ install <- function(rootDir = '~',
     rRepos <- list(R = cranRepo)
     rRepos$Bioconductor <- unname(BiocManager::repositories()['BioCsoft'])    
 
-
     # collect the complete list of packages used by the framework and all Stage 2 apps
     # (pipelines repos don't depend on R packages installed here, they use conda)
     pkgLists <- getAppsPackages(repos, rRepos)   
     packages <- unique(unname(unlist(pkgLists)))
-    
 
     # record the app versions that led to the current set of installed R library packages
     # used by run() to determine if latest app versions have missing package installations
