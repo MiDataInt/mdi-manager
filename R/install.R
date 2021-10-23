@@ -78,8 +78,7 @@ install <- function(rootDir = '~',
                     cranRepo = 'https://repo.miserver.it.umich.edu/cran/',                    
                     packages = NULL,
                     force = FALSE,
-                    ondemand = FALSE
-){
+                    ondemand = FALSE){
     
     # parse needed versions and file paths
     versions <- getRBioconductorVersions()
@@ -90,12 +89,10 @@ install <- function(rootDir = '~',
         return( installPackages(versions, dirs, unique(unname(unlist(packages))), force, ondemand) )
     }
 
-    # initialize MDI root files
-    mdiPath <- copyRootFile(dirs, 'mdi') 
-    if(.Platform$OS.type != "unix") copyRootFile(dirs, 'mdi.bat')     
+    # initialize config file 
     configFilePath <- copyRootFile(dirs, 'config.yml') 
 
-    # establish a list of all framework and suite repositories for this installation
+    # collect the list of all framework and suite repositories for this installation
     repos <- parseGitRepos(dirs, configFilePath, gitUser)
 
     # for most users, download (clone or pull) the most current version of the git repositories
@@ -119,6 +116,20 @@ install <- function(rootDir = '~',
             checkoutGitBranch(dir, branch) # git checkout <tag> is fine but results in a detached head
         }        
     }, repos$dir, repos$fork, repos$version)
+
+    # initialize MDI root execution files
+    mdiPath <- updateRootFile(
+        dirs, 
+        'mdi',
+        list(DEFINITIVE_SUITES = getPipelinesSuites(repos, Forks$definitive),
+             DEVELOPER_FORKS   = getPipelinesSuites(repos, Forks$developer))
+    ) 
+    if(.Platform$OS.type != "unix") updateRootFile(
+        dirs, 
+        'mdi.bat', 
+        list(PATH_TO_R = R.home(), 
+             GITHUB_PAT = if(is.null(token)) "" else token)
+    )    
 
     # initialize the Stage 1 pipelines management utility
     if(1 %in% stages && .Platform$OS.type == "unix") initializeJobManager(mdiPath)

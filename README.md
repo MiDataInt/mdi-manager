@@ -1,19 +1,17 @@
-
 # Michigan Data Interface
 
-The Michigan Data Interface (MDI) is a framework for developing,
+The [Michigan Data Interface](https://midataint.github.io/) (MDI) is a framework for developing,
 installing and running a variety of HPC data analysis pipelines
 and interactive R Shiny data visualization applications
 within a standardized design and implementation interface.
-
-<https://midataint.github.io/>
 
 ## Organization and contents
 
 ### MDI code stages
 
-Data analysis in the MDI is logically separated
-into two stages of code execution called Stage 1 HPC **pipelines**
+Data analysis in the MDI is logically separated into 
+[two stages of code execution](https://midataint.github.io/docs/analysis-flow/) 
+called Stage 1 HPC **pipelines**
 and Stage 2 web applications (i.e., **apps**).
 
 ### Repository contents
@@ -23,16 +21,25 @@ It will help you install and run the MDI on your server,
 desktop or laptop computer. Functions initialize Stage 1 pipeline
 execution and help launch the Stage 2 web apps.
 
-See these repositories for the pipelines and apps frameworks:
+### Related repositories
 
-<https://github.com/MiDataInt/mdi-pipelines-framework>
+Code developers are directed to the following repositories for templates to
+**create your own pipelines and apps suites**:
 
-<https://github.com/MiDataInt/mdi-apps-framework>
+- <https://github.com/MiDataInt/mdi-pipelines-suite-template>
+- <https://github.com/MiDataInt/mdi-apps-suite-template>
 
-## Quick start on the Michigan Great Lakes cluster
+and to these repositories for the pipelines and apps frameworks, if you 
+wish to help develop the MDI itself:
 
-If you will be working as an end user on Great Lakes, you
-don't need to follow the instructions below. Instead,
+- <https://github.com/MiDataInt/mdi-pipelines-framework>
+- <https://github.com/MiDataInt/mdi-apps-framework>
+
+## Quick start on Great Lakes
+
+If you will be working as an end user on the University of Michigan
+Great Lakes server cluster, you don't need to follow the instructions below. 
+Instead,
 TODO: CREATE FINAL INSTRUCTIONS HERE.
 
 ## Installation and Use
@@ -63,7 +70,7 @@ mdi::install()
 ```
 
 The first two steps are relatively quick and will give you access
-to the <code>install()</code> and <code>run()</code> functions, which are similar to
+to the <code>install()</code> and <code>run()</code> functions, similar to
 how BiocManager helps you install version-controlled Bioconductor
 packages.
 
@@ -97,19 +104,30 @@ to launch the web server without using an R console:
 mdi server
 ```
 
-Regardless of how you call <code>mdi::run()</code>, in a few seconds, a web browser will open and you will be ready to load your data and run an associated app.
+Regardless of how you call <code>mdi::run()</code>, in a few seconds, 
+a web browser will open and you will be ready to load your data and run an associated app.
 
-### Configure the available pipelines and apps
+### Configure the available pipelines and apps suites
 
 <code>mdi::install()</code> will download a standard series of
 pipelines and apps supported by Michigan core facilities. You can
 add any other custom or non-standard pipelines and/or apps suites
 by editing file 'config.yml' in the 'mdi' root directory.
+
+```
+# mdi/config.yml
+suites:
+    pipelines:
+        - https://github.com/GIT_USER/SUITE_NAME-mdi-pipelines.git
+    apps:
+        - https://github.com/GIT_USER/SUITE_NAME-mdi-apps.git
+```
+
 You should then call <code>mdi::install()</code> again to configure 
 any new package dependencies, or, from the command line:
 
 ```
-mdi reinstall
+mdi install
 ```
 
 ## Troubleshooting

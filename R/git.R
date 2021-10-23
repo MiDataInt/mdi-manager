@@ -81,6 +81,14 @@ getRepoDir <- Vectorize(function(rootDir, type, fork, url){
     repo <- strsplit(repo, '.')[[1]][1]
     file.path(rootDir, type, fork, repo)
 })
+getPipelinesSuites <- function(repos, fork){
+    x <- !is.null(repos$dir) && 
+         !is.na(repos$dir) && 
+         repos$stage == Stages$pipelines && 
+         repos$fork == fork
+    repos <- repos[x, ]
+    paste(repos$dir, collapse = " ")
+}
 
 #---------------------------------------------------------------------------
 # set a user's GitHub PAT into the proper environment variable
