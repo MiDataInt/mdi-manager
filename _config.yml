@@ -7,6 +7,10 @@ aux_links:
   "Go To Repo on GitHub":
     - "https://github.com/MiDataInt/mdi-manager"
 
+
+# do not edit any line below this line
+
+
 # theme information
 remote_theme: MiDataInt/just-the-docs-mdi
 logo: "/assets/images/mdi-logo-text-200.png"
@@ -26,6 +30,6 @@ defaults:
   -
     scope:
       path: "" # an empty string here means all files in the project
-      type: "docs"
+      type: docs
     values:
       layout: "default"
