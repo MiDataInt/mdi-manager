@@ -7,27 +7,29 @@
 #---------------------------------------------------------------------------
 debugInstall <- function(
     mdiDir = 'C:/mdi',
-    debugDir = 'test-installation', # path relative to mdiDir where mdi will be installed
+    debugDir = NA, # 'test-installation', # path relative to mdiDir where mdi will be installed
     force = FALSE, # if TRUE, completely remove prior installation before installing
     clone = FALSE
 ){
     # initialize
     initializeDebug(mdiDir, debugDir)
 
-    # remove the last installation
-    if(force){
-        message()
-        message('REMOVING MDI INSTALLATION')
-        unlink(debugDir, recursive = TRUE, force = TRUE)
+    # remove the last installation (but only if a specific installation subdirectory was defined)
+    if(!is.na(debugDir)){
+        if(force){
+            message()
+            message('REMOVING MDI INSTALLATION')
+            unlink(debugDir, recursive = TRUE, force = TRUE)
+        }
+        if(!dir.exists(debugDir)) dir.create(debugDir)
     }
-    if(!dir.exists(debugDir)) dir.create(debugDir)
 
     # run the installation
     message()
     message('INSTALLING THE MDI')
     message()
     mdi::install(
-        mdiDir = debugDir, 
+        mdiDir = if(is.na(debugDir)) mdiDir else debugDir, 
         gitUser = Sys.getenv('GIT_USER'),
         token   = Sys.getenv('GITHUB_PAT'),
         clone = clone
@@ -35,7 +37,7 @@ debugInstall <- function(
 }
 debugRun <- function(
     mdiDir = 'C:/mdi',
-    debugDir = 'test-installation',
+    debugDir = NA, # 'test-installation', # path relative to mdiDir
     install = TRUE,
     developer = TRUE
 ){
@@ -47,7 +49,7 @@ debugRun <- function(
     message('RUNNING THE MDI')
     message()
     mdi::run(
-        mdiDir = debugDir, 
+        mdiDir = if(is.na(debugDir)) mdiDir else debugDir, 
         install = install,
         developer = developer,
         gitUser = Sys.getenv('GIT_USER'),
@@ -59,7 +61,7 @@ initializeDebug <- function(mdiDir, debugDir){
     # set working directory
     setwd(mdiDir)
     message(paste("working directory:", mdiDir))
-    message(paste("test installation directory:", file.path(mdiDir, debugDir)))
+    message(paste("installation subdirectory:", debugDir))
 
     # detach prior mdi package
     message()
