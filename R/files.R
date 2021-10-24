@@ -15,29 +15,29 @@
 #           definitive
 #           developer-forks
 #---------------------------------------------------------------------------
-parseDirectories <- function(rootDir, versions,
+parseDirectories <- function(mdiDir, versions,
                              create = TRUE, message = FALSE,
                              dataDir = NULL, ondemandDir = NULL){
     if(message) message('parsing target directories')
     isOnDemand <- !is.null(ondemandDir)
     
-    # parse the required rootDir
-    rootDir <- path.expand(rootDir)
-    if(!dir.exists(rootDir)) stop(paste("error:", rootDir, "does not exist"))
+    # parse the required mdiDir
+    mdiDir <- path.expand(mdiDir)
+    if(!dir.exists(mdiDir)) stop(paste("error:", mdiDir, "does not exist"))
     rootFolder <- 'mdi'    
-    if(!endsWith(rootDir, paste0('/', rootFolder))){
-        rootDir <- file.path(rootDir, rootFolder)
-        if(!dir.exists(rootDir)){
-            if(create) createRootDir(rootDir)   
-                  else throwRootDirError(rootDir)
+    if(!endsWith(mdiDir, paste0('/', rootFolder))){
+        mdiDir <- file.path(mdiDir, rootFolder)
+        if(!dir.exists(mdiDir)){
+            if(create) createMdiDir(mdiDir)   
+                  else throwMdiDirError(mdiDir)
         }
     }
 
     # parse top-level directory names
     bareDirNames <- c('data', 'environments', 'frameworks', 'library', 'resources', 'sessions', 'suites') 
-    dirs <- as.list( file.path(rootDir, bareDirNames) )
+    dirs <- as.list( file.path(mdiDir, bareDirNames) )
     names(dirs) <- bareDirNames
-    dirs$root <- rootDir
+    dirs$root <- mdiDir
     
     # override the data directory in run mode, if override is requested
     if(!is.null(dataDir)) dirs$data <- dataDir
@@ -60,31 +60,31 @@ parseDirectories <- function(rootDir, versions,
     
     dirs  
 }
-createRootDir <- function(rootDir){
+createMdiDir <- function(mdiDir){
     message()
     message('------------------------------------------------------------------')
     message('CONFIRM DIRECTORY CREATION')
     message('------------------------------------------------------------------')
     message('The following directory will be created and populated on your file system:')
     message()
-    message(rootDir)
+    message(mdiDir)
     message()
     confirmed <- readline(prompt = "Do you wish to continue? (type 'y' for 'yes'): ")
     confirmed <- strsplit(tolower(trimws(confirmed)), '')[[1]][1] == 'y'
     if(!is.na(confirmed) && confirmed){
-        dir.create(rootDir, showWarnings = FALSE)
+        dir.create(mdiDir, showWarnings = FALSE)
     } else {
         stop('installation permission denied')
     }    
 }
-throwRootDirError <- function(rootDir){
+throwMdiDirError <- function(mdiDir){
     message()
     message('Could not find the following directory on your file system:')
     message()
-    message(rootDir)
+    message(mdiDir)
     message()
-    message('You must call mdi::run() using a value of rootDir')
+    message('You must call mdi::run() using a value of mdiDir')
     message('that you previously used for mdi::install().')
     message()
-    stop('unknown rootDir')
+    stop('unknown mdiDir')
 }

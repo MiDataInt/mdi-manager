@@ -11,7 +11,7 @@
 #' All default settings are consistent with an end user running the 
 #' MDI in local mode on their desktop or laptop computer.
 #'
-#' \code{rootDir} must be the same directory as used in a prior
+#' \code{mdiDir} must be the same directory as used in a prior
 #' call to \code{mdi::install()}.
 #' 
 #' When \code{developer} is FALSE, \code{run()} will use the definitive
@@ -31,11 +31,11 @@
 #' via the GUI, you must also have enabled non-prompted authorized
 #' access to the remote repositories (e.g., via the command line).
 #' 
-#' @param rootDir character. Path to the directory where the MDI
+#' @param mdiDir character. Path to the directory where the MDI
 #' has previously been installed. Defaults to your home directory.
 #'
 #' @param dataDir character. Path to the directory where your MDI
-#' data can be found. Defaults to code{rootDir}/data. You might wish to change
+#' data can be found. Defaults to code{mdiDir}/data. You might wish to change
 #' this to a directory that holds shared data, e.g., for your laboratory.
 #'
 #' @param ondemandDir character. Path to the directory where a public
@@ -75,7 +75,7 @@ NULL
 #' @rdname run
 #' @export
 #---------------------------------------------------------------------------
-run <- function(rootDir = '~',
+run <- function(mdiDir = '~',
                 dataDir = NULL,
                 ondemandDir = NULL,  
                 mode = 'local',                              
@@ -88,7 +88,7 @@ run <- function(rootDir = '~',
 
 # consider adding option install, if TRUE will ensure everything is up to date
 install(
-    rootDir = rootDir,
+    mdiDir = mdiDir,
     stages = 1:2,
     gitUser = gitUser,
     token = token,                    
@@ -103,7 +103,7 @@ install(
 
     # parse needed versions and file paths
     versions <- getRBioconductorVersions()
-    dirs <- parseDirectories(rootDir, versions, create = FALSE, dataDir = dataDir, ondemandDir = ondemandDir)
+    dirs <- parseDirectories(mdiDir, versions, create = FALSE, dataDir = dataDir, ondemandDir = ondemandDir)
 
     # initialize config file 
     configFilePath <- file.path(dirs$root, 'config.yml')
@@ -115,12 +115,12 @@ install(
 
     # # parse needed versions and paths
     # version <- version(quiet = TRUE)    
-    # dirs <- parseDirectories(rootDir, version, create = FALSE,
+    # dirs <- parseDirectories(mdiDir, version, create = FALSE,
     #                          dataDir = dataDir, ondemandDir = ondemandDir)
     # if(is.null(version)){ # in case remote recovery of versions failed
     #     version <- version(quiet = TRUE, dirs = dirs)
     #     if(is.null(version)) stop('unable to obtain resolve MDI version')
-    #     dirs <- parseDirectories(rootDir, version, create = FALSE,
+    #     dirs <- parseDirectories(mdiDir, version, create = FALSE,
     #                              dataDir = dataDir, ondemandDir = ondemandDir)
     # }     
     
@@ -151,7 +151,7 @@ install(
     if(mode != 'ondemand'){ # public assets update is handled by administrators
         installedVersion <- version3ToIntegers( getInstalledVersion(dirs) )
         latestVersion    <- version3ToIntegers( version$MDIVersion )
-        if(installedVersion$minor < latestVersion$minor ) install(rootDir) # major version already checked above        
+        if(installedVersion$minor < latestVersion$minor ) install(mdiDir) # major version already checked above        
     }
 
     # execute hard set of git branch consistent with usage mode and current repo status
@@ -181,7 +181,8 @@ install(
     # source the script that runs the server in the global environment
     # the web server never returns as it handles client requests via https
 
-    # TODO: need a function to set the target repo for each definitive repe (either definitive or forked depending on developer)
+    # TODO: need a function to set the target repo for each definitive repo
+    # (either definitive or forked depending on developer)
 
     source(file.path(dirs$magc_portal_apps, 'shiny', 'run_server.R'), local = .GlobalEnv)
 }
@@ -191,9 +192,9 @@ install(
 #' @rdname run
 #' @export
 #---------------------------------------------------------------------------
-develop <- function(rootDir = '~', dataDir = NULL, url = 'http://localhost:3838/'){
+develop <- function(mdiDir = '~', dataDir = NULL, url = 'http://localhost:3838/'){
     run(
-        rootDir,
+        mdiDir,
         dataDir = dataDir,
         ondemandDir = NULL,
         mode = 'local',        
@@ -209,10 +210,10 @@ develop <- function(rootDir = '~', dataDir = NULL, url = 'http://localhost:3838/
 #' @rdname run
 #' @export
 #---------------------------------------------------------------------------
-ondemand <- function(ondemandDir, rootDir = '~', dataDir = NULL, port = 3838){
+ondemand <- function(ondemandDir, mdiDir = '~', dataDir = NULL, port = 3838){
     url <- paste0('http://localhost:', port)
     run(
-        rootDir,
+        mdiDir,
         dataDir = dataDir,
         ondemandDir = ondemandDir, # the path where the public installation lives 
         mode = 'ondemand',               

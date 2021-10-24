@@ -7,14 +7,14 @@
 #' All default settings are consistent with an end user running the 
 #' MDI in local mode on their desktop or laptop computer.
 #'
-#' \code{rootDir} must already exist, it will not be created. 
+#' \code{mdiDir} must already exist, it will not be created. 
 #' 
-#' If \code{rootDir} ends with '/mdi' it will be used as is
+#' If \code{mdiDir} ends with '/mdi' it will be used as is
 #' without prompting. Otherwise, a subdirectory of that name will be 
-#' created in \code{rootDir} after prompting for confirmation.
+#' created in \code{mdiDir} after prompting for confirmation.
 #'
 #' If they do not already exist, \code{mdi::install()} will create a series of
-#' subdirectories in \code{rootDir} without prompting, as follows:
+#' subdirectories in \code{mdiDir} without prompting, as follows:
 #' \itemize{
 #'   \item data = project-specific input and output files
 #'   \item environments = conda environments used by data analysis pipelines
@@ -25,7 +25,7 @@
 #'   \item suites = git repositories with code that defines specific pipelines and apps
 #' }
 #'
-#' @param rootDir character. Path to the directory where the MDI
+#' @param mdiDir character. Path to the directory where the MDI
 #' will be/has been installed. Defaults to your home directory.
 #'
 #' @param stages integer vector. The number(s) of the MDI analysis stages to install,
@@ -70,7 +70,7 @@
 #'
 #' @export
 #---------------------------------------------------------------------------
-install <- function(rootDir = '~',
+install <- function(mdiDir = '~',
                     stages = 1:2,
                     gitUser = NULL,
                     token = NULL,                    
@@ -82,7 +82,7 @@ install <- function(rootDir = '~',
     
     # parse needed versions and file paths
     versions <- getRBioconductorVersions()
-    dirs <- parseDirectories(rootDir, versions, message = TRUE)
+    dirs <- parseDirectories(mdiDir, versions, message = TRUE)
 
     # if caller requests an override, just install those specific R packages and stop
     if(!is.null(packages)){

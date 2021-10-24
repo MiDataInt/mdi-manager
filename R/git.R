@@ -76,11 +76,11 @@ switchGitUser <- Vectorize(function(url, gitUser){
     parts[length(parts) - 1] <- gitUser
     paste(parts, collapse = '/')
 })
-getRepoDir <- Vectorize(function(rootDir, type, fork, url){
+getRepoDir <- Vectorize(function(mdiDir, type, fork, url){
     if(is.null(url)) return(NULL)
     repo <- rev(strsplit(url, '/')[[1]])[1]
     repo <- strsplit(repo, '\\.')[[1]][1]
-    file.path(rootDir, type, fork, repo)
+    file.path(mdiDir, type, fork, repo)
 })
 filterRepoDirs <- function(repos, type = NULL, stage = NULL, fork = NULL, paste = FALSE){
     x <- !is.null(repos$dir) &
