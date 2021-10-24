@@ -16,8 +16,8 @@
 #           developer-forks
 #---------------------------------------------------------------------------
 parseDirectories <- function(rootDir, versions,
-                             create=TRUE, message=FALSE,
-                             dataDir=NULL, ondemandDir=NULL){
+                             create = TRUE, message = FALSE,
+                             dataDir = NULL, ondemandDir = NULL){
     if(message) message('parsing target directories')
     isOnDemand <- !is.null(ondemandDir)
     

@@ -28,6 +28,7 @@ appsFrameworkRepo      <- 'mdi-apps-framework'
 # collect information on all relevant git repos
 #---------------------------------------------------------------------------
 parseGitRepos <- function(dirs, configFilePath, gitUser){
+    message('collecting git repos from config.yml')
     config <- yaml::read_yaml(configFilePath)
     
     # prepend the frameworks repos to the suites repos
@@ -35,7 +36,7 @@ parseGitRepos <- function(dirs, configFilePath, gitUser){
     upstreamUrls <- c(upstreamUrls, config$pipelines, config$apps) 
     types <- c(
         rep(Types$framework, 2), 
-        rep(Types$suite, length(upstreamUrls - 2))
+        rep(Types$suite, length(upstreamUrls) - 2)
     )
     stages <- c(
         Stages$pipelines, 
@@ -59,7 +60,7 @@ parseGitRepos <- function(dirs, configFilePath, gitUser){
             stage   = stages,
             remote  = Remotes$origin,
             fork    = Forks$developer,
-            url     = switchGitUser(upstreamUrls, gitUser), # NB: some forked repos might not exist
+            url     = switchGitUser(upstreamUrls, gitUser) # NB: some forked repos might not exist
         )
     )
     x$dir <- getRepoDir(dirs$root, x$type, x$fork, x$url)
@@ -78,15 +79,17 @@ switchGitUser <- Vectorize(function(url, gitUser){
 getRepoDir <- Vectorize(function(rootDir, type, fork, url){
     if(is.null(url)) return(NULL)
     repo <- rev(strsplit(url, '/')[[1]])[1]
-    repo <- strsplit(repo, '.')[[1]][1]
+    repo <- strsplit(repo, '\\.')[[1]][1]
     file.path(rootDir, type, fork, repo)
 })
-getPipelinesSuites <- function(repos, fork){
-    x <- !is.null(repos$dir) && 
-         !is.na(repos$dir) && 
-         repos$stage == Stages$pipelines && 
-         repos$fork == fork
+filterRepoDirs <- function(repos, type = NULL, stage = NULL, fork = NULL, paste = FALSE){
+    x <- !is.null(repos$dir) &
+         !is.na(repos$dir) & 
+         if(is.null(type))  TRUE else repos$type  == type & 
+         if(is.null(stage)) TRUE else repos$stage == stage & 
+         if(is.null(fork))  TRUE else repos$fork  == fork
     repos <- repos[x, ]
+    if(!paste) return(repos$dir)
     paste(repos$dir, collapse = " ")
 }
 

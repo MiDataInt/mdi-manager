@@ -98,7 +98,7 @@ install <- function(rootDir = '~',
     # for most users, download (clone or pull) the most current version of the git repositories
     setPersonalAccessToken(token)
     if(clone) do.call(downloadGitRepo, repos)  
-    if(!clone) for(dir in repos[repos$fork == Forks$definitive, 'dir']){
+    if(!clone) for(dir in filterRepoDirs(repos, fork = Forks$definitive)){
         if(!dir.exists(dir)) stop(paste('missing repository:', dir))
         isGitRepo(dir, require = TRUE)
     }
@@ -110,8 +110,11 @@ install <- function(rootDir = '~',
     # checkout the appropriate repository versions to continue with the installation
     #   definitive repositories use the most recent tagged version
     #   developer-forks stay where the developer had them (tip of 'main' if a new installation)
+    message('checking out most recent versions')
     mapply(function(dir, fork, version){
-        if(!is.null(dir) && !is.na(dir) && fork == Forks$definitive){
+        if(!is.null(dir) && !is.na(dir) && 
+           !is.null(version) && !is.na(version) &&
+           fork == Forks$definitive){
             branch <- paste0('v', version)
             checkoutGitBranch(dir, branch) # git checkout <tag> is fine but results in a detached head
         }        
@@ -121,8 +124,22 @@ install <- function(rootDir = '~',
     mdiPath <- updateRootFile(
         dirs, 
         'mdi',
-        list(DEFINITIVE_SUITES = getPipelinesSuites(repos, Forks$definitive),
-             DEVELOPER_FORKS   = getPipelinesSuites(repos, Forks$developer))
+        list(
+            DEFINITIVE_SUITES = filterRepoDirs(
+                repos, 
+                type  = Types$suite, 
+                stage = Stages$pipelines, 
+                fork  = Forks$definitive,
+                paste = TRUE
+            ),
+            DEVELOPER_FORKS   = filterRepoDirs(
+                repos, 
+                type  = Types$suite, 
+                stage = Stages$pipelines, 
+                fork  = Forks$developer,
+                paste = TRUE
+            )
+        )
     ) 
     if(.Platform$OS.type != "unix") updateRootFile(
         dirs, 
@@ -132,13 +149,16 @@ install <- function(rootDir = '~',
     )    
 
     # initialize the Stage 1 pipelines management utility
-    if(1 %in% stages && .Platform$OS.type == "unix") initializeJobManager(mdiPath)
-    if(!(2 %in% stages)) return(NULL)    
+    if(1 %in% stages && .Platform$OS.type == "unix") {
+        message('initializing job manager')
+        initializeJobManager(mdiPath)
+    }
+    if(!(2 %in% stages)) return(NULL)  
 
     # set the public R package repositories
     message('collecting R repository information')
     rRepos <- list(R = cranRepo)
-    rRepos$Bioconductor <- unname(BiocManager::repositories()['BioCsoft'])    
+    rRepos$Bioconductor <- unname(BiocManager::repositories()['BioCsoft']) 
 
     # collect the complete list of packages used by the framework and all Stage 2 apps
     # (pipelines repos don't depend on R packages installed here, they use conda)

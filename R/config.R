@@ -24,6 +24,7 @@ updateRootFile <- function(dirs, fileName, replace = list()){
     filePath <- file.path(dirs$root, fileName)
     fileTemplate <- system.file(fileName, package = rPackageName)
     contents <- readChar(fileTemplate, file.info(fileTemplate)$size)
+    contents <- gsub("\\r", "", contents)
     for(name in names(replace)){
         target <- paste0('_', name, '_')
         value <- replace[[name]]

@@ -17,22 +17,26 @@ getAppsPackages <- function(repos, rRepos) {
 
     # get the R packages required by the apps framework   
     message('collecting R package dependencies of MDI framework')
-    targetRepos <- repos[repos$type  == Types$framework & 
-                         repos$stage == Stages$apps & 
-                         repos$exists, ] # one definitive and maybe a forked repo
-    for(repo in targetRepos){
-        file <- file.path(repo$dir, 'shiny', 'shared', 'global', 'packages', 'packages.yml')
+    targetRepoDirs <- filterRepoDirs(
+        repos[repos$exists, ], # one definitive and maybe a forked apps framework repo
+        type = Types$framework, 
+        stage = Stages$apps
+    )
+    for(dir in targetRepoDirs){
+        file <- file.path(dir, 'shiny', 'shared', 'global', 'packages', 'packages.yml')
         yml <- yaml::read_yaml(file)
         addYmlPackages(yml)    
     }
 
     # add R packages requested by individual apps
-    message('collecting R package dependencies of MDI apps')
-    targetRepos <- repos[repos$stage == Stages$apps & 
-                         repos$exists, ] # will query all apps defined in framework and suites 
+    message('collecting R package dependencies of MDI apps') 
+    targetRepoDirs <- filterRepoDirs(
+        repos[repos$exists, ], # will query all apps defined in framework and suites
+        stage = Stages$apps
+    )   
     pattern <- "(config\\.yml|module\\.yml)"
-    for(repo in targetRepos){
-        files <- list.files(path = repo$dir, pattern = pattern, full.names = TRUE, recursive = TRUE)
+    for(dir in targetRepoDirs){
+        files <- list.files(path = dir, pattern = pattern, full.names = TRUE, recursive = TRUE)
         for(file in files){
             yml <- yaml::read_yaml(file)
             addYmlPackages(yml$packages)              
@@ -42,7 +46,7 @@ getAppsPackages <- function(repos, rRepos) {
     # expand the package list to required dependencies
     message('recursively expanding package dependencies')
     suppressWarnings( for(x in names(pkgLists)) {
-        pkgLists[[x]] <- miniCRAN::pkgDep(
+        pkgLists[[x]] <- if(length(pkgLists[[x]]) > 0) miniCRAN::pkgDep(
             unique(pkgLists[[x]]), # the packages named by the MDI framework and apps
             repos = rRepos[[x]],
             type = "source",
@@ -51,7 +55,7 @@ getAppsPackages <- function(repos, rRepos) {
             enhances = FALSE,
             includeBasePkgs = FALSE, # these always come from a server's R installation
             quiet = TRUE
-        )
+        ) else NULL
     } )
     
     # return our results

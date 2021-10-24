@@ -6,7 +6,8 @@ debugManager <- function(
     debugDir = 'test-installation', # path relative to rootDir where mdi will be installed
     force = FALSE, # if TRUE, completely remove prior installation before installing
     gitUser = NULL, # same as mdi::install()
-    token = NULL
+    token = NULL,
+    clone = FALSE
 ){
     # set working directory
     setwd(rootDir)
@@ -41,6 +42,7 @@ debugManager <- function(
     mdi::install(
         rootDir = debugDir, 
         gitUser = if(is.null(gitUser)) Sys.getenv('GIT_USER')   else gitUser,
-        token   = if(is.null(token))   Sys.getenv('GITHUB_PAT') else token
+        token   = if(is.null(token))   Sys.getenv('GITHUB_PAT') else token,
+        clone = clone
     )
 }
