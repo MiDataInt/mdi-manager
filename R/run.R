@@ -133,7 +133,7 @@ run <- function(mdiDir = '~',
         if(!file.exists(installationFile)) stop(paste('missing installation file:', installationFile))
         readRDS(installationFile)
     }
-    setGitCredentials(dirs, gitUser, token)    
+    setGitCredentials(installation$dirs, gitUser, token)    
     installation$dirs <- parseDirectories(mdiDir, installation$versions, create = FALSE, 
                                           dataDir = dataDir, ondemandDir = ondemandDir)
 

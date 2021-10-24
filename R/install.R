@@ -122,7 +122,6 @@ install <- function(mdiDir = '~',
     repos <- parseGitRepos(dirs, configFilePath)
 
     # for most users, download (clone or pull) the most current version of the git repositories
-    setPersonalAccessToken(token)
     if(clone) do.call(downloadGitRepo, repos)  
     if(!clone) for(dir in filterRepoDirs(repos, fork = Forks$definitive)){
         if(!dir.exists(dir)) stop(paste('missing repository:', dir))
