@@ -33,13 +33,12 @@ IF "%OPTION_NUMBER%"=="1" (
 ) ELSE IF "%OPTION_NUMBER%"=="3" (
     SET COMMAND=install
     SET OPTIONS=
-    REM , gitUser='%gitUser%', token='%GITHUB_PAT%', checkout='develop'
     SET MESSAGE=MDI installation complete
 ) ELSE (
     EXIT
 )
 
-ECHO %RSCRIPT% -e "mdi::%COMMAND%(getwd()%OPTIONS%)"
+%RSCRIPT% -e "mdi::%COMMAND%(getwd()%OPTIONS%)"
 
 ECHO.
 ECHO %MESSAGE%
