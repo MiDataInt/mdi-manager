@@ -28,9 +28,11 @@
 #' @param mdiDir character. Path to the directory where the MDI
 #' will be/has been installed. Defaults to your home directory.
 #'
-#' @param stages integer vector. The number(s) of the MDI analysis stages to install,
-#' where 1=pipelines, 2=apps. The default (1:2) will attempt to install both
-#' Stage 1 pipelines and Stage 2 apps for use on the computer or server.
+#' @param installApps logical vector. If TRUE (the default), 
+#' \code{mdi::install()} will install both Stage 1 pipelines and Stage 2 
+#' apps for use on the computer or server. If you know you will only want
+#' to use Stage 1 pipelines from an installation, setting \code{installApps}
+#' to FALSE will skip the much slower installation of the R packages library.
 #' 
 #' @param gitUser character. Developers should use \code{gitUser} to provide 
 #' the username of the GitHub account that holds their forks of any
@@ -54,8 +56,9 @@
 #' URL of a CRAN mirror. Defaults to the University of Michigan CRAN mirror.
 #'
 #' @param packages character vector. If not NULL (the default), only install
-#' these specific R packages (useful for developers to quickly update selected
-#' packages). No other actions will be taken.
+#' these specific R packages (for developers to quickly update selected
+#' packages). No other actions will be taken and the library's installation.rds
+#' file will not be updated.
 #' 
 #' @param force logical.  When FALSE (the default), \code{mdi::install()}
 #' does not attempt to update R packages that have previously been installed,
@@ -66,12 +69,16 @@
 #' packages, as they will be used from the managed host installation. Default
 #' is FALSE.
 #'
-#' @return same as BiocManager::install
+#' @return a list of installation data with names components 'versions', dirs', 
+#' 'repos', 'rRepos', 'packages'. This information will be incomplete if 
+#' \code{packages} was not NULL (repos and rRepos will be NULL, packages will  
+#' only contain\code{packages}) or if installApps was FALSE (repos, rRepos and 
+#' packages will all be NULL).
 #'
 #' @export
 #---------------------------------------------------------------------------
 install <- function(mdiDir = '~',
-                    stages = 1:2,
+                    installApps = TRUE,
                     gitUser = NULL,
                     token = NULL,                    
                     clone = TRUE,
@@ -83,10 +90,21 @@ install <- function(mdiDir = '~',
     # parse needed versions and file paths
     versions <- getRBioconductorVersions()
     dirs <- parseDirectories(mdiDir, versions, message = TRUE)
+    getInstallationData <- function(repos = NULL, rRepos = NULL, packages = NULL){
+        list(
+            versions = versions, 
+            dirs = dirs,
+            repos = repos, 
+            rRepos = rRepos,
+            packages = packages
+        )
+    }
 
-    # if caller requests an override, just install those specific R packages and stop
+    # if developer requests an override, just install those specific R packages and stop
     if(!is.null(packages)){
-        return( installPackages(versions, dirs, unique(unname(unlist(packages))), force, ondemand) )
+        packages <- unique(unname(unlist(packages)))
+        installPackages(versions, dirs, packages, force, ondemand)
+        return( getInstallationData(packages = packages) )
     }
 
     # initialize config file 
@@ -149,11 +167,11 @@ install <- function(mdiDir = '~',
     )    
 
     # initialize the Stage 1 pipelines management utility
-    if(1 %in% stages && .Platform$OS.type == "unix") {
+    if(.Platform$OS.type == "unix") {
         message('initializing job manager')
         initializeJobManager(mdiPath)
     }
-    if(!(2 %in% stages)) return(NULL)  
+    if(!installApps) return( getInstallationData() )
 
     # set the public R package repositories
     message('collecting R repository information')
@@ -167,11 +185,15 @@ install <- function(mdiDir = '~',
 
     # record the app versions that led to the current set of installed R library packages
     # used by run() to determine if latest app versions have missing package installations
-    versionsFile <- file.path(dirs$versionLibrary, 'versions.rds')
-    saveRDS(list(versions = versions, repos = repos, packages = packages), versionsFile)
+    installationFile <- file.path(dirs$versionLibrary, 'installation.rds')
+    installationData <- getInstallationData(repos = repos, rRepos = rRepos, packages = packages)
+    saveRDS(installationData, installationFile)
 
     # install or update all required apps R packages
     installPackages(versions, dirs, packages, force, ondemand)
+
+    # return installation data
+    installationData
 }
 
 #---------------------------------------------------------------------------
