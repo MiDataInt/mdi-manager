@@ -23,9 +23,22 @@ appsFrameworkRepo      <- 'mdi-apps-framework'
 #---------------------------------------------------------------------------
 
 #---------------------------------------------------------------------------
+# set a user's GitHub PAT into the proper environment variable
+#---------------------------------------------------------------------------
+setGitCredentials <- function(dirs, gitUser, token){ 
+    gitCredentialsFile <- file.path(dirs$mdi, "gitCredentials.R")
+    if(file.exists(gitCredentialsFile)){
+        source(gitCredentialsFile, .GlobalEnv)
+    } else {
+        if(!is.null(gitUser)) Sys.setenv(GIT_USER = gitUser)
+        if(!is.null(token))   Sys.setenv(GITHUB_PAT = token)
+    }
+}
+
+#---------------------------------------------------------------------------
 # collect information on all git repos relevant to this MDI installation
 #---------------------------------------------------------------------------
-parseGitRepos <- function(dirs, configFilePath, gitUser){
+parseGitRepos <- function(dirs, configFilePath){
     message('collecting git repos from config.yml')
     config <- yaml::read_yaml(configFilePath)
     
@@ -58,7 +71,7 @@ parseGitRepos <- function(dirs, configFilePath, gitUser){
             stage   = stages,
             remote  = Remotes$origin,
             fork    = Forks$developer,
-            url     = switchGitUser(upstreamUrls, gitUser) # NB: some forked repos might not exist
+            url     = switchGitUser(upstreamUrls, Sys.getenv('GIT_USER')) # NB: some forked repos might not exist
         )
     )
     x$dir <- getRepoDir(dirs$mdi, x$type, x$fork, x$url)
@@ -70,7 +83,7 @@ assembleGitUrl <- function(repoName, gitUser) {
     paste(gitHubUrl, gitUser, repo, sep = "/")
 }
 switchGitUser <- Vectorize(function(url, gitUser){
-    if(is.null(gitUser)) return(NULL)
+    if(is.null(gitUser) || gitUser == "") return(NULL)
     parts <- strsplit(url, '/')[[1]]
     parts[length(parts) - 1] <- gitUser
     paste(parts, collapse = '/')
@@ -90,13 +103,6 @@ filterRepoDirs <- function(repos, type = NULL, stage = NULL, fork = NULL, paste 
     repos <- repos[x, ]
     if(!paste) return(repos$dir)
     paste(repos$dir, collapse = " ")
-}
-
-#---------------------------------------------------------------------------
-# set a user's GitHub PAT into the proper environment variable
-#---------------------------------------------------------------------------
-setPersonalAccessToken <- function(token){ 
-    if(!is.null(token)) Sys.setenv(GITHUB_PAT = token)
 }
 
 #---------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 #---------------------------------------------------------------------------
 # functions to debug mdi-manager code changes
 #---------------------------------------------------------------------------
-# set environment variables as needed before running debugInstall() or debugRun():
+# developers should create file 'gitCredentials.R' in MDI_DIR as follows:
 #   Sys.setenv(GIT_USER = 'xxx')
 #   Sys.setenv(GITHUB_PAT = 'xxx')
 #---------------------------------------------------------------------------
@@ -30,8 +30,6 @@ debugInstall <- function(
     message()
     mdi::install(
         mdiDir = if(is.na(debugDir)) mdiDir else debugDir, 
-        gitUser = Sys.getenv('GIT_USER'),
-        token   = Sys.getenv('GITHUB_PAT'),
         clone = clone
     )
 }
@@ -51,9 +49,7 @@ debugRun <- function(
     mdi::run(
         mdiDir = if(is.na(debugDir)) mdiDir else debugDir, 
         install = install,
-        developer = developer,
-        gitUser = Sys.getenv('GIT_USER'),
-        token   = Sys.getenv('GITHUB_PAT')
+        developer = developer
     )
 }
 initializeDebug <- function(mdiDir, debugDir){

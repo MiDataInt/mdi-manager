@@ -31,6 +31,12 @@
 #' via the GUI, you must also have enabled non-prompted authorized
 #' access to the remote repositories (e.g., via the command line).
 #' 
+#' As an alternative to using \code{gitUser} and \code{token}, developers and
+#' users can also create script 'gitCredentials.R' in \code{mdiDir}, with the 
+#' following contents:
+#'     Sys.setenv(GIT_USER = "xxxx")
+#'     Sys.setenv(GITHUB_PAT = "xxxx")
+#' 
 #' @param mdiDir character. Path to the directory where the MDI
 #' has previously been installed. Defaults to your home directory.
 #'
@@ -127,6 +133,7 @@ run <- function(mdiDir = '~',
         if(!file.exists(installationFile)) stop(paste('missing installation file:', installationFile))
         readRDS(installationFile)
     }
+    setGitCredentials(dirs, gitUser, token)    
     installation$dirs <- parseDirectories(mdiDir, installation$versions, create = FALSE, 
                                           dataDir = dataDir, ondemandDir = ondemandDir)
 
@@ -175,8 +182,6 @@ run <- function(mdiDir = '~',
     Sys.setenv(LAUNCH_BROWSER = browser)
     Sys.setenv(DEBUG = debug)
     Sys.setenv(IS_DEVELOPER = developer)
-    Sys.setenv(GIT_USER = gitUser)
-    Sys.setenv(GITHUB_PAT = token)
     Sys.setenv(APPS_FRAMEWORK_DIR = appsFrameworkDir)
     Sys.setenv(LIBRARY_DIR = installation$dirs$versionLibrary)
     Sys.setenv(INSTALLATION_FILE = file.path(installation$dirs$versionLibrary, 'installation.rds'))

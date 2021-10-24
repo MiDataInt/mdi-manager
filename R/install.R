@@ -24,6 +24,12 @@
 #'   \item sessions = temporary files associated with user web sessions
 #'   \item suites = git repositories with code that defines specific pipelines and apps
 #' }
+#' 
+#' As an alternative to using \code{gitUser} and \code{token}, developers and
+#' users can also create script 'gitCredentials.R' in \code{mdiDir}, with the 
+#' following contents:
+#'     Sys.setenv(GIT_USER = "xxxx")
+#'     Sys.setenv(GITHUB_PAT = "xxxx")
 #'
 #' @param mdiDir character. Path to the directory where the MDI
 #' will be/has been installed. Defaults to your home directory.
@@ -87,9 +93,11 @@ install <- function(mdiDir = '~',
                     force = FALSE,
                     ondemand = FALSE){
     
+    
     # parse needed versions and file paths
     versions <- getRBioconductorVersions()
     dirs <- parseDirectories(mdiDir, versions, message = TRUE)
+    setGitCredentials(dirs, gitUser, token)
     getInstallationData <- function(repos = NULL, rRepos = NULL, packages = NULL){
         list(
             versions = versions, 
@@ -111,7 +119,7 @@ install <- function(mdiDir = '~',
     configFilePath <- copyRootFile(dirs, 'config.yml') 
 
     # collect the list of all framework and suite repositories for this installation
-    repos <- parseGitRepos(dirs, configFilePath, gitUser)
+    repos <- parseGitRepos(dirs, configFilePath)
 
     # for most users, download (clone or pull) the most current version of the git repositories
     setPersonalAccessToken(token)
