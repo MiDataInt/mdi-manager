@@ -37,7 +37,7 @@ parseDirectories <- function(mdiDir, versions,
     bareDirNames <- c('data', 'environments', 'frameworks', 'library', 'resources', 'sessions', 'suites') 
     dirs <- as.list( file.path(mdiDir, bareDirNames) )
     names(dirs) <- bareDirNames
-    dirs$root <- mdiDir
+    dirs$mdi <- mdiDir
     
     # override the data directory in run mode, if override is requested
     if(!is.null(dataDir)) dirs$data <- dataDir

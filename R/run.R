@@ -106,7 +106,7 @@ install(
     dirs <- parseDirectories(mdiDir, versions, create = FALSE, dataDir = dataDir, ondemandDir = ondemandDir)
 
     # initialize config file 
-    configFilePath <- file.path(dirs$root, 'config.yml')
+    configFilePath <- file.path(dirs$mdi, 'config.yml')
 
     # collect the list of all framework and suite repositories for this installation
     repos <- parseGitRepos(dirs, configFilePath, gitUser)

@@ -10,7 +10,7 @@ rPackageName <- 'mdi'
 #---------------------------------------------------------------------------
 copyRootFile <- function(dirs, fileName){
     message('checking for file:', fileName)
-    filePath <- file.path(dirs$root, fileName)
+    filePath <- file.path(dirs$mdi, fileName)
     fileTemplate <- system.file(fileName, package = rPackageName)
     file.copy(fileTemplate, filePath, overwrite = FALSE, recursive = FALSE)
     filePath
@@ -21,7 +21,7 @@ copyRootFile <- function(dirs, fileName){
 #---------------------------------------------------------------------------
 updateRootFile <- function(dirs, fileName, replace = list()){
     message('updating file:', fileName)
-    filePath <- file.path(dirs$root, fileName)
+    filePath <- file.path(dirs$mdi, fileName)
     fileTemplate <- system.file(fileName, package = rPackageName)
     contents <- readChar(fileTemplate, file.info(fileTemplate)$size)
     contents <- gsub("\\r", "", contents)

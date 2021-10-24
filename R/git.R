@@ -63,7 +63,7 @@ parseGitRepos <- function(dirs, configFilePath, gitUser){
             url     = switchGitUser(upstreamUrls, gitUser) # NB: some forked repos might not exist
         )
     )
-    x$dir <- getRepoDir(dirs$root, x$type, x$fork, x$url)
+    x$dir <- getRepoDir(dirs$mdi, x$type, x$fork, x$url)
     x
 }
 assembleGitUrl <- function(repoName, gitUser) {
