@@ -39,7 +39,7 @@ setGitCredentials <- function(dirs, gitUser, token){
 # collect information on all git repos relevant to this MDI installation
 #---------------------------------------------------------------------------
 parseGitRepos <- function(dirs, configFilePath){
-    message('collecting git repos from config.yml')
+    message('collecting git repos from mdi.yml')
     config <- yaml::read_yaml(configFilePath)
     
     # prepend the frameworks repos to the suites repos

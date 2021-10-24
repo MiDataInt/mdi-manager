@@ -4,6 +4,9 @@
 # also acts a surrogate/alias for direct calls to pipeline executables
 # and as a command line shortcut for launching the MDI web server
 
+#----------------------------------------------------------------------
+# input arguments
+#----------------------------------------------------------------------
 DEVELOPER_MODE=""
 TARGET=$1
 if [ "$TARGET" = "develop" ]; then
@@ -63,21 +66,10 @@ elif [[ "$TARGET" = "" || " $JOB_MANAGER_COMMANDS " =~ " $TARGET " ]]; then
 # capture and pass calls to a pipeline executable if using job manager as a surrogate
 # thus, pipelines cannot have the same name as a job manager command (submit, report, etc.)
 else
-
-    # use purpose-specific YAML parser to recover an ordered list of pipelines suites
-    # PIPELINES_SUITES=$(
-    #     grep -A 100 '^pipelines:' $MDI_DIR/config.yml |
-    #     grep -v '^pipelines:' |
-    #     grep -B 100 '^apps:' |
-    #     grep -v '^apps:' |
-    #     perl -ne '$_ =~ m/(.+)\/(.+)\.git/ and print $2'
-    # )
     DEFINITIVE_SUITES="_DEFINITIVE_SUITES_"
     DEVELOPER_FORKS="_DEVELOPER_FORKS_" # space delimited lis of pipeines suites directories
     
-    # fork to the first matching pipeline name in order given in config.yml
-    # for PIPELINES_SUITE in $PIPELINES_SUITES; do
-        # DIR="$MDI_DIR/suites/$PIPELINES_SUITE/pipelines/$TARGET"
+    # fork to the first matching pipeline name in order given in mdi.yml
     if [ "$DEVELOPER_MODE" = "TRUE" ]; then # developer-forks take precedence in developer mode, ignored otherwise
         for DIR in $DEVELOPER_FORKS; do
             if [ -d $DIR ]; then

@@ -5,16 +5,12 @@ installing and running a variety of HPC data analysis pipelines
 and interactive R Shiny data visualization applications
 within a standardized design and implementation interface.
 
-## Organization and contents
-
-### MDI code stages
+## Repository contents
 
 Data analysis in the MDI is logically separated into 
 [two stages of code execution](https://midataint.github.io/docs/analysis-flow/) 
 called Stage 1 HPC **pipelines**
 and Stage 2 web applications (i.e., **apps**).
-
-### Repository contents
 
 This is the repository for the **MDI manager** utility.
 It will help you install and run the MDI on your server,
@@ -112,10 +108,10 @@ a web browser will open and you will be ready to load your data and run an assoc
 <code>mdi::install()</code> will download a standard series of
 pipelines and apps supported by Michigan core facilities. You can
 add any other custom or non-standard pipelines and/or apps suites
-by editing file 'config.yml' in the 'mdi' root directory.
+by editing file 'mdi.yml' in the 'mdi' root directory.
 
 ```
-# mdi/config.yml
+# mdi/mdi.yml
 suites:
     pipelines:
         - https://github.com/GIT_USER/SUITE_NAME-mdi-pipelines.git

@@ -116,7 +116,7 @@ install <- function(mdiDir = '~',
     }
 
     # initialize config file 
-    configFilePath <- copyRootFile(dirs, 'config.yml') 
+    configFilePath <- copyRootFile(dirs, 'mdi.yml') 
 
     # collect the list of all framework and suite repositories for this installation
     repos <- parseGitRepos(dirs, configFilePath)
@@ -169,8 +169,8 @@ install <- function(mdiDir = '~',
     if(.Platform$OS.type != "unix") updateRootFile(
         dirs, 
         'mdi.bat', 
-        list(PATH_TO_R = R.home(), 
-             GITHUB_PAT = if(is.null(token)) "" else token)
+        list(PATH_TO_R  = R.home(), 
+             GITHUB_PAT = Sys.getenv('GITHUB_PAT'))
     )    
 
     # initialize the Stage 1 pipelines management utility

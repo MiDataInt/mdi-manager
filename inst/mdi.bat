@@ -38,7 +38,7 @@ IF "%OPTION_NUMBER%"=="1" (
     EXIT
 )
 
-ECHO %RSCRIPT% -e "mdi::%COMMAND%(getwd()%OPTIONS%)"
+%RSCRIPT% -e "mdi::%COMMAND%(getwd()%OPTIONS%)"
 
 ECHO.
 ECHO %MESSAGE%
