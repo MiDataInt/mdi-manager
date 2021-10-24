@@ -4,7 +4,13 @@
 # also acts a surrogate/alias for direct calls to pipeline executables
 # and as a command line shortcut for launching the MDI web server
 
+DEVELOPER_MODE=""
 TARGET=$1
+if [ "$TARGET" = "develop" ]; then
+    DEVELOPER_MODE="TRUE"
+    TARGET=$2
+    shift
+fi
 
 #----------------------------------------------------------------------
 # Stage 2 shortcuts to mdi R functions via Rscript
@@ -16,8 +22,8 @@ if [ "$TARGET" = "server" ]; then
     if [ "$ACTION" = "" ]; then ACTION="run"; fi # default to run if action not specified
     exec Rscript -e "mdi::$ACTION()"
     
-# shortcut for reinstalling the MDI (could also use 'mdi server install')
-elif [ "$TARGET" = "reinstall" ]; then
+# shortcut for re-installing the MDI (could also use 'mdi server install')
+elif [ "$TARGET" = "install" ]; then
     exec Rscript -e "mdi::install()"
 
 #----------------------------------------------------------------------
@@ -27,13 +33,18 @@ else
 
 # set script paths
 export MDI_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-JOB_MANAGER_DIR=$MDI_DIR/frameworks/mdi-pipelines-framework/job_manager
+FRAMEWORK_DIR=$MDI_DIR/frameworks/developer-forks/mdi-pipelines-framework
+if [[ ! -d $FRAMEWORK_DIR || "$DEVELOPER_MODE" != "TRUE" ]]; then # use developer fork of mdi-pipelines-framework if present and in developer mode
+    FRAMEWORK_DIR=$MDI_DIR/frameworks/definitive/mdi-pipelines-framework
+fi
+JOB_MANAGER_DIR=$FRAMEWORK_DIR/job_manager
 JOB_MANAGER_TARGET=$JOB_MANAGER_DIR/jobManager
 JOB_MANAGER_COMMANDS=$(cd $JOB_MANAGER_DIR/lib/commands && ls -1 *.pl |  cut -d '.' -f 1) # TODO: or simply type them here?
 
 # handle a direct call to initialize the job manager (called by mdi::install())
 if [ "$TARGET" = "initialize" ]; then
-    exec perl $JOB_MANAGER_DIR/initialize.pl
+    echo "  $JOB_MANAGER_DIR"
+    exec perl $JOB_MANAGER_DIR/initialize.pl $MDI_DIR
 
 # handle job manager functions (submit, report, etc.)
 # also handle mdi called with no arguments
@@ -41,7 +52,7 @@ elif [[ "$TARGET" = "" || " $JOB_MANAGER_COMMANDS " =~ " $TARGET " ]]; then
     
     # ensure that the job manager target script has been initialized
     if [ ! -e "$JOB_MANAGER_TARGET" ]; then
-        perl $JOB_MANAGER_DIR/initialize.pl
+        perl $JOB_MANAGER_DIR/initialize.pl $MDI_DIR
     fi    
 
     # fork the call to the job manager utility (a close relative of 'q')
@@ -49,22 +60,32 @@ elif [[ "$TARGET" = "" || " $JOB_MANAGER_COMMANDS " =~ " $TARGET " ]]; then
         exec $JOB_MANAGER_TARGET "$@"
     fi
 
-# capture and pass calls to pipeline executable if using job manager as a surrogate
+# capture and pass calls to a pipeline executable if using job manager as a surrogate
 # thus, pipelines cannot have the same name as a job manager command (submit, report, etc.)
 else
 
     # use purpose-specific YAML parser to recover an ordered list of pipelines suites
-    PIPELINES_SUITES=$(
-        grep -A 100 '^pipelines:' $MDI_DIR/config.yml |
-        grep -v '^pipelines:' |
-        grep -B 100 '^apps:' |
-        grep -v '^apps:' |
-        perl -ne '$_ =~ m/(.+)\/(.+)\.git/ and print $2'
-    )
+    # PIPELINES_SUITES=$(
+    #     grep -A 100 '^pipelines:' $MDI_DIR/config.yml |
+    #     grep -v '^pipelines:' |
+    #     grep -B 100 '^apps:' |
+    #     grep -v '^apps:' |
+    #     perl -ne '$_ =~ m/(.+)\/(.+)\.git/ and print $2'
+    # )
+    DEFINITIVE_SUITES="_DEFINITIVE_SUITES_"
+    DEVELOPER_FORKS="_DEVELOPER_FORKS_" # space delimited lis of pipeines suites directories
     
     # fork to the first matching pipeline name in order given in config.yml
-    for PIPELINES_SUITE in $PIPELINES_SUITES; do
-        DIR="$MDI_DIR/suites/$PIPELINES_SUITE/pipelines/$TARGET"
+    # for PIPELINES_SUITE in $PIPELINES_SUITES; do
+        # DIR="$MDI_DIR/suites/$PIPELINES_SUITE/pipelines/$TARGET"
+    if [ "$DEVELOPER_MODE" = "TRUE" ]; then # developer-forks take precedence in developer mode, ignored otherwise
+        for DIR in $DEVELOPER_FORKS; do
+            if [ -d $DIR ]; then
+                exec perl $DIR/"$@"
+            fi   
+        done
+    fi
+    for DIR in $DEFINITIVE_SUITES; do
         if [ -d $DIR ]; then
             exec perl $DIR/"$@"
         fi   
@@ -77,4 +98,3 @@ else
 fi
 
 fi
-

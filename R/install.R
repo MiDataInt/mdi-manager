@@ -7,14 +7,14 @@
 #' All default settings are consistent with an end user running the 
 #' MDI in local mode on their desktop or laptop computer.
 #'
-#' \code{rootDir} must already exist, it will not be created. 
+#' \code{mdiDir} must already exist, it will not be created. 
 #' 
-#' If \code{rootDir} ends with '/mdi' it will be used as is
+#' If \code{mdiDir} ends with '/mdi' it will be used as is
 #' without prompting. Otherwise, a subdirectory of that name will be 
-#' created in \code{rootDir} after prompting for confirmation.
+#' created in \code{mdiDir} after prompting for confirmation.
 #'
-#' If they do not already exist, \code{install} will create a series of
-#' subdirectories in \code{rootDir} without prompting, as follows:
+#' If they do not already exist, \code{mdi::install()} will create a series of
+#' subdirectories in \code{mdiDir} without prompting, as follows:
 #' \itemize{
 #'   \item data = project-specific input and output files
 #'   \item environments = conda environments used by data analysis pipelines
@@ -25,26 +25,21 @@
 #'   \item suites = git repositories with code that defines specific pipelines and apps
 #' }
 #'
-#' @param rootDir character. Path to the directory where the MDI
-#' will be/has previously been installed. Defaults to your home directory.
+#' @param mdiDir character. Path to the directory where the MDI
+#' will be/has been installed. Defaults to your home directory.
 #'
-#' @param cranRepo character. The base URL of the R repository to use, e.g., the
-#' URL of a CRAN mirror. Defaults to the University of Michigan CRAN mirror.
-#'
-#' @param packages character vector. If not NULL (the default), only install
-#' these specific R packages (useful for developers to quickly update selected
-#' packages). The apps and pipelines repositories will not be cloned or pulled.
-#'
-#' @param force logical.  When FALSE (the default), \code{mdi::install()}
-#' does not attempt to update R packages that have previously been installed,
-#' regardless of version. When TRUE, all packages are installed without further
-#' prompting.
-#'
+#' @param installApps logical vector. If TRUE (the default), 
+#' \code{mdi::install()} will install both Stage 1 pipelines and Stage 2 
+#' apps for use on the computer or server. If you know you will only want
+#' to use Stage 1 pipelines from an installation, setting \code{installApps}
+#' to FALSE will skip the much slower installation of the R packages library.
+#' 
 #' @param gitUser character. Developers should use \code{gitUser} to provide 
 #' the username of the GitHub account that holds their forks of any
 #' frameworks or suites repositories. Code editing is done in these forks,
-#' which will be cloned locally into frameworks/developer and/or suites/developer
-#' and used by \code{develop()} instead of the upstream repos, when available.
+#' which will be cloned locally into frameworks/developer-forks and/or 
+#' suites/developer-forks and used by \code{mdi::develop()} instead of the 
+#' upstream repos, when available.
 #'
 #' @param token character. The GitHub Personal Access Token (PAT) that grants
 #' permissions for accessing forked repositories in the \code{gitUser} account,
@@ -56,120 +51,155 @@
 #' repositories will be cloned anew from GitHub if they do not already exist, 
 #' or they will be pulled from the server to update a repository if they have been 
 #' cloned previously. Developers might want to set this option to FALSE.
+#' 
+#' @param cranRepo character. The base URL of the R repository to use, e.g., the
+#' URL of a CRAN mirror. Defaults to the University of Michigan CRAN mirror.
 #'
-#' @param checkout character. If NULL (the default), \code{install} will set
-#' all repositories to the latest version compatible with your R version.
-#' Developers might want to specify a code branch.
-#'
+#' @param packages character vector. If not NULL (the default), only install
+#' these specific R packages (for developers to quickly update selected
+#' packages). No other actions will be taken and the library's installation.rds
+#' file will not be updated.
+#' 
+#' @param force logical.  When FALSE (the default), \code{mdi::install()}
+#' does not attempt to update R packages that have previously been installed,
+#' regardless of version. When TRUE, all packages are installed without further
+#' prompting.
+#' 
 #' @param ondemand logical. If TRUE, the installer will not install _any_ R
 #' packages, as they will be used from the managed host installation. Default
 #' is FALSE.
 #'
-#' @return same as BiocManager::install
+#' @return a list of installation data with names components 'versions', dirs', 
+#' 'repos', 'rRepos', 'packages'. This information will be incomplete if 
+#' \code{packages} was not NULL (repos and rRepos will be NULL, packages will  
+#' only contain\code{packages}) or if installApps was FALSE (repos, rRepos and 
+#' packages will all be NULL).
 #'
 #' @export
 #---------------------------------------------------------------------------
-install <- function(rootDir = '~',
-                    cranRepo = 'https://repo.miserver.it.umich.edu/cran/',                    
-                    packages = NULL,
-                    force = FALSE,
+install <- function(mdiDir = '~',
+                    installApps = TRUE,
                     gitUser = NULL,
                     token = NULL,                    
                     clone = TRUE,
-                    checkout = NULL,
+                    cranRepo = 'https://repo.miserver.it.umich.edu/cran/',                    
+                    packages = NULL,
+                    force = FALSE,
                     ondemand = FALSE){
     
-    # parse needed versions, file paths, git repos
+    # parse needed versions and file paths
     versions <- getRBioconductorVersions()
-    dirs <- parseDirectories(rootDir, versions, message = TRUE)
-    configFilePath <- copyConfigFile(dirs) 
-    repos <- parseGitRepos(dirs, configFilePath, gitUser)
-    
-    # for most users, download (clone or pull) the most current version of the git repositories
-
-    # TODO: WORKING HERE, next step is to get version information from each repo
-    if(clone) versions$repos <- do.call(downloadGitRepo, repos)
-
-
-
-
-
-
-
-
-
-
-    # TODO: clone or pull repos
-    # scroll backwards through tags to find 
-    
-    version <- version(quiet = TRUE, message = TRUE)
-    
-
-    # parse needed code versions and file paths
-    version <- version(quiet = TRUE, message = TRUE)
-    dirs <- parseDirectories(rootDir, version, message = TRUE)
-    if(is.null(version)){ # in case remote recovery of versions failed
-        version <- version(quiet = TRUE, message = TRUE, dirs = dirs)
-        if(is.null(version)) stop('unable to obtain resolve MDI version')
-        dirs <- parseDirectories(rootDir, version, message = TRUE)
+    dirs <- parseDirectories(mdiDir, versions, message = TRUE)
+    getInstallationData <- function(repos = NULL, rRepos = NULL, packages = NULL){
+        list(
+            versions = versions, 
+            dirs = dirs,
+            repos = repos, 
+            rRepos = rRepos,
+            packages = packages
+        )
     }
-    backupCodeVersions(dirs)
-    
-    # ensure the presence of a valid config file (even if values are NULL)
-    configFilePath <- copyConfigFile(dirs)    
-    
-    # determine the complete set of git code repositories we will track
-    repos <- parseGitRepos(dirs, configFilePath, gitUser)
-    if(!clone) checkUpstreamRepos(repos)
-    # for(repoKey in repoKeys){
-    #    dir <- dirs[[repoKey]]
-    #    if(!dir.exists(dir)) stop(paste('missing directory:', dir))
-    #}
 
-    # if caller requests an override, just install those specific packages and stop
+    # if developer requests an override, just install those specific R packages and stop
     if(!is.null(packages)){
-        return( installPackages(version, dirs, unique(unname(unlist(packages))), force, ondemand) )
+        packages <- unique(unname(unlist(packages)))
+        installPackages(versions, dirs, packages, force, ondemand)
+        return( getInstallationData(packages = packages) )
     }
 
+    # initialize config file 
+    configFilePath <- copyRootFile(dirs, 'config.yml') 
+
+    # collect the list of all framework and suite repositories for this installation
+    repos <- parseGitRepos(dirs, configFilePath, gitUser)
+
     # for most users, download (clone or pull) the most current version of the git repositories
-    if(clone) for (repoKey in repoKeys){
-        downloadGitRepo(repoKey, dirs, repos, token)
-    }
-    
-    # check for appropriate git installations (i.e. clone success)
-    # set <...>-apps head to the appropriate version
-    #   git checkout <tag> is fine but results in a detached head
-    for(repoKey in repoKeys){
-        dir <- dirs[[repoKey]]
+    setPersonalAccessToken(token)
+    if(clone) do.call(downloadGitRepo, repos)  
+    if(!clone) for(dir in filterRepoDirs(repos, fork = Forks$definitive)){
+        if(!dir.exists(dir)) stop(paste('missing repository:', dir))
         isGitRepo(dir, require = TRUE)
-        # TODO: implement versioning of <...>-pipelines
-        if(repoKey == appsRepoKey) {
-            if(is.null(checkout)) checkout <- paste0('v', version$MDIVersion) 
-            checkoutGitBranch(dir, checkout)
-        }
-    } 
+    }
+
+    # get the latest tagged versions of all repos
+    repos$exists <- repoExists(repos$dir)
+    repos$version <- do.call(getLatestVersions, repos)
+
+    # checkout the appropriate repository versions to continue with the installation
+    #   definitive repositories use the most recent tagged version
+    #   developer-forks stay where the developer had them (tip of 'main' if a new installation)
+    message('checking out most recent versions')
+    mapply(function(dir, fork, version){
+        if(!is.null(dir) && !is.na(dir) && 
+           !is.null(version) && !is.na(version) &&
+           fork == Forks$definitive){
+            branch <- paste0('v', version)
+            checkoutGitBranch(dir, branch) # git checkout <tag> is fine but results in a detached head
+        }        
+    }, repos$dir, repos$fork, repos$version)
+
+    # initialize MDI root execution files
+    mdiPath <- updateRootFile(
+        dirs, 
+        'mdi',
+        list(
+            DEFINITIVE_SUITES = filterRepoDirs(
+                repos, 
+                type  = Types$suite, 
+                stage = Stages$pipelines, 
+                fork  = Forks$definitive,
+                paste = TRUE
+            ),
+            DEVELOPER_FORKS   = filterRepoDirs(
+                repos, 
+                type  = Types$suite, 
+                stage = Stages$pipelines, 
+                fork  = Forks$developer,
+                paste = TRUE
+            )
+        )
+    ) 
+    if(.Platform$OS.type != "unix") updateRootFile(
+        dirs, 
+        'mdi.bat', 
+        list(PATH_TO_R = R.home(), 
+             GITHUB_PAT = if(is.null(token)) "" else token)
+    )    
+
+    # initialize the Stage 1 pipelines management utility
+    if(.Platform$OS.type == "unix") {
+        message('initializing job manager')
+        initializeJobManager(mdiPath)
+    }
+    if(!installApps) return( getInstallationData() )
 
     # set the public R package repositories
     message('collecting R repository information')
     rRepos <- list(R = cranRepo)
-    rRepos$Bioconductor <- unname(BiocManager::repositories()['BioCsoft'])    
-   
-    # collect the complete list of packages used by the framework and all apps
-    pkgLists <- getAppsPackages(dirs, rRepos)   
+    rRepos$Bioconductor <- unname(BiocManager::repositories()['BioCsoft']) 
 
-    # record the version associated with the current set of library packages
-    # used by run to determine if latest version has pending package installations
-    versionFile <- file.path(dirs$versionLibrary, 'version.yml')
-    cat("MDIVersion: ", version$MDIVersion, sep = "", "\n\n", file = versionFile)    
-    
-    # install or update all required packages
-    installPackages(version, dirs, unique(unname(unlist(pkgLists))), force, ondemand)
+    # collect the complete list of packages used by the framework and all Stage 2 apps
+    # (pipelines repos don't depend on R packages installed here, they use conda)
+    pkgLists <- getAppsPackages(repos, rRepos)   
+    packages <- unique(unname(unlist(pkgLists)))
+
+    # record the app versions that led to the current set of installed R library packages
+    # used by run() to determine if latest app versions have missing package installations
+    installationFile <- file.path(dirs$versionLibrary, 'installation.rds')
+    installationData <- getInstallationData(repos = repos, rRepos = rRepos, packages = packages)
+    saveRDS(installationData, installationFile)
+
+    # install or update all required apps R packages
+    installPackages(versions, dirs, packages, force, ondemand)
+
+    # return installation data
+    installationData
 }
 
 #---------------------------------------------------------------------------
-# use BiocManager to install all packages (whether CRAN or Bioconductor)
+# use BiocManager to install all apps R packages (whether CRAN or Bioconductor)
 #---------------------------------------------------------------------------
-installPackages <- function(version, dirs, packages, force, ondemand){
+installPackages <- function(versions, dirs, packages, force, ondemand){
     if(ondemand) return(NULL)
     dir <- dirs$versionLibrary
     newPackages <- if(force) packages else {
@@ -178,7 +208,7 @@ installPackages <- function(version, dirs, packages, force, ondemand){
     }    
     if(length(newPackages) > 0 || # missing packages
        length(packages) == 0) {   # user just requested an update of current packages
-        message('installing/updating packages in private library')
+        message('installing/updating R packages in private library')
         message(dir)        
         BiocManager::install(
             newPackages,
@@ -189,7 +219,7 @@ installPackages <- function(version, dirs, packages, force, ondemand){
             ask = FALSE,
             checkBuilt = FALSE,
             force = TRUE,
-            version = version$BioconductorRelease
+            version = versions$BioconductorRelease
             #,
             #type = .Platform$pkgType
         )         
@@ -206,14 +236,3 @@ installPackages <- function(version, dirs, packages, force, ondemand){
 #In miniCRAN::pkgDep(unique(pkgLists[[x]]), repos = rRepos[[x]],  :
 #  Package not recognized: rtracklayer, Biostrings, SummarizedExperiment, GenomicRanges, GenomicFeatures, GenomeInfoDb
 #Execution halted
-
-#---------------------------------------------------------------------------
-# get the currently installed version, i.e. set of R packages in the matching library
-#---------------------------------------------------------------------------
-getInstalledVersion <- function(dirs){
-    versionFile <- file.path(dirs$versionLibrary, 'version.yml')
-    if(!file.exists(versionFile)) stop(paste('missing version file:', versionFile))
-    version <- yaml::read_yaml(versionFile)
-    version$MDIVersion
-}
-

@@ -1,7 +1,7 @@
-Package: mdi-manager
+Package: mdi
 Type: Package
-Title: Michigan Data Interface Manager
-Version: 0.0
+Title: Michigan Data Interface
+Version: 0.0.0
 Authors@R: c(
     person("Thomas", "Wilson", email = "wilsonte@umich.edu", role = c("aut", "cre")))
 Description: The Michigan Data Interface is a framework for developing,
@@ -14,6 +14,6 @@ Imports:
     miniCRAN,
     yaml,
     future
-License: GPL-2
+License: MIT
 Encoding: UTF-8
 RoxygenNote: 7.1.1
