@@ -14,6 +14,7 @@ if [ "$TARGET" = "develop" ]; then
     TARGET=$2
     shift
 fi
+export MDI_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 #----------------------------------------------------------------------
 # Stage 2 shortcuts to mdi R functions via Rscript
@@ -21,13 +22,13 @@ fi
 
 # shortcut for launching the web server
 if [ "$TARGET" = "server" ]; then
-    ACTION=$2 # any function exported by mdi R package, e.g., run, develop or version
+    ACTION=$2 # any function exported by mdi R package, e.g., run, develop
     if [ "$ACTION" = "" ]; then ACTION="run"; fi # default to run if action not specified
-    exec Rscript -e "mdi::$ACTION()"
+    exec Rscript -e "mdi::$ACTION('$MDI_DIR')"
     
 # shortcut for re-installing the MDI (could also use 'mdi server install')
 elif [ "$TARGET" = "install" ]; then
-    exec Rscript -e "mdi::install()"
+    exec Rscript -e "mdi::install('$MDI_DIR')"
 
 #----------------------------------------------------------------------
 # Stage 1 pipeline execution via the job manager
@@ -35,7 +36,6 @@ elif [ "$TARGET" = "install" ]; then
 else
 
 # set script paths
-export MDI_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 FRAMEWORK_DIR=$MDI_DIR/frameworks/developer-forks/mdi-pipelines-framework
 if [[ ! -d $FRAMEWORK_DIR || "$DEVELOPER_MODE" != "TRUE" ]]; then # use developer fork of mdi-pipelines-framework if present and in developer mode
     FRAMEWORK_DIR=$MDI_DIR/frameworks/definitive/mdi-pipelines-framework
