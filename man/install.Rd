@@ -5,8 +5,8 @@
 \title{Install Michigan Data Interface (MDI) dependencies}
 \usage{
 install(
-  rootDir = "~",
-  stages = 1:2,
+  mdiDir = "~",
+  installApps = TRUE,
   gitUser = NULL,
   token = NULL,
   clone = TRUE,
@@ -17,12 +17,14 @@ install(
 )
 }
 \arguments{
-\item{rootDir}{character. Path to the directory where the MDI
+\item{mdiDir}{character. Path to the directory where the MDI
 will be/has been installed. Defaults to your home directory.}
 
-\item{stages}{integer vector. The number(s) of the MDI analysis stages to install,
-where 1=pipelines, 2=apps. The default (1:2) will attempt to install both
-Stage 1 pipelines and Stage 2 apps for use on the computer or server.}
+\item{installApps}{logical vector. If TRUE (the default), 
+\code{mdi::install()} will install both Stage 1 pipelines and Stage 2 
+apps for use on the computer or server. If you know you will only want
+to use Stage 1 pipelines from an installation, setting \code{installApps}
+to FALSE will skip the much slower installation of the R packages library.}
 
 \item{gitUser}{character. Developers should use \code{gitUser} to provide 
 the username of the GitHub account that holds their forks of any
@@ -46,8 +48,9 @@ cloned previously. Developers might want to set this option to FALSE.}
 URL of a CRAN mirror. Defaults to the University of Michigan CRAN mirror.}
 
 \item{packages}{character vector. If not NULL (the default), only install
-these specific R packages (useful for developers to quickly update selected
-packages). No other actions will be taken.}
+these specific R packages (for developers to quickly update selected
+packages). No other actions will be taken and the library's installation.rds
+file will not be updated.}
 
 \item{force}{logical.  When FALSE (the default), \code{mdi::install()}
 does not attempt to update R packages that have previously been installed,
@@ -59,7 +62,11 @@ packages, as they will be used from the managed host installation. Default
 is FALSE.}
 }
 \value{
-same as BiocManager::install
+a list of installation data with names components 'versions', dirs', 
+'repos', 'rRepos', 'packages'. This information will be incomplete if 
+\code{packages} was not NULL (repos and rRepos will be NULL, packages will  
+only contain\code{packages}) or if installApps was FALSE (repos, rRepos and 
+packages will all be NULL).
 }
 \description{
 Install all dependencies of the Michigan Data Interface (MDI). 
@@ -69,14 +76,14 @@ This will include Bioconductor's BiocManager and its child packages.
 All default settings are consistent with an end user running the 
 MDI in local mode on their desktop or laptop computer.
 
-\code{rootDir} must already exist, it will not be created. 
+\code{mdiDir} must already exist, it will not be created. 
 
-If \code{rootDir} ends with '/mdi' it will be used as is
+If \code{mdiDir} ends with '/mdi' it will be used as is
 without prompting. Otherwise, a subdirectory of that name will be 
-created in \code{rootDir} after prompting for confirmation.
+created in \code{mdiDir} after prompting for confirmation.
 
 If they do not already exist, \code{mdi::install()} will create a series of
-subdirectories in \code{rootDir} without prompting, as follows:
+subdirectories in \code{mdiDir} without prompting, as follows:
 \itemize{
   \item data = project-specific input and output files
   \item environments = conda environments used by data analysis pipelines
@@ -86,4 +93,10 @@ subdirectories in \code{rootDir} without prompting, as follows:
   \item sessions = temporary files associated with user web sessions
   \item suites = git repositories with code that defines specific pipelines and apps
 }
+
+As an alternative to using \code{gitUser} and \code{token}, developers and
+users can also create script 'gitCredentials.R' in \code{mdiDir}, with the 
+following contents:
+    Sys.setenv(GIT_USER = "xxxx")
+    Sys.setenv(GITHUB_PAT = "xxxx")
 }

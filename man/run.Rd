@@ -7,86 +7,123 @@
 \title{Run the Michigan Data Interface (MDI) in a web server}
 \usage{
 run(
-  rootDir = "~",
+  mdiDir = "~",
   dataDir = NULL,
   ondemandDir = NULL,
-  url = "http://localhost:3838/",
   mode = "local",
+  install = TRUE,
+  url = "http://localhost",
+  port = 3838,
   browser = mode != "server",
   debug = mode != "server",
   developer = FALSE,
-  checkout = NULL
+  gitUser = NULL,
+  token = NULL
 )
 
-develop(rootDir = "~", dataDir = NULL, url = "http://localhost:3838/")
+develop(
+  mdiDir = "~",
+  dataDir = NULL,
+  url = "http://localhost",
+  port = 3838,
+  gitUser = NULL,
+  token = NULL
+)
 
-ondemand(ondemandDir, rootDir = "~", dataDir = NULL, port = 3838)
+ondemand(ondemandDir, mdiDir = "~", dataDir = NULL, port = 3838)
 }
 \arguments{
-\item{rootDir}{character. Path to the directory where the MDI
+\item{mdiDir}{character. Path to the directory where the MDI
 has previously been installed. Defaults to your home directory.}
 
 \item{dataDir}{character. Path to the directory where your MDI
-data can be found. Defaults to code{rootDir}/data. You might wish to change
+data can be found. Defaults to \code{mdiDir}/data. You might wish to change
 this to a directory that holds shared data, e.g., for your laboratory.}
 
 \item{ondemandDir}{character. Path to the directory where a public
 installation of the MDI can be found. Some paths from this
-installation will be used instead of the user's installation when code{mode}
-is 'ondemand'.}
-
-\item{url}{character. The complete browser URL to load the web page. Must
-include port 3838 and a trailing slash. Examples: 'http://localhost:3838/' 
-or 'https://mymdi.org:3838/'.}
+installation will be used instead of the user's installation when 
+\code{mode} is 'ondemand'.}
 
 \item{mode}{character. Either 'server', 'local' or 'ondemand'. Most users
 want 'local' (the default) to run the MDI on your desktop or laptop. 
 Mode 'server' is for a public web server, 'ondemand' is for managed execution
-on an HPC cluster via Open OnDemand Interactive Apps.}
+on an HPC cluster via Open OnDemand Interactive Apps. \code{ondemandDir}
+is required if \code{mode} is set to 'ondemand'.}
+
+\item{install}{logical. When TRUE (the default), \code{mdi::run()} will
+call \code{mdi::install()} prior to launching the web server to 
+clone or pull all repositories and install any missing packages. Setting 
+\code{install} to FALSE will allow the server to start more quickly.}
+
+\item{url}{character. The complete browser URL to load the web page. 
+Examples: 'http://localhost' or 'https://mymdi.org'.}
+
+\item{port}{integer. The port to use on the host specified in \code{url}.
+Example: setting \code{url} to 'https://mymdi.org' and \code{port} to 5000
+will yield a final access url of 'https://mymdi.org:5000/'.}
 
 \item{browser}{logical. Whether or not to attempt to launch a web browser 
 after starting the MDI server. Defaults to TRUE unless \code{mode} is 'server'.}
 
 \item{debug}{logical. When \code{debug} is TRUE, verbose activity logs
-will be printed to the R console where \code{mdi::run} was called.
+will be printed to the R console where \code{mdi::run()} was called.
 Defaults to TRUE unless \code{mode} is 'server'.}
 
 \item{developer}{logical. When \code{developer} is TRUE, additional
-development utilities are added to the web page. Only honored if
-\code{mode} is 'local'.}
+development utilities are added to the web page and forked repositories
+will be used if they exist. Only honored if ' \code{mode} is 'local'.}
 
-\item{checkout}{character. If NULL (the default), \code{run} will auto-set
-repositories to the appropriate branch based on R and MDI versions.
-Developers might want to specify a code branch.}
+\item{gitUser}{character. Developers should use \code{gitUser} to provide 
+the username of the GitHub account that holds their forks of any
+frameworks or suites repositories, which will used by \code{mdi::develop()} 
+instead of the upstream repos, when available.}
+
+\item{token}{character. The GitHub Personal Access Token (PAT) that grants
+permissions for accessing forked repositories in the \code{gitUser} account,
+and/or any tool suites that have restricted access. You can also preset the 
+token into environment variable \code{GITHUB_PAT} using
+\code{Sys.setenv(GITHUB_PAT = "your_token")}.}
 }
 \value{
 These functions never return. They launch a blocking web server 
 that runs perpeptually in the parent R process in the global environment.
 }
 \description{
-\code{run} launches the suites of data analysis applications that comprise
+\code{run()} launches the suites of data analysis applications that comprise
 the Michigan Data Interface (MDI) in a web server, either on a web host 
 that is publicly addressable, on your local computer, or on on a cluster 
-compute node within an OnDemand batch job. \code{develop} is a shortcut 
-to \code{run}  with settings appropriate for developers (mode='local', 
+compute node within an OnDemand batch job. \code{develop()} is a shortcut 
+to \code{run()}  with settings appropriate for developers (mode='local', 
 browser=FALSE, debug=TRUE, developer=TRUE).
 }
 \details{
 All default settings are consistent with an end user running the 
 MDI in local mode on their desktop or laptop computer.
 
-\code{rootDir} must be the same directory as used in a prior
-call to \code{mdi::install}.
+\code{mdiDir} must be the same directory as used in a prior
+call to \code{mdi::install()}.
+
+When \code{developer} is FALSE, \code{run()} will use the definitive
+version of all repositories checked out to the latest version tag on 
+the 'main' branch (or the tip of main if no version tags are set).
+
+When \code{developer} is TRUE, \code{run()} will use a developer-forks
+repository for each framework or suite when it exists, otherwise, it
+will fall back to the definitive repository. Forked repos will be left
+on whatever branch they were already on, whereas definitive repos
+will be checked out to the tip of the 'main' branch.
 
 When \code{developer} is TRUE, you must have git properly installed on
 your computer. If needed, you will be prompted to provide your email
 address and user name on first use, which will be stored in your local
 repositories and used to tag your code commits. To pull or push code
 via the GUI, you must also have enabled non-prompted authorized
-access to the remote repositories (e.g. via the command line).
+access to the remote repositories (e.g., via the command line).
 
-When \code{developer} is TRUE, \code{run()} always ensures that the current
-git branch is somewhere other than 'main' (either 'develop' or your
-current development branch). Otherwise, it resets the git branch to 'main'
-at the appropriate version tag based on your system and usage.
+As an alternative to using \code{gitUser} and \code{token}, developers and
+users can also create script 'gitCredentials.R' in \code{mdiDir}, with the 
+following contents:
+    Sys.setenv(GIT_USER = "xxxx")
+    Sys.setenv(GITHUB_PAT = "xxxx")
 }
