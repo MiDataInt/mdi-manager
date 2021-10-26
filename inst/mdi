@@ -1,8 +1,9 @@
 #!/bin/bash
 
-# the main executable script that establishes the job manager
-# also acts a surrogate/alias for direct calls to pipeline executables
-# and as a command line shortcut for launching the MDI web server
+# the main executable script that 
+#   - establishes the job manager
+#   - makes calls that execute pipelines directly
+#   - provides a command line shorcut to mdi::run(), etc. 
 
 #----------------------------------------------------------------------
 # input arguments
@@ -36,9 +37,9 @@ elif [ "$TARGET" = "install" ]; then
 else
 
 # set script paths
-FRAMEWORK_DIR=$MDI_DIR/frameworks/developer-forks/mdi-pipelines-framework
+export FRAMEWORK_DIR=$MDI_DIR/frameworks/developer-forks/mdi-pipelines-framework
 if [[ ! -d $FRAMEWORK_DIR || "$DEVELOPER_MODE" != "TRUE" ]]; then # use developer fork of mdi-pipelines-framework if present and in developer mode
-    FRAMEWORK_DIR=$MDI_DIR/frameworks/definitive/mdi-pipelines-framework
+    export FRAMEWORK_DIR=$MDI_DIR/frameworks/definitive/mdi-pipelines-framework
 fi
 JOB_MANAGER_DIR=$FRAMEWORK_DIR/job_manager
 JOB_MANAGER_TARGET=$JOB_MANAGER_DIR/jobManager
@@ -63,7 +64,7 @@ elif [[ "$TARGET" = "" || " $JOB_MANAGER_COMMANDS " =~ " $TARGET " ]]; then
         exec $JOB_MANAGER_TARGET "$@"
     fi
 
-# capture and pass calls to a pipeline executable if using job manager as a surrogate
+# capture and pass calls to a pipeline executable when using job manager as a surrogate
 # thus, pipelines cannot have the same name as a job manager command (submit, report, etc.)
 else
     DEFINITIVE_SUITES="_DEFINITIVE_SUITES_"
@@ -73,13 +74,15 @@ else
     if [ "$DEVELOPER_MODE" = "TRUE" ]; then # developer-forks take precedence in developer mode, ignored otherwise
         for DIR in $DEVELOPER_FORKS; do
             if [ -d $DIR ]; then
-                exec perl $DIR/"$@"
+                # exec perl $DIR/"$@"
+                exec perl $FRAMEWORK_DIR/pipeline/launcher/launcher.pl $DIR $@
             fi   
         done
     fi
     for DIR in $DEFINITIVE_SUITES; do
         if [ -d $DIR ]; then
-            exec perl $DIR/"$@"
+            # exec perl $DIR/"$@"
+            exec perl $FRAMEWORK_DIR/pipeline/launcher/launcher.pl $DIR $@
         fi   
     done
    
