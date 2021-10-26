@@ -3,7 +3,7 @@
 # the main executable script that 
 #   - establishes the job manager
 #   - makes calls that execute pipelines directly
-#   - provides a command line shorcut to mdi::run(), etc. 
+#   - provides a command line shortcut to mdi::run(), etc. 
 
 #----------------------------------------------------------------------
 # input arguments
