@@ -92,8 +92,7 @@ install <- function(mdiDir = '~',
                     packages = NULL,
                     force = FALSE,
                     ondemand = FALSE){
-    
-    
+
     # parse needed versions and file paths
     versions <- getRBioconductorVersions()
     dirs <- parseDirectories(mdiDir, versions, message = TRUE)
@@ -144,6 +143,8 @@ install <- function(mdiDir = '~',
             checkoutGitBranch(dir, branch) # git checkout <tag> is fine but results in a detached head
         }        
     }, repos$dir, repos$fork, repos$version)
+
+    
 
     # initialize MDI root execution files
     definitivePipelines <- filterRepos(
