@@ -252,12 +252,7 @@ setGitConfigUser <- function(dir, nullUser = FALSE){
     )
 }
 
-#---------------------------------------------------------------------------
-# discover all of the pipelines and apps available in suites known to this installation
-#---------------------------------------------------------------------------
-xxxxxxxxxxxx <- function(){
 
-}
 
 # checkGitConfiguration <- function(dir, gitConfig, user=NULL){
 

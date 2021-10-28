@@ -144,88 +144,53 @@ install <- function(mdiDir = '~',
         }        
     }, repos$dir, repos$fork, repos$version)
 
-    
-
-    # initialize MDI root execution files
-    definitivePipelines <- filterRepos(
+    # initialize MDI root execution files, i
+    pipelinesSuites <- filterRepos(
         repos, 
-        type  = Types$suite, 
-        stage = Stages$pipelines, 
-        fork  = Forks$definitive
-    )
-    developerPipelines <- filterRepos(
-        repos, 
-        type  = Types$suite, 
-        stage = Stages$pipelines, 
-        fork  = Forks$developer
-    )
-message()
-    str(definitivePipelines)
-message()
-    str(developerPipelines)
-message()
-    merge(
-        definitivePipelines[, c('name', 'exists', 'dir')], 
-        developerPipelines[, c('name', 'exists', 'dir')], 
-        by = c("name", "order"),
-        all = TRUE
-    )
+        fork  = Forks$definitive,         
+        stage = Stages$pipelines,         
+        type  = Types$suite
+    )    
+    mdiPath <- updateRootFile(
+        dirs, 
+        'mdi',
+        list(PIPELINES_SUITE_NAMES = paste(pipelinesSuites$name, collapse = " "))
+    ) 
+    if(.Platform$OS.type != "unix") updateRootFile(
+        dirs, 
+        'mdi.bat', 
+        list(PATH_TO_R  = R.home(), 
+             GITHUB_PAT = Sys.getenv('GITHUB_PAT'))
+    )    
 
-    # mdiPath <- updateRootFile(
-    #     dirs, 
-    #     'mdi',
-    #     list(
-    #         DEFINITIVE_SUITES = filterRepoDirs(
-    #             repos, 
-    #             type  = Types$suite, 
-    #             stage = Stages$pipelines, 
-    #             fork  = Forks$definitive,
-    #             paste = TRUE
-    #         ),
-    #         DEVELOPER_FORKS   = filterRepoDirs(
-    #             repos, 
-    #             type  = Types$suite, 
-    #             stage = Stages$pipelines, 
-    #             fork  = Forks$developer,
-    #             paste = TRUE
-    #         )
-    #     )
-    # ) 
-    # if(.Platform$OS.type != "unix") updateRootFile(
-    #     dirs, 
-    #     'mdi.bat', 
-    #     list(PATH_TO_R  = R.home(), 
-    #          GITHUB_PAT = Sys.getenv('GITHUB_PAT'))
-    # )    
+    # initialize the Stage 1 pipelines management utility
+    if(.Platform$OS.type == "unix") {
+        message('initializing job manager')
+        initializeJobManager(mdiPath)
+    }
+    if(!installApps) return( getInstallationData() )
 
-    # # initialize the Stage 1 pipelines management utility
-    # if(.Platform$OS.type == "unix") {
-    #     message('initializing job manager')
-    #     initializeJobManager(mdiPath)
-    # }
-    # if(!installApps) return( getInstallationData() )
+    # set the public R package repositories
+    message('collecting R repository information')
+    rRepos <- list(R = cranRepo)
+    rRepos$Bioconductor <- unname(BiocManager::repositories()['BioCsoft']) 
 
-    # # set the public R package repositories
-    # message('collecting R repository information')
-    # rRepos <- list(R = cranRepo)
-    # rRepos$Bioconductor <- unname(BiocManager::repositories()['BioCsoft']) 
+    # collect the complete list of packages used by the framework and all Stage 2 apps
+    # (pipelines repos don't depend on R packages installed here, they use conda)
+    pkgLists <- getAppsPackages(repos, rRepos)   
+    packages <- unique(unname(unlist(pkgLists)))
 
-    # # collect the complete list of packages used by the framework and all Stage 2 apps
-    # # (pipelines repos don't depend on R packages installed here, they use conda)
-    # pkgLists <- getAppsPackages(repos, rRepos)   
-    # packages <- unique(unname(unlist(pkgLists)))
+    # record the app versions that led to the current set of installed R library packages
+    # used by run() to determine if latest app versions have missing package installations
+    installationFile <- file.path(dirs$versionLibrary, 'installation.rds')
+    installationData <- getInstallationData(repos = repos, rRepos = rRepos, packages = packages)
+    saveRDS(installationData, installationFile)
 
-    # # record the app versions that led to the current set of installed R library packages
-    # # used by run() to determine if latest app versions have missing package installations
-    # installationFile <- file.path(dirs$versionLibrary, 'installation.rds')
-    # installationData <- getInstallationData(repos = repos, rRepos = rRepos, packages = packages)
-    # saveRDS(installationData, installationFile)
+    # install or update all required apps R packages
+    installPackages(versions, dirs, packages, force, ondemand)
 
-    # # install or update all required apps R packages
-    # installPackages(versions, dirs, packages, force, ondemand)
-
-    # # return installation data
-    # installationData
+    # return installation data
+    installationData
 }
 
 #---------------------------------------------------------------------------

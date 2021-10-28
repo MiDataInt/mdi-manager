@@ -47,6 +47,9 @@ export JOB_MANAGER_DIR=$FRAMEWORK_DIR/job_manager
 JOB_MANAGER_TARGET=$JOB_MANAGER_DIR/jobManager
 JOB_MANAGER_COMMANDS=$(cd $JOB_MANAGER_DIR/lib/commands && ls -1 *.pl |  cut -d '.' -f 1) # TODO: or simply type them here?
 
+# set pipelines suites
+export PIPELINES_SUITE_NAMES="_PIPELINES_SUITE_NAMES_" # space delimited list
+
 # handle a direct call to initialize the job manager (called by mdi::install())
 if [ "$TARGET" = "initialize" ]; then
     echo "  $JOB_MANAGER_DIR"
@@ -68,35 +71,9 @@ elif [[ "$TARGET" = "" || " $JOB_MANAGER_COMMANDS " =~ " $TARGET " ]]; then
 
 # capture and pass calls to a pipeline executable when using job manager as a surrogate
 # thus, pipelines cannot have the same name as a job manager command (submit, report, etc.)
-# launcher.pl handles unknown pipeline errors
+# launcher.pl handle pipeline target errors
 else
-    exec perl $FRAMEWORK_DIR/pipeline/launcher/launcher.pl $@
-    
-
-    # grep -P "^$TARGET" $FILE
-
-    # DEFINITIVE_SUITES="_DEFINITIVE_SUITES_"
-    # DEVELOPER_FORKS="_DEVELOPER_FORKS_" # space delimited lis of pipeines suites directories
-    
-    # # fork to the first matching pipeline name in order given in mdi.yml
-    # if [ "$DEVELOPER_MODE" = "TRUE" ]; then # developer-forks take precedence in developer mode, ignored otherwise
-    #     for DIR in $DEVELOPER_FORKS; do
-    #         if [ -d $DIR ]; then
-    #             # exec perl $DIR/"$@"
-    #             exec perl $FRAMEWORK_DIR/pipeline/launcher/launcher.pl $DIR $@
-    #         fi   
-    #     done
-    # fi
-    # for DIR in $DEFINITIVE_SUITES; do
-    #     if [ -d $DIR ]; then
-    #         # exec perl $DIR/"$@"
-    #         exec perl $FRAMEWORK_DIR/pipeline/launcher/launcher.pl $DIR $@
-    #     fi   
-    # done
-   
-    # # TARGET not known; throw an error
-    # echo "unknown target: $TARGET"
-    # exit 1    
+    exec perl $FRAMEWORK_DIR/pipeline/launcher/launcher.pl $@ 
 
 fi
 
