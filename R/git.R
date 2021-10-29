@@ -41,10 +41,10 @@ setGitCredentials <- function(dirs, gitUser, token){
 parseGitRepos <- function(dirs, configFilePath){
     message('collecting git repos from mdi.yml')
     config <- yaml::read_yaml(configFilePath)
-    
+
     # prepend the frameworks repos to the suites repos
     upstreamUrls <- sapply(c(pipelinesFrameworkRepo, appsFrameworkRepo), assembleGitUrl, mdiGitUser)
-    upstreamUrls <- c(upstreamUrls, config$pipelines, config$apps) 
+    upstreamUrls <- c(upstreamUrls, config$suites$pipelines, config$suites$apps) 
     types <- c(
         rep(Types$framework, 2), 
         rep(Types$suite, length(upstreamUrls) - 2)
@@ -55,10 +55,12 @@ parseGitRepos <- function(dirs, configFilePath){
         rep(Stages$pipelines, length(config$pipelines)), 
         rep(Stages$apps, length(config$apps))
     )
+    order <- seq_along(types)
 
     # assemble and return an ordered table of all repos known to this MDI instance
     x <- rbind(   
         data.frame( # repos with remote==upstream are the definitive public source code
+            order   = order,
             type    = types,
             stage   = stages,
             remote  = Remotes$upstream,
@@ -67,6 +69,7 @@ parseGitRepos <- function(dirs, configFilePath){
             stringsAsFactors = FALSE
         ),
         data.frame( # repos with remote==origin are a developer's forks, if any
+            order   = order,
             type    = types,
             stage   = stages,
             remote  = Remotes$origin,
@@ -94,15 +97,25 @@ getRepoDir <- Vectorize(function(mdiDir, type, fork, url){
     repo <- strsplit(repo, '\\.')[[1]][1]
     file.path(mdiDir, type, fork, repo)
 })
+repoFilter <- function(repos, type, stage, fork){
+    isType  <- if(is.null(type))  TRUE else repos$type  == type
+    isStage <- if(is.null(stage)) TRUE else repos$stage == stage
+    isFork  <- if(is.null(fork))  TRUE else repos$fork  == fork
+    !is.null(repos$dir) &
+    !is.na(repos$dir) & 
+    isType & 
+    isStage & 
+    isFork
+}
 filterRepoDirs <- function(repos, type = NULL, stage = NULL, fork = NULL, paste = FALSE){
-    x <- !is.null(repos$dir) &
-         !is.na(repos$dir) & 
-         if(is.null(type))  TRUE else repos$type  == type & 
-         if(is.null(stage)) TRUE else repos$stage == stage & 
-         if(is.null(fork))  TRUE else repos$fork  == fork
-    repos <- repos[x, ]
+    repoFilter <- repoFilter(repos, type, stage, fork)
+    repos <- repos[repoFilter, ]
     if(!paste) return(repos$dir)
     paste(repos$dir, collapse = " ")
+}
+filterRepos <- function(repos, type = NULL, stage = NULL, fork = NULL){
+    repoFilter <- repoFilter(repos, type, stage, fork)
+    repos[repoFilter, ]
 }
 
 #---------------------------------------------------------------------------
@@ -118,42 +131,46 @@ downloadGitRepo <- Vectorize(function(dir, url, fork, ...) {
         if(!gitRepoMatches(dir, url)) stop(paste(dir, 'is not a clone of', url))
         message(paste('pulling', url))
         if(fork == Forks$definitive) checkoutGitBranch(dir, silent = TRUE)
-        tryCatch( 
-            { git2r::pull(                                  
-                repo = dir,
-                credentials = git2r::cred_token()
-            ) },
-            error = function(e) NULL
-        )
+        pullGit(dir)
 
     # or clone it on first encounter
     #   all repos set to tip of 'main' on first installation
     } else {
-        message(paste('cloning', url))
+        message(paste('attempting to clone', url))
+        if(cloneGit(dir, url)) { # will fails if developer has not forked a specific repo
+            checkoutGitBranch(dir, silent = TRUE)
+            initializeRepo(dir, url, fork)
+        }
+    }
+})
+pullGit <- function(dir){
+    tryCatch( { 
+        git2r::pull(                                  
+            repo = dir,
+            credentials = git2r::cred_token()
+        ) 
+    }, error = function(e) NULL) 
+}
+cloneGit  <- function(dir, url){
+    tryCatch( { 
         git2r::clone(
             url = url,
             local_path = dir,
             credentials = git2r::cred_token(),
             progress = TRUE
         )
-        checkoutGitBranch(dir, silent = TRUE)
-        
-        # set the "upstream" remote to the definitive repository
-        if(fork == Forks$developer){
-            git2r::remote_add(dir, Remotes$upstream, switchGitUser(url, mdiGitUser)) 
-            setGitConfigUser(dir)
-        } else {
-            # ensure that at least a null user is present in all git configs
-            setGitConfigUser(dir, nullUser = TRUE)
-        }
+        TRUE
+    }, error = function(e) FALSE)
+}
+initializeRepo <- function(dir, url, fork){
+    # set the "upstream" remote to the definitive repository
+    if(fork == Forks$developer){
+        git2r::remote_add(dir, Remotes$upstream, switchGitUser(url, mdiGitUser)) 
+        setGitConfigUser(dir)
+    } else {
+        # ensure that at least a null user is present in all git configs
+        setGitConfigUser(dir, nullUser = TRUE)
     }
-})
-pullGitMain <- function(dir){
-    checkoutGitBranch(dir, silent = TRUE) 
-    git2r::pull(                                  
-        repo = dir,
-        credentials = git2r::cred_token()
-    )  
 }
 
 #---------------------------------------------------------------------------
@@ -234,6 +251,8 @@ setGitConfigUser <- function(dir, nullUser = FALSE){
         user.email = userId$email
     )
 }
+
+
 
 # checkGitConfiguration <- function(dir, gitConfig, user=NULL){
 

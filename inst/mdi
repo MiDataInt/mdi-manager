@@ -1,18 +1,19 @@
 #!/bin/bash
 
-# the main executable script that establishes the job manager
-# also acts a surrogate/alias for direct calls to pipeline executables
-# and as a command line shortcut for launching the MDI web server
+# the main executable script that 
+#   - establishes the job manager
+#   - makes calls that execute pipelines
+#   - provides a command line shortcut to mdi::run(), etc. 
 
 #----------------------------------------------------------------------
 # input arguments
 #----------------------------------------------------------------------
-DEVELOPER_MODE=""
+export DEVELOPER_MODE=""
 TARGET=$1
 if [ "$TARGET" = "develop" ]; then
-    DEVELOPER_MODE="TRUE"
-    TARGET=$2
-    shift
+    export DEVELOPER_MODE="TRUE"
+    shift    
+    TARGET=$1
 fi
 export MDI_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
@@ -35,14 +36,19 @@ elif [ "$TARGET" = "install" ]; then
 #----------------------------------------------------------------------
 else
 
-# set script paths
-FRAMEWORK_DIR=$MDI_DIR/frameworks/developer-forks/mdi-pipelines-framework
-if [[ ! -d $FRAMEWORK_DIR || "$DEVELOPER_MODE" != "TRUE" ]]; then # use developer fork of mdi-pipelines-framework if present and in developer mode
-    FRAMEWORK_DIR=$MDI_DIR/frameworks/definitive/mdi-pipelines-framework
+# use developer fork of mdi-pipelines-framework if present and in developer mode
+export FRAMEWORK_DIR=$MDI_DIR/frameworks/developer-forks/mdi-pipelines-framework
+if [[ ! -d $FRAMEWORK_DIR || "$DEVELOPER_MODE" != "TRUE" ]]; then 
+    export FRAMEWORK_DIR=$MDI_DIR/frameworks/definitive/mdi-pipelines-framework
 fi
-JOB_MANAGER_DIR=$FRAMEWORK_DIR/job_manager
+
+# set script paths
+export JOB_MANAGER_DIR=$FRAMEWORK_DIR/job_manager
 JOB_MANAGER_TARGET=$JOB_MANAGER_DIR/jobManager
 JOB_MANAGER_COMMANDS=$(cd $JOB_MANAGER_DIR/lib/commands && ls -1 *.pl |  cut -d '.' -f 1) # TODO: or simply type them here?
+
+# set pipelines suites
+export PIPELINES_SUITE_NAMES="_PIPELINES_SUITE_NAMES_" # space delimited list
 
 # handle a direct call to initialize the job manager (called by mdi::install())
 if [ "$TARGET" = "initialize" ]; then
@@ -63,29 +69,11 @@ elif [[ "$TARGET" = "" || " $JOB_MANAGER_COMMANDS " =~ " $TARGET " ]]; then
         exec $JOB_MANAGER_TARGET "$@"
     fi
 
-# capture and pass calls to a pipeline executable if using job manager as a surrogate
+# capture and pass calls to a pipeline executable when using job manager as a surrogate
 # thus, pipelines cannot have the same name as a job manager command (submit, report, etc.)
+# launcher.pl handle pipeline target errors
 else
-    DEFINITIVE_SUITES="_DEFINITIVE_SUITES_"
-    DEVELOPER_FORKS="_DEVELOPER_FORKS_" # space delimited lis of pipeines suites directories
-    
-    # fork to the first matching pipeline name in order given in mdi.yml
-    if [ "$DEVELOPER_MODE" = "TRUE" ]; then # developer-forks take precedence in developer mode, ignored otherwise
-        for DIR in $DEVELOPER_FORKS; do
-            if [ -d $DIR ]; then
-                exec perl $DIR/"$@"
-            fi   
-        done
-    fi
-    for DIR in $DEFINITIVE_SUITES; do
-        if [ -d $DIR ]; then
-            exec perl $DIR/"$@"
-        fi   
-    done
-   
-    # TARGET not known; throw an error
-    echo "unknown target: $TARGET"
-    exit 1    
+    exec perl $FRAMEWORK_DIR/pipeline/launcher/launcher.pl $@ 
 
 fi
 

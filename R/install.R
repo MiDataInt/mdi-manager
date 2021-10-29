@@ -92,8 +92,7 @@ install <- function(mdiDir = '~',
                     packages = NULL,
                     force = FALSE,
                     ondemand = FALSE){
-    
-    
+
     # parse needed versions and file paths
     versions <- getRBioconductorVersions()
     dirs <- parseDirectories(mdiDir, versions, message = TRUE)
@@ -145,26 +144,17 @@ install <- function(mdiDir = '~',
         }        
     }, repos$dir, repos$fork, repos$version)
 
-    # initialize MDI root execution files
+    # initialize MDI root execution files, i
+    pipelinesSuites <- filterRepos(
+        repos, 
+        fork  = Forks$definitive,         
+        stage = Stages$pipelines,         
+        type  = Types$suite
+    )    
     mdiPath <- updateRootFile(
         dirs, 
         'mdi',
-        list(
-            DEFINITIVE_SUITES = filterRepoDirs(
-                repos, 
-                type  = Types$suite, 
-                stage = Stages$pipelines, 
-                fork  = Forks$definitive,
-                paste = TRUE
-            ),
-            DEVELOPER_FORKS   = filterRepoDirs(
-                repos, 
-                type  = Types$suite, 
-                stage = Stages$pipelines, 
-                fork  = Forks$developer,
-                paste = TRUE
-            )
-        )
+        list(PIPELINES_SUITE_NAMES = paste(pipelinesSuites$name, collapse = " "))
     ) 
     if(.Platform$OS.type != "unix") updateRootFile(
         dirs, 
