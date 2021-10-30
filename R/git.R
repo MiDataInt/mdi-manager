@@ -87,13 +87,13 @@ assembleGitUrl <- function(repoName, gitUser) {
     paste(gitHubUrl, gitUser, repo, sep = "/")
 }
 switchGitUser <- Vectorize(function(url, gitUser){
-    if(is.null(gitUser) || gitUser == "") return(NULL)
+    if(is.null(gitUser) || gitUser == "") return(NA)
     parts <- strsplit(url, '/')[[1]]
     parts[length(parts) - 1] <- gitUser
     paste(parts, collapse = '/')
 })
 getRepoDir <- Vectorize(function(mdiDir, type, fork, url){
-    if(is.null(url)) return(NULL)
+    if(is.null(url) || is.na(url)) return(NULL)
     repo <- rev(strsplit(url, '/')[[1]])[1]
     repo <- strsplit(repo, '\\.')[[1]][1]
     file.path(mdiDir, type, fork, repo)
@@ -123,7 +123,7 @@ filterRepos <- function(repos, type = NULL, stage = NULL, fork = NULL){
 # clone or pull a code repository
 #---------------------------------------------------------------------------
 downloadGitRepo <- Vectorize(function(dir, url, fork, ...) { 
-    if(is.null(url)) return()
+    if(is.null(url) || is.na(url)) return()
 
     # get up-to-date repo from the server
     #   definitive repos set to tip of 'main' prior to pulling
