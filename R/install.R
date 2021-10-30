@@ -154,7 +154,8 @@ install <- function(mdiDir = '~',
     mdiPath <- updateRootFile(
         dirs, 
         'mdi',
-        list(PIPELINES_SUITE_NAMES = paste(pipelinesSuites$name, collapse = " "))
+        list(PIPELINES_SUITE_NAMES = paste(pipelinesSuites$name, collapse = " ")),
+        executable = TRUE
     ) 
     if(.Platform$OS.type != "unix") updateRootFile(
         dirs, 
@@ -165,7 +166,6 @@ install <- function(mdiDir = '~',
 
     # initialize the Stage 1 pipelines management utility
     if(.Platform$OS.type == "unix") {
-        message('initializing job manager')
         initializeJobManager(mdiPath)
     }
     if(!installApps) return( getInstallationData() )

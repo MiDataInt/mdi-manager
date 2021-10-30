@@ -47,7 +47,7 @@ export JOB_MANAGER_DIR=$FRAMEWORK_DIR/job_manager
 JOB_MANAGER_TARGET=$JOB_MANAGER_DIR/jobManager
 JOB_MANAGER_COMMANDS=$(cd $JOB_MANAGER_DIR/lib/commands && ls -1 *.pl |  cut -d '.' -f 1) # TODO: or simply type them here?
 
-# set pipelines suites
+# set pipelines suites - these values are programatically filled by mdi::install()
 export PIPELINES_SUITE_NAMES="_PIPELINES_SUITE_NAMES_" # space delimited list
 
 # handle a direct call to initialize the job manager (called by mdi::install())

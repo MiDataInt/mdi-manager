@@ -2,7 +2,7 @@
 # initialize the Stage 1 job manager and put mdiDir into the user's PATH
 #---------------------------------------------------------------------------
 initializeJobManager <- function(mdiPath) {
-    message('initializing the Stage 1 pipelines job manager and mdi command line function')
+    message('initializing the Stage 1 pipelines job manager')
     tryCatch(
         {
             system2(
