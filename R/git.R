@@ -93,7 +93,7 @@ switchGitUser <- Vectorize(function(url, gitUser){
     paste(parts, collapse = '/')
 })
 getRepoDir <- Vectorize(function(mdiDir, type, fork, url){
-    if(is.null(url) || is.na(url)) return(NULL)
+    if(is.null(url) || is.na(url)) return(NA)
     repo <- rev(strsplit(url, '/')[[1]])[1]
     repo <- strsplit(repo, '\\.')[[1]][1]
     file.path(mdiDir, type, fork, repo)
