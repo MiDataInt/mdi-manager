@@ -43,8 +43,6 @@ parseGitRepos <- function(dirs, configFilePath){
     message('collecting git repos from mdi.yml')
     config <- yaml::read_yaml(configFilePath)
 
-    message(11111111)
-
     # prepend the frameworks repos to the suites repos
     upstreamUrls <- sapply(c(pipelinesFrameworkRepo, appsFrameworkRepo), assembleGitUrl, mdiGitUser)
     upstreamUrls <- c(upstreamUrls, config$suites$pipelines, config$suites$apps) 
@@ -59,18 +57,6 @@ parseGitRepos <- function(dirs, configFilePath){
         rep(Stages$apps, length(config$suites$apps))
     )
     order <- seq_along(types)
-
-message(2222222222)
-
-    str(order)
-    str(types)
-    str(stages)
-    str(Remotes$upstream)
-    str(Forks$definitive)
-    str(upstreamUrls)
-    str(switchGitUser(upstreamUrls, Sys.getenv('GIT_USER')))
-    str(Sys.getenv('GIT_USER'))
-
 
     # assemble and return an ordered table of all repos known to this MDI instance
     x <- rbind(   
@@ -101,13 +87,13 @@ assembleGitUrl <- function(repoName, gitUser) {
     paste(gitHubUrl, gitUser, repo, sep = "/")
 }
 switchGitUser <- Vectorize(function(url, gitUser){
-    if(is.null(gitUser) || gitUser == "") return(NULL)
+    if(is.null(gitUser) || gitUser == "") return(NA)
     parts <- strsplit(url, '/')[[1]]
     parts[length(parts) - 1] <- gitUser
     paste(parts, collapse = '/')
 })
 getRepoDir <- Vectorize(function(mdiDir, type, fork, url){
-    if(is.null(url)) return(NULL)
+    if(is.null(url) || is.na(url)) return(NULL)
     repo <- rev(strsplit(url, '/')[[1]])[1]
     repo <- strsplit(repo, '\\.')[[1]][1]
     file.path(mdiDir, type, fork, repo)
@@ -137,7 +123,7 @@ filterRepos <- function(repos, type = NULL, stage = NULL, fork = NULL){
 # clone or pull a code repository
 #---------------------------------------------------------------------------
 downloadGitRepo <- Vectorize(function(dir, url, fork, ...) { 
-    if(is.null(url)) return()
+    if(is.null(url) || is.na(url)) return()
 
     # get up-to-date repo from the server
     #   definitive repos set to tip of 'main' prior to pulling
