@@ -53,8 +53,8 @@ parseGitRepos <- function(dirs, configFilePath){
     stages <- c(
         Stages$pipelines, 
         Stages$apps, 
-        rep(Stages$pipelines, length(config$pipelines)), 
-        rep(Stages$apps, length(config$apps))
+        rep(Stages$pipelines, length(config$suites$pipelines)), 
+        rep(Stages$apps, length(config$suites$apps))
     )
     order <- seq_along(types)
 
