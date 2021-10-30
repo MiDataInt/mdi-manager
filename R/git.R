@@ -26,10 +26,11 @@ appsFrameworkRepo      <- 'mdi-apps-framework'
 # set a user's GitHub PAT into the proper environment variable
 #---------------------------------------------------------------------------
 setGitCredentials <- function(dirs, gitUser, token){ 
-    gitCredentialsFile <- file.path(dirs$mdi, "gitCredentials.R")
-    if(file.exists(gitCredentialsFile)){
-        source(gitCredentialsFile, .GlobalEnv)
-    } else {
+    gitCredentialsFile1 <- file.path(dirs$mdi, "gitCredentials.R")
+    gitCredentialsFile2 <- file.path("~", "gitCredentials.R")
+         if(file.exists(gitCredentialsFile1)) source(gitCredentialsFile1, .GlobalEnv)
+    else if(file.exists(gitCredentialsFile2)) source(gitCredentialsFile2, .GlobalEnv)
+    else {
         if(!is.null(gitUser)) Sys.setenv(GIT_USER = gitUser)
         if(!is.null(token))   Sys.setenv(GITHUB_PAT = token)
     }
