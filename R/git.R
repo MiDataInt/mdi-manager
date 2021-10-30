@@ -43,6 +43,8 @@ parseGitRepos <- function(dirs, configFilePath){
     message('collecting git repos from mdi.yml')
     config <- yaml::read_yaml(configFilePath)
 
+    message(11111111)
+
     # prepend the frameworks repos to the suites repos
     upstreamUrls <- sapply(c(pipelinesFrameworkRepo, appsFrameworkRepo), assembleGitUrl, mdiGitUser)
     upstreamUrls <- c(upstreamUrls, config$suites$pipelines, config$suites$apps) 
@@ -57,6 +59,8 @@ parseGitRepos <- function(dirs, configFilePath){
         rep(Stages$apps, length(config$suites$apps))
     )
     order <- seq_along(types)
+
+message(2222222222)
 
     str(order)
     str(types)
