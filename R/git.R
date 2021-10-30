@@ -58,6 +58,16 @@ parseGitRepos <- function(dirs, configFilePath){
     )
     order <- seq_along(types)
 
+    str(order)
+    str(types)
+    str(stages)
+    str(Remotes$upstream)
+    str(Forks$definitive)
+    str(upstreamUrls)
+    str(switchGitUser(upstreamUrls, Sys.getenv('GIT_USER')))
+    str(Sys.getenv('GIT_USER'))
+
+
     # assemble and return an ordered table of all repos known to this MDI instance
     x <- rbind(   
         data.frame( # repos with remote==upstream are the definitive public source code
