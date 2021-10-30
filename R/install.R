@@ -167,6 +167,8 @@ install <- function(mdiDir = '~',
     # initialize the Stage 1 pipelines management utility
     if(.Platform$OS.type == "unix") {
         initializeJobManager(mdiPath)
+        dir <- file.path(mdiDir, "frameworks/developer-forks/mdi-pipelines-framework")
+        if(dir.exists(dir)) initializeJobManager(mdiPath, developer = TRUE)
     }
     if(!installApps) return( getInstallationData() )
 
