@@ -5,14 +5,14 @@
 #' the Michigan Data Interface (MDI) in a web server, either on a web host 
 #' that is publicly addressable, on your local computer, or on on a cluster 
 #' compute node within an OnDemand batch job. \code{develop()} is a shortcut 
-#' to \code{run()}  with settings appropriate for developers (mode='local', 
+#' to \code{run()} with settings appropriate for developers (mode='local', 
 #' browser=FALSE, debug=TRUE, developer=TRUE).
 #'
-#' All default settings are consistent with an end user running the 
-#' MDI in local mode on their desktop or laptop computer.
+#' All default settings are consistent with an end user running the MDI in 
+#' local mode on their desktop or laptop computer.
 #'
-#' \code{mdiDir} must be the same directory as used in a prior
-#' call to \code{mdi::install()}.
+#' \code{mdiDir} must be the same directory as used in a prior call to 
+#' \code{mdi::install()}.
 #' 
 #' When \code{developer} is FALSE, \code{run()} will use the definitive
 #' version of all repositories checked out to the latest version tag on 
@@ -25,23 +25,25 @@
 #' will be checked out to the tip of the 'main' branch.
 #' 
 #' When \code{developer} is TRUE, you must have git properly installed on
-#' your computer. If needed, you will be prompted to provide your email
-#' address and user name on first use, which will be stored in your local
+#' your computer. If needed, you will be prompted to provide your name and 
+#' email address on first use, which will be stored in your local
 #' repositories and used to tag your code commits. To pull or push code
 #' via the GUI, you must also have enabled non-prompted authorized
 #' access to the remote repositories (e.g., via the command line).
 #' 
 #' As an alternative to using \code{gitUser} and \code{token}, developers and
-#' users can also create script 'gitCredentials.R' in \code{mdiDir}, with the 
-#' following contents:
+#' users can also create script 'gitCredentials.R' in \code{mdiDir}, or in 
+#' their home directory, with the following contents to be sourced by 
+#' \code{mdi::run()}:
 #'     Sys.setenv(GIT_USER = "xxxx")
 #'     Sys.setenv(GITHUB_PAT = "xxxx")
 #' 
-#' @param mdiDir character. Path to the directory where the MDI
-#' has previously been installed. Defaults to your home directory.
-#'
+#' @param mdiDir character. Path to the directory where the MDI has 
+#' previously been installed. Defaults to your home directory, such that 
+#' the MDI will run from '~/mdi' by default.
+#' 
 #' @param dataDir character. Path to the directory where your MDI
-#' data can be found. Defaults to \code{mdiDir}/data. You might wish to change
+#' data can be found. Defaults to '\code{mdiDir}/data'. You might wish to change
 #' this to a directory that holds shared data, e.g., for your laboratory.
 #'
 #' @param ondemandDir character. Path to the directory where a public
@@ -58,7 +60,7 @@
 #' @param install logical. When TRUE (the default), \code{mdi::run()} will
 #' call \code{mdi::install()} prior to launching the web server to 
 #' clone or pull all repositories and install any missing packages. Setting 
-#' \code{install} to FALSE will allow the server to start more quickly.
+#' \code{install} to FALSE will allow the server to start a bit more quickly.
 #'
 #' @param url character. The complete browser URL to load the web page. 
 #' Examples: 'http://localhost' or 'https://mymdi.org'.
@@ -118,12 +120,19 @@ run <- function(mdiDir = '~',
     if(mode == 'ondemand' && is.null(ondemandDir)) stop('ondemandDir must be set in ondemand mode')
     if(mode != 'local') developer <- FALSE # never show developer tools on public servers
 
+    # establish whether the MDI has been previously installed into mdiDir
+    # combined with option 'install', take as tacit permission to continue modifying user files
+    confirmPriorInstallation(mdiDir)
+
     # collect the installation data, refreshing the installation first if requested
     installation <- if(install){
         mdi::install(
             mdiDir = mdiDir,
+            confirm = FALSE, # see permissions note above
+            addToPATH = FALSE, # only done during installation, not when updating
             gitUser = gitUser,
-            token = token,                                     
+            token = token,  
+            clone = TRUE, # the main purpose of updating is to pull new code changes                                   
             ondemand = mode == 'ondemand'
         )
     } else {

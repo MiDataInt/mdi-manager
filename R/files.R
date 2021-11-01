@@ -22,16 +22,7 @@ parseDirectories <- function(mdiDir, versions,
     isOnDemand <- !is.null(ondemandDir)
     
     # parse the required mdiDir
-    mdiDir <- path.expand(mdiDir)
-    if(!dir.exists(mdiDir)) stop(paste("error:", mdiDir, "does not exist"))
-    rootFolder <- 'mdi'    
-    if(!endsWith(mdiDir, paste0('/', rootFolder))){
-        mdiDir <- file.path(mdiDir, rootFolder)
-        if(!dir.exists(mdiDir)){
-            if(create) createMdiDir(mdiDir)   
-                  else throwMdiDirError(mdiDir)
-        }
-    }
+    mdiDir <- parseMdiDir(mdiDir, check = TRUE)
 
     # parse top-level directory names
     bareDirNames <- c('data', 'environments', 'frameworks', 'library', 'resources', 'sessions', 'suites') 
@@ -60,22 +51,18 @@ parseDirectories <- function(mdiDir, versions,
     
     dirs  
 }
-createMdiDir <- function(mdiDir){
-    message()
-    message('------------------------------------------------------------------')
-    message('CONFIRM DIRECTORY CREATION')
-    message('------------------------------------------------------------------')
-    message('The following directory will be created and populated on your file system:')
-    message()
-    message(mdiDir)
-    message()
-    confirmed <- readline(prompt = "Do you wish to continue? (type 'y' for 'yes'): ")
-    confirmed <- strsplit(tolower(trimws(confirmed)), '')[[1]][1] == 'y'
-    if(!is.na(confirmed) && confirmed){
-        dir.create(mdiDir, showWarnings = FALSE)
-    } else {
-        stop('installation permission denied')
-    }    
+parseMdiDir <- function(mdiDir, check = TRUE){
+    mdiDir <- path.expand(mdiDir)
+    if(!dir.exists(mdiDir)) stop(paste("error:", mdiDir, "does not exist"))
+    rootFolder <- 'mdi'    
+    if(!endsWith(mdiDir, paste0('/', rootFolder))){
+        mdiDir <- file.path(mdiDir, rootFolder)
+        if(check && !dir.exists(mdiDir)){
+            if(create) dir.create(mdiDir, showWarnings = FALSE) # already confirmed by confirmInstallation()
+                  else throwMdiDirError(mdiDir)
+        }
+    }
+    mdiDir
 }
 throwMdiDirError <- function(mdiDir){
     message()
