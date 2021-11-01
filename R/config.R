@@ -19,7 +19,7 @@ copyRootFile <- function(dirs, fileName){
 #---------------------------------------------------------------------------
 # copy and modify mdi launcher utilities for command line and Windows
 #---------------------------------------------------------------------------
-updateRootFile <- function(dirs, fileName, replace = list()){
+updateRootFile <- function(dirs, fileName, replace = list(), executable = FALSE){
     message('updating file:', fileName)
     filePath <- file.path(dirs$mdi, fileName)
     fileTemplate <- system.file(fileName, package = rPackageName)
@@ -31,5 +31,6 @@ updateRootFile <- function(dirs, fileName, replace = list()){
         contents <- gsub(target, value, contents)
     }
     cat(contents, file = filePath, append = FALSE)
+    Sys.chmod(filePath, mode = if(executable) "0770" else "0660")
     filePath
 }

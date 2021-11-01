@@ -30,6 +30,7 @@ debugInstall <- function(
     message()
     mdi::install(
         mdiDir = if(is.na(debugDir)) mdiDir else debugDir, 
+        confirm = FALSE,
         clone = clone
     )
 }
@@ -67,8 +68,10 @@ initializeDebug <- function(mdiDir, debugDir){
     # rebuild the manager package
     message()
     message('UPDATING MDI MANAGER PACKAGE')
+    managerDir <- 'manager/developer-forks/mdi-manager'
     remotes::install_local(
-        path = 'manager/developer-forks/mdi-manager',
+        path = managerDir,
         force = TRUE
     )
+    devtools::document(managerDir)     
 }

@@ -2,11 +2,13 @@
 % Please edit documentation in R/install.R
 \name{install}
 \alias{install}
-\title{Install Michigan Data Interface (MDI) dependencies}
+\title{Install the Michigan Data Interface (MDI) code repositories and dependencies}
 \usage{
 install(
   mdiDir = "~",
   installApps = TRUE,
+  confirm = TRUE,
+  addToPATH = TRUE,
   gitUser = NULL,
   token = NULL,
   clone = TRUE,
@@ -17,14 +19,24 @@ install(
 )
 }
 \arguments{
-\item{mdiDir}{character. Path to the directory where the MDI
-will be/has been installed. Defaults to your home directory.}
+\item{mdiDir}{character. Path to the directory where the MDI will be/has 
+been installed. Defaults to your home directory, such that the MDI will 
+be installed into '~/mdi' by default.}
 
-\item{installApps}{logical vector. If TRUE (the default), 
-\code{mdi::install()} will install both Stage 1 pipelines and Stage 2 
-apps for use on the computer or server. If you know you will only want
-to use Stage 1 pipelines from an installation, setting \code{installApps}
-to FALSE will skip the much slower installation of the R packages library.}
+\item{installApps}{logical. If TRUE (the default), \code{mdi::install()} 
+will install both Stage 1 pipelines and Stage 2 apps. If you know you will 
+only want to use Stage 1 pipelines from an installation, setting 
+\code{installApps} to FALSE will skip the much slower installation of the 
+R packages library.}
+
+\item{confirm}{logical. If TRUE (the default) and in interactive mode,
+\code{mdi::install()} will list all actions to be taken and prompt for 
+permission before creating or modifying any system files.}
+
+\item{addToPATH}{logical. If TRUE (the default) and installing on a Linux
+platform computer, \code{mdi::install()} will modify ~/.bashrc to add
+the 'mdi' executable to your PATH variable at each shell login, so that 
+you may call MDI pipelines from any directory as 'mdi ...'.}
 
 \item{gitUser}{character. Developers should use \code{gitUser} to provide 
 the username of the GitHub account that holds their forks of any
@@ -62,28 +74,32 @@ packages, as they will be used from the managed host installation. Default
 is FALSE.}
 }
 \value{
-a list of installation data with names components 'versions', dirs', 
+A list of installation data with names components 'versions', dirs', 
 'repos', 'rRepos', 'packages'. This information will be incomplete if 
 \code{packages} was not NULL (repos and rRepos will be NULL, packages will  
 only contain\code{packages}) or if installApps was FALSE (repos, rRepos and 
 packages will all be NULL).
 }
 \description{
-Install all dependencies of the Michigan Data Interface (MDI). 
-This will include Bioconductor's BiocManager and its child packages.
+Install all dependencies of the Michigan Data Interface (MDI). This will 
+include Bioconductor's BiocManager and its child packages, as well as a 
+series of Git repositories cloned from GitHub.
 }
 \details{
-All default settings are consistent with an end user running the 
-MDI in local mode on their desktop or laptop computer.
+No action will be taken unless approved by the user when prompted.
 
+All default settings are consistent with an end user running the MDI in 
+local mode on their desktop or laptop computer.
+
+All componenents will be install into directory \code{mdiDir}. 
 \code{mdiDir} must already exist, it will not be created. 
 
-If \code{mdiDir} ends with '/mdi' it will be used as is
-without prompting. Otherwise, a subdirectory of that name will be 
-created in \code{mdiDir} after prompting for confirmation.
+If \code{mdiDir} ends with '/mdi' it will be used as is without further 
+prompting. Otherwise, a subdirectory of that name will be created in 
+\code{mdiDir} after prompting for confirmation.
 
 If they do not already exist, \code{mdi::install()} will create a series of
-subdirectories in \code{mdiDir} without prompting, as follows:
+subdirectories in \code{mdiDir} without further prompting, as follows:
 \itemize{
   \item data = project-specific input and output files
   \item environments = conda environments used by data analysis pipelines
@@ -95,8 +111,9 @@ subdirectories in \code{mdiDir} without prompting, as follows:
 }
 
 As an alternative to using \code{gitUser} and \code{token}, developers and
-users can also create script 'gitCredentials.R' in \code{mdiDir}, with the 
-following contents:
+users can also create script 'gitCredentials.R' in \code{mdiDir}, or in 
+their home directory, with the following contents to be sourced by 
+\code{mdi::install()}:
     Sys.setenv(GIT_USER = "xxxx")
     Sys.setenv(GITHUB_PAT = "xxxx")
 }

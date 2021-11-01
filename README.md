@@ -65,6 +65,9 @@ remotes::install_github('MiDataInt/mdi-manager')
 mdi::install()
 ```
 
+You will be asked to confirm the MDI installation process, which will
+download additional code and write files to your system.
+
 The first two steps are relatively quick and will give you access
 to the <code>install()</code> and <code>run()</code> functions, similar to
 how BiocManager helps you install version-controlled Bioconductor
