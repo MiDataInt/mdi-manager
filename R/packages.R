@@ -44,7 +44,7 @@ getAppsPackages <- function(repos, rRepos) {
     }
 
     # expand the package list to required dependencies
-    message('recursively expanding package dependencies')
+    message('recursively expanding package dependencies ...')
     suppressWarnings( for(x in names(pkgLists)) {
         pkgLists[[x]] <- if(length(pkgLists[[x]]) > 0) miniCRAN::pkgDep(
             unique(pkgLists[[x]]), # the packages named by the MDI framework and apps
