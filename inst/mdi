@@ -15,17 +15,20 @@ if [ "$TARGET" = "develop" ]; then
     shift    
     TARGET=$1
 fi
+if [[ "$TARGET" = "-h" ||  "$TARGET" = "--help" ||  "$TARGET" = "help" ]]; then TARGET=""; fi
 export MDI_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 #----------------------------------------------------------------------
 # Stage 2 shortcuts to mdi R functions via Rscript
 #----------------------------------------------------------------------
 
+# TODO: move these commands to the job manager so that options can be properly handled
+
 # shortcut for launching the web server
 if [ "$TARGET" = "server" ]; then
-    ACTION=$2 # any function exported by mdi R package, e.g., run, develop
-    if [ "$ACTION" = "" ]; then ACTION="run"; fi # default to run if action not specified
-    exec Rscript -e "mdi::$ACTION('$MDI_DIR')"
+    MODE=$2 # any function exported by mdi R package, e.g., run, develop
+    if [ "$MODE" = "" ]; then MODE="run"; fi # default to run if action not specified
+    exec Rscript -e "mdi::$MODE('$MDI_DIR')"
     
 # shortcut for re-installing the MDI (could also use 'mdi server install')
 elif [ "$TARGET" = "install" ]; then
@@ -45,7 +48,7 @@ fi
 # set script paths
 export JOB_MANAGER_DIR=$FRAMEWORK_DIR/job_manager
 JOB_MANAGER_TARGET=$JOB_MANAGER_DIR/jobManager
-JOB_MANAGER_COMMANDS=$(cd $JOB_MANAGER_DIR/lib/commands && ls -1 *.pl |  cut -d '.' -f 1) 
+JOB_MANAGER_COMMANDS=$(cd $JOB_MANAGER_DIR/lib/commands && ls -1 *.pl |  cut -d '.' -f 1 | tr '\n' ' ') 
 
 # set pipelines suites - these values are programatically filled by mdi::install()
 export PIPELINES_SUITE_NAMES="_PIPELINES_SUITE_NAMES_" # space delimited list
@@ -66,12 +69,16 @@ elif [[ "$TARGET" = "" || " $JOB_MANAGER_COMMANDS " =~ " $TARGET " ]]; then
 
     # fork the call to the job manager utility (a close relative of 'q')
     if [ -e "$JOB_MANAGER_TARGET" ]; then
-        exec $JOB_MANAGER_TARGET "$@"
+        if [ "$TARGET" = "" ]; then
+            exec $JOB_MANAGER_TARGET # various routes to mdi top-level help
+        else 
+            exec $JOB_MANAGER_TARGET "$@"
+        fi
     fi
 
-# capture and pass calls to a pipeline executable when using job manager as a surrogate
+# capture and pass calls to a pipeline when using job manager as a surrogate
 # thus, pipelines cannot have the same name as a job manager command (submit, report, etc.)
-# launcher.pl handle pipeline target errors
+# launcher.pl handles pipeline target errors
 else
     exec perl $FRAMEWORK_DIR/pipeline/launcher/launcher.pl $@ 
 
