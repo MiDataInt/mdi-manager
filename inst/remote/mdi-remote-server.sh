@@ -8,28 +8,50 @@ PID_FILE=mdi-remote-pid-$SHINY_PORT.txt
 MDI_PID=""
 if [ -e $PID_FILE ]; then MDI_PID=`cat $PID_FILE`; fi
 EXISTS=""
-if [ "$MDI_PID" != "" ]; then EXISTS=`ps -p $MDI_PID | grep -v PID`; fi
+if [ "$MDI_PID" != "" ]; then EXISTS=`ps -p $MDI_PID | grep -v PID`; fi  
 
 # launch Shiny if not already running
+SEPARATOR="---------------------------------------------------------------------"
+WAIT_SECONDS=15
 if [ "$EXISTS" = "" ]; then
+    echo $SEPARATOR 
+    echo "Please wait $WAIT_SECONDS seconds for the web server to start"
+    echo $SEPARATOR
     Rscript mdi-remote-server.R &
     MDI_PID=$!
     echo "$MDI_PID" > $PID_FILE
+    sleep $WAIT_SECONDS # give Shiny time to start up before showing further prompts   
 fi
 
 # report the PID to the user
-echo
-echo "web server process running on remote port $SHINY_PORT as PID $MDI_PID"
+echo $SEPARATOR
+echo "Web server process running on remote port $SHINY_PORT as PID $MDI_PID"
 
-# report on usage within the command shell on user's local computer
-echo
-echo "type 'bash mdi-kill-remote.sh' to kill the remote web server"
-echo
-echo "type 'exit' followed by 'Ctrl-C' to close this port tunnel"
-echo
-echo "to use the MDI, point any web browser at:"
+# report on browser usage within the command shell on user's local computer
+echo $SEPARATOR
+echo "To use the MDI, point any web browser to:"
 echo "http://127.0.0.1:$SHINY_PORT"
-echo
 
-# keep job blocked for ssh port forwarding by forking to a new, interactive bash shell
-exec bash
+# prompt for exit action, with or without killing of the R web server process
+USER_ACTION=""
+while [[ "$USER_ACTION" != "1" && "$USER_ACTION" != "2" ]]; do
+    echo $SEPARATOR
+    echo "To close the remote server connection:"
+    echo
+    echo "  1 - close the connection AND stop the web server"
+    echo "  2 - close the connection, but leave the web server running"
+    echo
+    echo "Select an action (type '1' or '2' and hit Enter):"
+    read USER_ACTION
+done
+
+# kill the web server process if requested
+if [ "$USER_ACTION" = "1" ]; then
+    source mdi-kill-remote.sh
+fi
+
+# send a final helpful message
+# note: the ssh process on client will NOT exit when this script exits since it is port forwarding still
+echo
+echo "Thank you for using the Michigan Data Interface."
+echo "You may now safely close this command window."

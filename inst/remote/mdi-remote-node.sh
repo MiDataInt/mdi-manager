@@ -1,22 +1,27 @@
 #!/bin/bash
 
 # get input variables
-R_VERSION=$1
-SHINY_PORT=$2
-ACCOUNT=$3
-JOB_TIME_MINUTES=$4
-CPUS_PER_TASK=$5
-MEM_PER_CPU=$6
+PROXY_PORT=$1
+R_VERSION=$2
+SHINY_PORT=$3
+ACCOUNT=$4
+JOB_TIME_MINUTES=$5
+CPUS_PER_TASK=$6
+MEM_PER_CPU=$7
 
 # set a function to discover any currently running MDI web server job
 function set_server_node {
-    NODE=`squeue --user=$USER | grep mdi_web | awk '{print $9}'`
+     NODE=`squeue --user=$USER | grep mdi_web | awk '{print $9}'`
     JOBID=`squeue --user=$USER | grep mdi_web | awk '{print $1}'`    
 }
 set_server_node
 
 # launch a new MDI web server job if one isn't already running
+SEPARATOR="---------------------------------------------------------------------"
 if [[ "$NODE" = "" || "$NODE" = "(None)" ]]; then
+    echo $SEPARATOR
+    echo "please wait for the web server job to start"
+    echo $SEPARATOR 
     module load R/$R_VERSION
     sbatch \
         --account $ACCOUNT \
@@ -32,18 +37,39 @@ if [[ "$NODE" = "" || "$NODE" = "(None)" ]]; then
 fi
 
 # report the NODE and JOBID to the user
-echo
-echo "web server process running on remote node $NODE, port $SHINY_PORT, as job $JOBID"
+echo $SEPARATOR 
+echo "Web server process running on remote node $NODE, port $SHINY_PORT, as job $JOBID"
 
 # report on usage within the command shell on user's local computer
-echo
-echo "type 'scancel $JOBID' to kill the remote web server"
-echo
-echo "type 'exit' followed by 'Ctrl-C' to close this port tunnel"
-echo
-echo "to use the MDI, point the opened Chrome web browser at:"
-echo "http://$NODE:$SHINY_PORT"
-echo
+echo $SEPARATOR 
+echo "To use the MDI, point any web browser to:"
+echo "    http://$NODE:$SHINY_PORT"
+echo "and use SwitchyOmega to set the proxy server to:"
+echo "    socks5://127.0.0.1:$PROXY_PORT"
 
-# keep job blocked for ssh port forwarding by forking to a new, interactive bash shell
-exec bash
+# prompt for exit action, with or without killing of the R web server process
+USER_ACTION=""
+while [[ "$USER_ACTION" != "1" && "$USER_ACTION" != "2" ]]; do
+    echo $SEPARATOR
+    echo "To close the remote server connection:"
+    echo
+    echo "  1 - close the connection AND stop the web server"
+    echo "  2 - close the connection, but leave the web server running"
+    echo
+    echo "Select an action (type '1' or '2' and hit Enter):"
+    read USER_ACTION
+done
+
+# kill the web server job if requested
+if [ "$USER_ACTION" = "1" ]; then
+    echo
+    echo "Killing MDI server running on remote node $NODE, port $SHINY_PORT, as job $JOBID"
+    scancel $JOBID
+    echo "Done"
+fi
+
+# send a final helpful message
+# note: the ssh process on client will NOT exit when this script exits since it is port forwarding still
+echo
+echo "Thank you for using the Michigan Data Interface."
+echo "You may now safely close this command window."

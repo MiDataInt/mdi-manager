@@ -11,4 +11,4 @@ tryCatch({
         launch.browser = FALSE,
         host = "127.0.0.1"
     )
-}, error = function(e) message("web server already running"))
+}, error = function(e) message("Web server already running"))

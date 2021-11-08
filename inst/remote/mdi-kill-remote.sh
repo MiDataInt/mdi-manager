@@ -8,6 +8,7 @@ PID_FILE=mdi-remote-pid-$SHINY_PORT.txt
 
 # kill the requested PID
 MDI_PID=`cat $PID_FILE`
-echo "killing remote MDI server process $MDI_PID running on port $SHINY_PORT"
+echo
+echo "Killing remote MDI server process $MDI_PID running on port $SHINY_PORT"
 kill -9 $MDI_PID
-echo "done"
+echo "Done"
