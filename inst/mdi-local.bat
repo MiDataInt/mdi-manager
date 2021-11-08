@@ -1,9 +1,9 @@
 ECHO OFF
 REM -----------------------------------------------------------------------
-REM this batch file will help you easily launch MDI target programs on Windows
+REM launch the MDI web server and browser client in 'local' mode on Windows
 REM -----------------------------------------------------------------------
 REM edit the following line to match the system path to your R installation
-REM hint: you probably don't need to do this manually, let mdi::install do it for you!
+REM hint: you probably don't need to do this manually, let mdi::install() do it for you!
 SET RSCRIPT="_PATH_TO_R_/bin/Rscript.exe"
 REM -----------------------------------------------------------------------
 

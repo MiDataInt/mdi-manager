@@ -20,23 +20,22 @@ execution and help launch the Stage 2 web apps.
 ### Related repositories
 
 Code developers are directed to the following repositories for templates to
-**create your own pipelines and apps suites**:
+**create your own pipelines and apps suites**,
 
 - <https://github.com/MiDataInt/mdi-pipelines-suite-template>
 - <https://github.com/MiDataInt/mdi-apps-suite-template>
 
+to this repository if you wish to **run a secure Stage 2 apps 
+server** on your own publicly addressable server (e.g, and AWS instance),
+
+- <https://github.com/MiDataInt/mdi-simple-server>
+
+
 and to these repositories for the pipelines and apps frameworks, if you 
-wish to help develop the MDI itself:
+wish to help develop the MDI itself.
 
 - <https://github.com/MiDataInt/mdi-pipelines-framework>
 - <https://github.com/MiDataInt/mdi-apps-framework>
-
-## Quick start on Great Lakes
-
-If you will be working as an end user on the University of Michigan
-Great Lakes server cluster, you don't need to follow the instructions below. 
-Instead,
-TODO: CREATE FINAL INSTRUCTIONS HERE.
 
 ## Installation and Use
 

@@ -74,7 +74,7 @@ elif [[ "$TARGET" = "" || " $JOB_MANAGER_COMMANDS " =~ " $TARGET " ]]; then
 #----------------------------------------------------------------------
 # capture and pass calls to a pipeline when using job manager as a surrogate
 # thus, pipelines cannot have the same name as a job manager command (submit, report, etc.)
-# launcher.pl handles pipeline target errors
+# launcher.pl handles pipeline target/mdi command errors
 #----------------------------------------------------------------------
 else
     exec perl $FRAMEWORK_DIR/pipeline/launcher/launcher.pl $@ 

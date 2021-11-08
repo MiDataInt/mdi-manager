@@ -11,8 +11,8 @@
 # they will be cloned automatically if a 'gitUser' is provided to 
 # 'mdi::install()'. Only pipelines or apps suites listed here during the 
 # most recent call to 'mdi::install()' will be available to 'mdi' or 
-# 'mdi::run()', respectively. When a target name conflicts between multiple 
-# suites, the first one encountered in the order below will be used.
+# 'mdi::run()'. When a target name conflicts between multiple suites, the 
+# first one encountered in the order below will be used.
 #----------------------------------------------------------------------
 suites:
     # Stage 1: HPC analysis pipeline suites

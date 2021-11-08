@@ -180,7 +180,7 @@ install <- function(mdiDir = '~',
     ) 
     if(.Platform$OS.type != "unix") updateRootFile(
         dirs, 
-        'mdi.bat', 
+        'mdi-local.bat', 
         list(PATH_TO_R  = R.home(), 
              GITHUB_PAT = Sys.getenv('GITHUB_PAT'))
     )    
