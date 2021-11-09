@@ -12,11 +12,12 @@
 export MDI_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 #----------------------------------------------------------------------
-# input arguments to the mdi command
+# --develop and --help arguments to the mdi command itself
+# if both used, --develop must precede --help
 #----------------------------------------------------------------------
 export DEVELOPER_MODE=""
 TARGET=$1
-if [[ "$TARGET" = "-d" || "$TARGET" = "--develop" ]]; then
+if [[ "$TARGET" = "-d" || "$TARGET" = "--develop" ]]; then 
     export DEVELOPER_MODE="TRUE"
     shift    
     TARGET=$1

@@ -8,12 +8,17 @@ rPackageName <- 'mdi'
 # copy a file for the user to manually configure their MDI instance
 # never overwrite an existing config file
 #---------------------------------------------------------------------------
-copyRootFile <- function(dirs, fileName){
+copyConfigFile <- function(dirs, fileName){
     message('checking for file:', fileName)
-    filePath <- file.path(dirs$mdi, fileName)
-    fileTemplate <- system.file(fileName, package = rPackageName)
+    filePath <- file.path(dirs$config, fileName)
+    fileTemplate <- system.file('config', fileName, package = rPackageName)
     file.copy(fileTemplate, filePath, overwrite = FALSE, recursive = FALSE)
     filePath
+}
+copyRemoteFiles <- function(dirs){
+    source <- system.file('remote', package = rPackageName)
+    destination <- file.path(dirs$mdi, 'remote')
+    file.copy(source, destination, overwrite = TRUE, recursive = TRUE)
 }
 
 #---------------------------------------------------------------------------

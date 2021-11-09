@@ -2,12 +2,14 @@ ECHO OFF
 REM -----------------------------------------------------------------------
 REM launch the MDI web server and browser client in 'local' mode on Windows
 REM -----------------------------------------------------------------------
-REM edit the following line to match the system path to your R installation
-REM hint: you probably don't need to do this manually, let mdi::install() do it for you!
+REM path to your R installation
+REM you probably don't need to edit this manually, mdi::install() does it for you
 SET RSCRIPT="_PATH_TO_R_/bin/Rscript.exe"
 REM -----------------------------------------------------------------------
 
-REM do not anything below this line
+
+REM do not edit anything below this line
+
 
 ECHO.
 ECHO Options:

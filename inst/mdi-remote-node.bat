@@ -6,14 +6,14 @@ REM     web browser runs on a user's local desktop/laptop computer
 REM     communication from browser to server is via SSH dynamic port forwarding (i.e., SOCKS5)
 REM     thus:
 REM         address entered into web browser is "http://NODE:SHINY_PORT"
-REM         SwitchOmega browser extension is used to proxy via "socks5://127.0.0.1:PROXY_PORT"
+REM         SwitchyOmega browser extension is used to proxy via "socks5://127.0.0.1:PROXY_PORT"
 REM ----------------------------------------------------------------
 
 REM set local (i.e., client) variables
 SET PROXY_PORT=1080
 
 REM set ssh server (i.e., cluster login node) variables
-SET USER=wilsonte
+SET USER=johndoe
 SET SERVER=greatlakes.arc-ts.umich.edu
 
 REM set MDI server variables
@@ -21,10 +21,14 @@ SET R_VERSION=4.1.0
 SET SHINY_PORT=3838
 
 REM set node/job variables
-SET ACCOUNT=wilsonte1
-SET JOB_TIME_MINUTES=30
+SET ACCOUNT=johndoe1
+SET JOB_TIME_MINUTES=240
 SET CPUS_PER_TASK=1
-SET MEM_PER_CPU=1000m
+SET MEM_PER_CPU=4000m
+
+
+REM do not edit anything below this line
+
 
 REM ssh into server, with dynamic port forwarding (SOCKS5)
 REM launch MDI web server job if one is not already running and report it's access URL

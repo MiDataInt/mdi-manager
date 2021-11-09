@@ -1,7 +1,7 @@
 #---------------------------------------------------------------------------
 # establish a list of installation actions to be taken and get permission to proceed
 #---------------------------------------------------------------------------
-getInstallationPermission <- function(mdiDir, installApps, addToPATH, clone, ondemand){
+getInstallationPermission <- function(mdiDir, installApps, addToPATH, clone){
     types <- if(installApps) "framework and app" else "framework"
 
     # initialize the actions list
@@ -22,7 +22,7 @@ getInstallationPermission <- function(mdiDir, installApps, addToPATH, clone, ond
     addAction("check out the most recent version of all definitive MDI repositories")
 
     # will we install apps R package dependencies?
-    if(installApps && !ondemand)
+    if(installApps)
         addAction(paste0("install or update R packages into '", file.path(mdiDir, "library"), "'"))
 
     # will we attempt to update .bashrc on a Linux server?
@@ -57,7 +57,7 @@ getInstallationPermission <- function(mdiDir, installApps, addToPATH, clone, ond
 #---------------------------------------------------------------------------
 confirmPriorInstallation <- function(mdiDir){
     mdiDir <- parseMdiDir(mdiDir, check = FALSE)
-    isConfig <- file.exists(file.path(mdiDir, 'mdi.yml'))
+    isConfig <- file.exists(file.path(mdiDir, 'config', 'suites.yml'))
     if(isConfig) return()
     stop(paste(
         paste0("Not a valid MDI installation: '", mdiDir, "'."),

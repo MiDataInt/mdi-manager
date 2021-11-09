@@ -8,11 +8,15 @@ REM     thus, address entered into web browser is "http://127.0.0.1:SHINY_PORT"
 REM ----------------------------------------------------------------
 
 REM set ssh server (i.e., login node) variables
-SET USER=wilsonte
-SET SERVER=wilsonte-lab.mbni.org
+SET USER=johndoe
+SET SERVER=johndoe.example.org
 
 REM set node/job variables
 SET SHINY_PORT=3838
+
+
+REM do not edit anything below this line
+
 
 REM open a Chrome browser window at the appropriate url and port for the ssh tunnel to server
 START "Chrome" "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" http://127.0.0.1:%SHINY_PORT%

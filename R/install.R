@@ -12,7 +12,6 @@
 #' 
 #' All componenents will be install into directory \code{mdiDir}. 
 #' \code{mdiDir} must already exist, it will not be created. 
-#' 
 #' If \code{mdiDir} ends with '/mdi' it will be used as is without further 
 #' prompting. Otherwise, a subdirectory of that name will be created in 
 #' \code{mdiDir} after prompting for confirmation.
@@ -20,10 +19,12 @@
 #' If they do not already exist, \code{mdi::install()} will create a series of
 #' subdirectories in \code{mdiDir} without further prompting, as follows:
 #' \itemize{
+#'   \item config = configuration data for the MDI installation
 #'   \item data = project-specific input and output files
 #'   \item environments = conda environments used by data analysis pipelines
 #'   \item frameworks = git repositories with common code for all pipelines and apps
 #'   \item library = version-controlled library of R packages private to the MDI
+#'   \item remote = scripts to help run the MDI in remote modes
 #'   \item resources = version-controlled ~static files such as reference data sets
 #'   \item sessions = temporary files associated with user web sessions
 #'   \item suites = git repositories with code that defines specific pipelines and apps
@@ -41,8 +42,10 @@
 #' be installed into '~/mdi' by default.
 #'
 #' @param installApps logical. If TRUE (the default), \code{mdi::install()} 
-#' will install both Stage 1 pipelines and Stage 2 apps. If you know you will 
-#' only want to use Stage 1 pipelines from an installation, setting 
+#' will install both Stage 1 Pipelines and Stage 2 Apps. If you know you will 
+#' only want to use Stage 1 Pipelines from your installation, or if you will
+#' use \code{mdi::run()} option \code{sharedDir} to run the Stage 2 Apps 
+#' server with elements of a shared MDI installation, then setting 
 #' \code{installApps} to FALSE will skip the much slower installation of the 
 #' R packages library.
 #' 
@@ -63,8 +66,8 @@
 #' upstream repos, when available.
 #'
 #' @param token character. The GitHub Personal Access Token (PAT) that grants
-#' permissions for accessing forked repositories in the \code{gitUser} account,
-#' and/or any tool suites that have restricted access. You can also preset the 
+#' permissions for accessing any tool suites that have restricted access and/or
+#' forked repositories in the \code{gitUser} account. You can also preset the 
 #' token into environment variable \code{GITHUB_PAT} using
 #' \code{Sys.setenv(GITHUB_PAT = "your_token")}.
 #'
@@ -85,11 +88,7 @@
 #' does not attempt to update R packages that have previously been installed,
 #' regardless of version. When TRUE, all packages are installed without further
 #' prompting.
-#' 
-#' @param ondemand logical. If TRUE, the installer will not install _any_ R
-#' packages, as they will be used from the managed host installation. Default
-#' is FALSE.
-#'
+#'  
 #' @return A list of installation data with names components 'versions', dirs', 
 #' 'repos', 'rRepos', 'packages'. This information will be incomplete if 
 #' \code{packages} was not NULL (repos and rRepos will be NULL, packages will  
@@ -98,21 +97,21 @@
 #'
 #' @export
 #---------------------------------------------------------------------------
-install <- function(mdiDir = '~',
-                    installApps = TRUE,
-                    confirm = TRUE,
-                    addToPATH = TRUE,
-                    gitUser = NULL,
-                    token = NULL,                    
-                    clone = TRUE,
-                    cranRepo = 'https://repo.miserver.it.umich.edu/cran/',                    
-                    packages = NULL,
-                    force = FALSE,
-                    ondemand = FALSE){
-
+install <- function(
+    mdiDir = '~',
+    installApps = TRUE,
+    confirm = TRUE,
+    addToPATH = TRUE,
+    gitUser = NULL,
+    token = NULL,                    
+    clone = TRUE,
+    cranRepo = 'https://repo.miserver.it.umich.edu/cran/',                    
+    packages = NULL,
+    force = FALSE
+){
     # collate actions to be take and prompt for confirmation
     if(confirm && interactive()) 
-        getInstallationPermission(mdiDir, installApps, addToPATH, clone, ondemand)
+        getInstallationPermission(mdiDir, installApps, addToPATH, clone)
 
     # parse needed versions and file paths
     versions <- getRBioconductorVersions()
@@ -131,15 +130,18 @@ install <- function(mdiDir = '~',
     # if developer requests an override, just install those specific R packages and stop
     if(!is.null(packages)){
         packages <- unique(unname(unlist(packages)))
-        installPackages(versions, dirs, packages, force, ondemand)
+        installPackages(versions, dirs, packages, force)
         return( getInstallationData(packages = packages) )
     }
 
-    # initialize config file 
-    configFilePath <- copyRootFile(dirs, 'mdi.yml') 
+    # initialize config files
+    suitesFilePath <- copyConfigFile(dirs, 'suites.yml') 
+    copyConfigFile(dirs, 'stage1-pipelines.yml') 
+    copyConfigFile(dirs, 'stage2-apps.yml')
+    copyRemoteFiles(dirs) 
 
     # collect the list of all framework and suite repositories for this installation
-    repos <- parseGitRepos(dirs, configFilePath)
+    repos <- parseGitRepos(dirs, suitesFilePath)
 
     # for most users, download (clone or pull) the most current version of the git repositories
     if(clone) do.call(downloadGitRepo, repos)  
@@ -165,7 +167,7 @@ install <- function(mdiDir = '~',
         }        
     }, repos$dir, repos$fork, repos$version)
 
-    # initialize MDI root execution files, i
+    # initialize MDI root batch execution files
     pipelinesSuites <- filterRepos(
         repos, 
         fork  = Forks$definitive,         
@@ -178,12 +180,14 @@ install <- function(mdiDir = '~',
         list(PIPELINES_SUITE_NAMES = paste(pipelinesSuites$name, collapse = " ")),
         executable = TRUE
     ) 
-    if(.Platform$OS.type != "unix") updateRootFile(
-        dirs, 
-        'mdi-local.bat', 
-        list(PATH_TO_R  = R.home(), 
-             GITHUB_PAT = Sys.getenv('GITHUB_PAT'))
-    )    
+    if(.Platform$OS.type != "unix") {
+        updateRootFile(
+            dirs, 
+            'mdi-local.bat', 
+            list(PATH_TO_R  = R.home(), 
+                GITHUB_PAT = Sys.getenv('GITHUB_PAT'))
+        )
+    }
 
     # initialize the Stage 1 pipelines management utility
     if(.Platform$OS.type == "unix") {
@@ -211,7 +215,7 @@ install <- function(mdiDir = '~',
     saveRDS(installationData, installationFile)
 
     # install or update all required apps R packages
-    installPackages(versions, dirs, packages, force, ondemand)
+    installPackages(versions, dirs, packages, force)
 
     # return installation data
     installationData
@@ -220,8 +224,7 @@ install <- function(mdiDir = '~',
 #---------------------------------------------------------------------------
 # use BiocManager to install all apps R packages (whether CRAN or Bioconductor)
 #---------------------------------------------------------------------------
-installPackages <- function(versions, dirs, packages, force, ondemand){
-    if(ondemand) return(NULL)
+installPackages <- function(versions, dirs, packages, force){
     dir <- dirs$versionLibrary
     newPackages <- if(force) packages else {
         existingPackages <- list.dirs(dir, full.names = FALSE, recursive = FALSE)

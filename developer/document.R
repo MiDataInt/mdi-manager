@@ -1,3 +1,4 @@
+# convert R documentation files to markdown for Jekyll GitHub Pages
 i <- 1
 for(action in c("install", "run")){
     rdfile <- paste(file.path("man", action), 'Rd', sep = ".")

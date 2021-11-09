@@ -26,10 +26,9 @@ Code developers are directed to the following repositories for templates to
 - <https://github.com/MiDataInt/mdi-apps-suite-template>
 
 to this repository if you wish to **run a secure Stage 2 apps 
-server** on your own publicly addressable server (e.g, and AWS instance),
+server** on your own publicly addressable server (e.g, an AWS instance),
 
 - <https://github.com/MiDataInt/mdi-simple-server>
-
 
 and to these repositories for the pipelines and apps frameworks, if you 
 wish to help develop the MDI itself.
@@ -42,13 +41,13 @@ wish to help develop the MDI itself.
 ### System requirements
 
 The MDI manager utility and the Stage 2 web apps are R programs.
-Accordingly R must be installed on the host machine. See:
+Accordingly, R must be installed on the host machine. See:
 
 <https://www.r-project.org/>
 
 We recommend updating to the most recent stable R release prior
 to installing the MDI. Similar to [https://www.bioconductor.org/](Bioconductor), 
-code versions are tied to specific releases of R (hint: you can install
+MDI installations are tied to specific releases of R (hint: you can install
 multiple R versions on your computer).
 
 ### Install the server manager and framework
@@ -95,11 +94,10 @@ or
 Rscript -e 'mdi::run()'
 ```
 
-Alternatively, you can use the 'mdi' command line helper utility
-to launch the web server without using an R console:
+or on Linux or Mac,
 
 ```
-mdi server
+mdi run
 ```
 
 Regardless of how you call <code>mdi::run()</code>, in a few seconds, 
@@ -110,10 +108,10 @@ a web browser will open and you will be ready to load your data and run an assoc
 <code>mdi::install()</code> will download a standard series of
 pipelines and apps supported by Michigan core facilities. You can
 add any other custom or non-standard pipelines and/or apps suites
-by editing file 'mdi.yml' in the 'mdi' root directory.
+by editing file 'config/suites.yml' in the 'mdi' root directory.
 
 ```
-# mdi/mdi.yml
+# mdi/config/suites.yml
 suites:
     pipelines:
         - https://github.com/GIT_USER/SUITE_NAME-mdi-pipelines.git
