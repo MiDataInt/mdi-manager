@@ -9,13 +9,13 @@
 run(
   mdiDir = "~",
   dataDir = NULL,
-  ondemandDir = NULL,
+  sharedDir = NULL,
   mode = "local",
   install = TRUE,
   url = "http://localhost",
   port = 3838,
-  browser = mode != "server",
-  debug = mode != "server",
+  browser = mode \%in\% c("local", "ondemand"),
+  debug = FALSE,
   developer = FALSE,
   gitUser = NULL,
   token = NULL
@@ -30,27 +30,39 @@ develop(
   token = NULL
 )
 
-ondemand(ondemandDir, mdiDir = "~", dataDir = NULL, port = 3838)
+ondemand(sharedDir, mdiDir = "~", dataDir = NULL, port = 3838)
 }
 \arguments{
 \item{mdiDir}{character. Path to the directory where the MDI has 
 previously been installed. Defaults to your home directory, such that 
 the MDI will run from '~/mdi' by default.}
 
-\item{dataDir}{character. Path to the directory where your MDI
-data can be found. Defaults to '\code{mdiDir}/data'. You might wish to change
+\item{dataDir}{character. Path to the directory where your MDI data
+can be found. Defaults to '\code{mdiDir}/data'. You might wish to change
 this to a directory that holds shared data, e.g., for your laboratory.}
 
-\item{ondemandDir}{character. Path to the directory where a public
-installation of the MDI can be found. Some paths from this
-installation will be used instead of the user's installation when 
-\code{mode} is 'ondemand'.}
+\item{sharedDir}{character. Path to the directory where a shared/public
+installation of the MDI can be found. The following folders from that 
+installation will be used instead of from the installation executing the
+\code{mdi::run()} command:
+\itemize{
+  \item environments
+  \item library
+  \item resources
+}
+Option \code{sharedDir} must be set if you ran \code{mdi::install()}
+with option \code{installApps} set to FALSE.}
 
-\item{mode}{character. Either 'server', 'local' or 'ondemand'. Most users
-want 'local' (the default) to run the MDI on your desktop or laptop. 
-Mode 'server' is for a public web server, 'ondemand' is for managed execution
-on an HPC cluster via Open OnDemand Interactive Apps. \code{ondemandDir}
-is required if \code{mode} is set to 'ondemand'.}
+\item{mode}{character. Controls aspects of server behavior. The following
+valid values will help you properly run the MDI web server on/in:
+\itemize{
+  \item local = your desktop or laptop
+  \item remote = a server you have direct access to via SSH
+  \item node = a worker node in a Slurm cluster, accessed via SSH to a login node
+  \item ondemand = a worker node in a Slurm cluster, accessed via Open OnDemand
+  \item server = a mdi-cloud-server container on a publicly addressable cloud instance
+}
+Most users manually calling \code{mdi::run()} want 'local' (the default).}
 
 \item{install}{logical. When TRUE (the default), \code{mdi::run()} will
 call \code{mdi::install()} prior to launching the web server to 
@@ -58,22 +70,25 @@ clone or pull all repositories and install any missing packages. Setting
 \code{install} to FALSE will allow the server to start a bit more quickly.}
 
 \item{url}{character. The complete browser URL to load the web page. 
-Examples: 'http://localhost' or 'https://mymdi.org'.}
+Examples: 'http://localhost' (the default) or 'https://mymdi.org'.}
 
 \item{port}{integer. The port to use on the host specified in \code{url}.
-Example: setting \code{url} to 'https://mymdi.org' and \code{port} to 5000
-will yield a final access url of 'https://mymdi.org:5000/'.}
+Defaults to the canonical Shiny port, 3838. Example: setting \code{url} 
+to 'https://mymdi.org' and \code{port} to 5000 will yield a final access 
+url of 'https://mymdi.org:5000/'.}
 
 \item{browser}{logical. Whether or not to attempt to launch a web browser 
-after starting the MDI server. Defaults to TRUE unless \code{mode} is 'server'.}
+after starting the MDI server. Defaults to FALSE unless \code{mode} is 'local'
+or 'ondemand'.}
 
-\item{debug}{logical. When \code{debug} is TRUE, verbose activity logs
-will be printed to the R console where \code{mdi::run()} was called.
-Defaults to TRUE unless \code{mode} is 'server'.}
+\item{debug}{logical. When \code{debug} is TRUE and \code{mode} is 'local'
+or 'ondemand', verbose activity logs will be printed to the R console where 
+\code{mdi::run()} was called. Defaults to FALSE. Ignored if \code{mode} is 
+'remote', 'node', or 'server'.}
 
 \item{developer}{logical. When \code{developer} is TRUE, additional
 development utilities are added to the web page and forked repositories
-will be used if they exist. Only honored if ' \code{mode} is 'local'.}
+will be used if they exist. Ignored if \code{mode} is set to 'server'.}
 
 \item{gitUser}{character. Developers should use \code{gitUser} to provide 
 the username of the GitHub account that holds their forks of any
@@ -94,7 +109,7 @@ that runs perpeptually in the parent R process in the global environment.
 \code{run()} launches the suites of data analysis applications that comprise
 the Michigan Data Interface (MDI) in a web server, either on a web host 
 that is publicly addressable, on your local computer, or on on a cluster 
-compute node within an OnDemand batch job. \code{develop()} is a shortcut 
+compute node or other ssh accessible server. \code{develop()} is a shortcut 
 to \code{run()} with settings appropriate for developers (mode='local', 
 browser=FALSE, debug=TRUE, developer=TRUE).
 }
