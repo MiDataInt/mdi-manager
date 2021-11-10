@@ -9,7 +9,7 @@
 run(
   mdiDir = "~",
   dataDir = NULL,
-  sharedDir = NULL,
+  hostDir = NULL,
   mode = "local",
   install = TRUE,
   url = "http://localhost",
@@ -30,7 +30,7 @@ develop(
   token = NULL
 )
 
-ondemand(sharedDir, mdiDir = "~", dataDir = NULL, port = 3838)
+ondemand(hostDir, mdiDir = "~", dataDir = NULL, port = 3838)
 }
 \arguments{
 \item{mdiDir}{character. Path to the directory where the MDI has 
@@ -41,17 +41,18 @@ the MDI will run from '~/mdi' by default.}
 can be found. Defaults to '\code{mdiDir}/data'. You might wish to change
 this to a directory that holds shared data, e.g., for your laboratory.}
 
-\item{sharedDir}{character. Path to the directory where a shared/public
-installation of the MDI can be found. The following folders from that 
-installation will be used instead of from the installation executing the
-\code{mdi::run()} command:
+\item{hostDir}{character. Path to the directory where a hosted, i.e., a 
+shared public, installation of the MDI can be found. The following folders 
+from that installation will be used instead of from the user installation 
+executing the \code{mdi::run()} command:
 \itemize{
+  \item config
   \item environments
   \item library
   \item resources
 }
-Option \code{sharedDir} must be set if you ran \code{mdi::install()}
-with option \code{installApps} set to FALSE.}
+Option \code{hostDir} must be set if you ran \code{mdi::install()}
+with option \code{installPackages} set to FALSE.}
 
 \item{mode}{character. Controls aspects of server behavior. The following
 valid values will help you properly run the MDI web server on/in:
@@ -65,8 +66,7 @@ valid values will help you properly run the MDI web server on/in:
 Most users manually calling \code{mdi::run()} want 'local' (the default).}
 
 \item{install}{logical. When TRUE (the default), \code{mdi::run()} will
-call \code{mdi::install()} prior to launching the web server to 
-clone or pull all repositories and install any missing packages. Setting 
+clone or pull all repositories and install any missing R packages. Setting 
 \code{install} to FALSE will allow the server to start a bit more quickly.}
 
 \item{url}{character. The complete browser URL to load the web page. 

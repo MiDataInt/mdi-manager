@@ -24,7 +24,7 @@ Install all dependencies of the Michigan Data Interface (MDI). This will
 ```r
 install(
   mdiDir = "~",
-  installApps = TRUE,
+  installPackages = TRUE,
   confirm = TRUE,
   addToPATH = TRUE,
   gitUser = NULL,
@@ -42,7 +42,7 @@ install(
 Argument      |Description
 ------------- |----------------
 `mdiDir`     |     character. Path to the directory where the MDI will be/has been installed. Defaults to your home directory, such that the MDI will be installed into '~/mdi' by default.
-`installApps`     |     logical. If TRUE (the default), `mdi::install()`  will install both Stage 1 Pipelines and Stage 2 Apps. If you know you will only want to use Stage 1 Pipelines from your installation, or if you will use `mdi::run()` option `sharedDir` to run the Stage 2 Apps server with elements of a shared MDI installation, then setting `installApps` to FALSE will skip the much slower installation of the R packages library.
+`installPackages`     |     logical. If TRUE (the default), `mdi::install()`  will fully install both Stage 1 Pipelines and Stage 2 Apps. If you know you will only want to use Stage 1 Pipelines from your installation, or if you will always use `mdi::run()` option `hostDir` to run the Stage 2 Apps server with code sourced from a shared MDI installation, then setting `installPackages` to FALSE will skip the much slower installation of the Stage 2 R packages library.
 `confirm`     |     logical. If TRUE (the default) and in interactive mode, `mdi::install()` will list all actions to be taken and prompt for permission before creating or modifying any system files.
 `addToPATH`     |     logical. If TRUE (the default) and installing on a Linux platform computer, `mdi::install()` will modify ~/.bashrc to add the 'mdi' executable to your PATH variable at each shell login, so that you may call MDI pipelines from any directory as 'mdi ...'.
 `gitUser`     |     character. Developers should use `gitUser` to provide the username of the GitHub account that holds their forks of any frameworks or suites repositories. Code editing is done in these forks, which will be cloned locally into frameworks/developer-forks and/or suites/developer-forks and used by `mdi::develop()` instead of the upstream repos, when available.
@@ -101,7 +101,7 @@ No action will be taken unless approved by the user when prompted.
 A list of installation data with names components 'versions', dirs',
  'repos', 'rRepos', 'packages'. This information will be incomplete if
  `packages` was not NULL (repos and rRepos will be NULL, packages will
- only contain `packages` ) or if installApps was FALSE (repos, rRepos and
- packages will all be NULL).
+ only contain `packages` ) or if installPackages was FALSE (repos, rRepos
+ and packages will all be NULL).
 
 

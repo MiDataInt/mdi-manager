@@ -235,7 +235,6 @@ run <- function(
     Sys.setenv(IS_DEVELOPER = developer)
     Sys.setenv(APPS_FRAMEWORK_DIR = appsFrameworkDir)
     Sys.setenv(LIBRARY_DIR = dirs$versionLibrary)
-    # Sys.setenv(INSTALLATION_FILE = file.path(dirs$versionLibrary, 'installation.rds'))
 
     # source the script that runs the server in the global environment
     # the web server never returns as it handles client requests via https

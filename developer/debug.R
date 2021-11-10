@@ -1,7 +1,7 @@
 #---------------------------------------------------------------------------
 # functions to debug mdi-manager code changes
 #---------------------------------------------------------------------------
-# developers should create file 'gitCredentials.R' in MDI_DIR as follows:
+# developers should create file 'gitCredentials.R' in MDI_DIR or HOME as follows:
 #   Sys.setenv(GIT_USER = 'xxx')
 #   Sys.setenv(GITHUB_PAT = 'xxx')
 #---------------------------------------------------------------------------

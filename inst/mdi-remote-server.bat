@@ -1,6 +1,6 @@
 ECHO OFF
 REM ----------------------------------------------------------------
-REM launch the MDI web server and browser client in 'remote:server' mode
+REM launch the MDI web server and browser client in 'remote' mode
 REM     web server runs on a remote server on the login node
 REM     web browser runs on a user's local desktop/laptop computer
 REM     communication from browser to server is via SSH local port forwarding

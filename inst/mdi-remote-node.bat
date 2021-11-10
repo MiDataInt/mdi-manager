@@ -1,6 +1,6 @@
 ECHO OFF
 REM ----------------------------------------------------------------
-REM launch the MDI web server and browser client in 'remote:node' mode
+REM launch the MDI web server and browser client in 'node' mode
 REM     web server runs on a worker node on a Slurm cluster via an sbatch job on a time limit
 REM     web browser runs on a user's local desktop/laptop computer
 REM     communication from browser to server is via SSH dynamic port forwarding (i.e., SOCKS5)

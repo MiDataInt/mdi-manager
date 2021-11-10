@@ -6,7 +6,7 @@
 \usage{
 install(
   mdiDir = "~",
-  installApps = TRUE,
+  installPackages = TRUE,
   confirm = TRUE,
   addToPATH = TRUE,
   gitUser = NULL,
@@ -22,13 +22,13 @@ install(
 been installed. Defaults to your home directory, such that the MDI will 
 be installed into '~/mdi' by default.}
 
-\item{installApps}{logical. If TRUE (the default), \code{mdi::install()} 
-will install both Stage 1 Pipelines and Stage 2 Apps. If you know you will 
-only want to use Stage 1 Pipelines from your installation, or if you will
-use \code{mdi::run()} option \code{sharedDir} to run the Stage 2 Apps 
-server with elements of a shared MDI installation, then setting 
-\code{installApps} to FALSE will skip the much slower installation of the 
-R packages library.}
+\item{installPackages}{logical. If TRUE (the default), \code{mdi::install()} 
+will fully install both Stage 1 Pipelines and Stage 2 Apps. If you know you  
+will only want to use Stage 1 Pipelines from your installation, or if you 
+will always use \code{mdi::run()} option \code{hostDir} to run the Stage 2  
+Apps server with code sourced from a shared MDI installation, then setting 
+\code{installPackages} to FALSE will skip the much slower installation of  
+the Stage 2 R packages library.}
 
 \item{confirm}{logical. If TRUE (the default) and in interactive mode,
 \code{mdi::install()} will list all actions to be taken and prompt for 
@@ -74,8 +74,8 @@ prompting.}
 A list of installation data with names components 'versions', dirs', 
 'repos', 'rRepos', 'packages'. This information will be incomplete if 
 \code{packages} was not NULL (repos and rRepos will be NULL, packages will  
-only contain\code{packages}) or if installApps was FALSE (repos, rRepos and 
-packages will all be NULL).
+only contain\code{packages}) or if installPackages was FALSE (repos, rRepos  
+and packages will all be NULL).
 }
 \description{
 Install all dependencies of the Michigan Data Interface (MDI). This will 
