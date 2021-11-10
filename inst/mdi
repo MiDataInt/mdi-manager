@@ -49,7 +49,6 @@ export PIPELINES_SUITE_NAMES="_PIPELINES_SUITE_NAMES_" # space delimited list
 # used by mdi::install(), command not advertised to end users
 #----------------------------------------------------------------------
 if [ "$TARGET" = "initialize" ]; then
-    echo "  $JOB_MANAGER_DIR"
     exec perl $JOB_MANAGER_DIR/initialize.pl $MDI_DIR
 
 #----------------------------------------------------------------------
