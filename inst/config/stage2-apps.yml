@@ -61,13 +61,13 @@ users:
 # Named access keys recognized when access_control = keys
 #--------------------------------------------------------------
 #   hash  _encrypted_ version of the key that should be entered by a user
-#         call sodium::password_store(key) to get the value to enter below
+#         call mdi::password_store(key) to get the value to enter below
 #--------------------------------------------------------------
 # Paths and apps are entered similarly to users, above
 #--------------------------------------------------------------
 keys:
-  lab_members:
-    hash: "$7$C6..../....151HwtRzwHrfpF1Ht8zj.3rcIcs2cn1ymgGvijMWuE5$./bnLIQjCqbfkVQS0bh0mNLweSOieiSBGeg.KcGloj7" 
+  team_members:
+    hash: 5fr9uc24m0eqjbgxp1wnva6hd8okiltz_df6e4823c701569a0a2adb899f041e9d
     paths: 
       read: all
       write: demo2

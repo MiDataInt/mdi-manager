@@ -9,7 +9,7 @@ rPackageName <- 'mdi'
 # never overwrite an existing config file
 #---------------------------------------------------------------------------
 copyConfigFile <- function(dirs, fileName){
-    message('checking for file:', fileName)
+    message(paste('checking for file:', fileName))
     filePath <- file.path(dirs$config, fileName)
     fileTemplate <- system.file('config', fileName, package = rPackageName)
     file.copy(fileTemplate, filePath, overwrite = FALSE, recursive = FALSE)
@@ -17,15 +17,14 @@ copyConfigFile <- function(dirs, fileName){
 }
 copyRemoteFiles <- function(dirs){
     source <- system.file('remote', package = rPackageName)
-    destination <- file.path(dirs$mdi, 'remote')
-    file.copy(source, destination, overwrite = TRUE, recursive = TRUE)
+    file.copy(source, dirs$mdi, recursive = TRUE)
 }
 
 #---------------------------------------------------------------------------
 # copy and modify mdi launcher utilities for command line and Windows
 #---------------------------------------------------------------------------
 updateRootFile <- function(dirs, fileName, replace = list(), executable = FALSE){
-    message('updating file:', fileName)
+    message(paste('updating file:', fileName))
     filePath <- file.path(dirs$mdi, fileName)
     fileTemplate <- system.file(fileName, package = rPackageName)
     contents <- readChar(fileTemplate, file.info(fileTemplate)$size)
