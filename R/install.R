@@ -41,13 +41,13 @@
 #' been installed. Defaults to your home directory, such that the MDI will 
 #' be installed into '~/mdi' by default.
 #'
-#' @param installApps logical. If TRUE (the default), \code{mdi::install()} 
-#' will install both Stage 1 Pipelines and Stage 2 Apps. If you know you will 
-#' only want to use Stage 1 Pipelines from your installation, or if you will
-#' use \code{mdi::run()} option \code{sharedDir} to run the Stage 2 Apps 
-#' server with elements of a shared MDI installation, then setting 
-#' \code{installApps} to FALSE will skip the much slower installation of the 
-#' R packages library.
+#' @param installPackages logical. If TRUE (the default), \code{mdi::install()} 
+#' will fully install both Stage 1 Pipelines and Stage 2 Apps. If you know you  
+#' will only want to use Stage 1 Pipelines from your installation, or if you 
+#' will always use \code{mdi::run()} option \code{hostDir} to run the Stage 2  
+#' Apps server with code sourced from a shared MDI installation, then setting 
+#' \code{installPackages} to FALSE will skip the much slower installation of  
+#' the Stage 2 R packages library.
 #' 
 #' @param confirm logical. If TRUE (the default) and in interactive mode,
 #' \code{mdi::install()} will list all actions to be taken and prompt for 
@@ -92,14 +92,14 @@
 #' @return A list of installation data with names components 'versions', dirs', 
 #' 'repos', 'rRepos', 'packages'. This information will be incomplete if 
 #' \code{packages} was not NULL (repos and rRepos will be NULL, packages will  
-#' only contain\code{packages}) or if installApps was FALSE (repos, rRepos and 
-#' packages will all be NULL).
+#' only contain\code{packages}) or if installPackages was FALSE (repos, rRepos  
+#' and packages will all be NULL).
 #'
 #' @export
 #---------------------------------------------------------------------------
 install <- function(
     mdiDir = '~',
-    installApps = TRUE,
+    installPackages = TRUE,
     confirm = TRUE,
     addToPATH = TRUE,
     gitUser = NULL,
@@ -111,27 +111,18 @@ install <- function(
 ){
     # collate actions to be take and prompt for confirmation
     if(confirm && interactive()) 
-        getInstallationPermission(mdiDir, installApps, addToPATH, clone)
+        getInstallationPermission(mdiDir, installPackages, addToPATH, clone)
 
     # parse needed versions and file paths
     versions <- getRBioconductorVersions()
     dirs <- parseDirectories(mdiDir, versions, message = TRUE)
     setGitCredentials(dirs, gitUser, token)
-    getInstallationData <- function(repos = NULL, rRepos = NULL, packages = NULL){
-        list(
-            versions = versions, 
-            dirs = dirs,
-            repos = repos, 
-            rRepos = rRepos,
-            packages = packages
-        )
-    }
 
     # if developer requests an override, just install those specific R packages and stop
     if(!is.null(packages)){
         packages <- unique(unname(unlist(packages)))
         installPackages(versions, dirs, packages, force)
-        return( getInstallationData(packages = packages) )
+        return( getInstallationData(versions, dirs, packages = packages) )
     }
 
     # initialize config files
@@ -196,7 +187,24 @@ install <- function(
         if(dir.exists(dir)) initializeJobManager(mdiPath, developer = TRUE)
         addMdiDirToPATH(mdiDir = mdiDir, addToPATH = addToPATH)
     }
-    if(!installApps) return( getInstallationData() )
+    if(!installPackages) return( getInstallationData(versions, dirs) )
+    return( collectAndInstallPackages(cranRepo, force, versions, dirs, repos) )
+}
+getInstallationData <- function(versions, dirs, repos = NULL, rRepos = NULL, packages = NULL){
+    list(
+        versions = versions, 
+        dirs = dirs,
+        repos = repos, 
+        rRepos = rRepos,
+        packages = packages
+    )
+}
+
+#---------------------------------------------------------------------------
+# use BiocManager to install all apps R packages (whether CRAN or Bioconductor)
+#---------------------------------------------------------------------------
+collectAndInstallPackages <- function(cranRepo, force, 
+                                      versions, dirs, repos){
 
     # set the public R package repositories
     message('collecting R repository information')
@@ -211,7 +219,8 @@ install <- function(
     # record the app versions that led to the current set of installed R library packages
     # used by run() to determine if latest app versions have missing package installations
     installationFile <- file.path(dirs$versionLibrary, 'installation.rds')
-    installationData <- getInstallationData(repos = repos, rRepos = rRepos, packages = packages)
+    installationData <- getInstallationData(versions, dirs, 
+                                            repos = repos, rRepos = rRepos, packages = packages)
     saveRDS(installationData, installationFile)
 
     # install or update all required apps R packages
@@ -220,10 +229,6 @@ install <- function(
     # return installation data
     installationData
 }
-
-#---------------------------------------------------------------------------
-# use BiocManager to install all apps R packages (whether CRAN or Bioconductor)
-#---------------------------------------------------------------------------
 installPackages <- function(versions, dirs, packages, force){
     dir <- dirs$versionLibrary
     newPackages <- if(force) packages else {

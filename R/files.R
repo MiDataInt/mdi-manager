@@ -19,9 +19,9 @@
 #---------------------------------------------------------------------------
 parseDirectories <- function(mdiDir, versions,
                              create = TRUE, message = FALSE,
-                             dataDir = NULL, sharedDir = NULL){
+                             dataDir = NULL, hostDir = NULL){
     if(message) message('parsing target directories')
-    isShared <- !is.null(sharedDir)
+    isHosted <- !is.null(hostDir)
     
     # parse the required mdiDir
     mdiDir <- parseMdiDir(mdiDir, check = TRUE)
@@ -37,15 +37,17 @@ parseDirectories <- function(mdiDir, versions,
     if(!is.null(dataDir)) dirs$data <- dataDir
 
     # override public directories when an installation uses shared code and resources
-    if(isShared){
-        publicDirNames <- c('environments', 'library', 'resources')
-        for(dirName in publicDirNames) dirs[[dirName]] <- file.path(sharedDir, dirName)
+    if(isHosted){
+        publicDirNames <- c('config', 'environments', 'library', 'resources')
+        for(dirName in publicDirNames) dirs[[dirName]] <- file.path(hostDir, dirName)
     }
 
     # initialize the file structure
-    if(!isShared) for(dir in bareDirNames) dir.create(dirs[[dir]], showWarnings = FALSE)
-    dirs$versionLibrary <- file.path(dirs$library, versions$BioconductorRelease)    
-    if(!isShared) dir.create(dirs$versionLibrary, showWarnings = FALSE)    
+    dirs$versionLibrary <- file.path(dirs$library, versions$BioconductorRelease) 
+    if(create && !isHosted){
+        for(dir in bareDirNames) dir.create(dirs[[dir]], showWarnings = FALSE)
+        dir.create(dirs$versionLibrary, showWarnings = FALSE)    
+    }
 
     # on run, make sure everything exists as expected
     if(!create) for(dir in dirs){

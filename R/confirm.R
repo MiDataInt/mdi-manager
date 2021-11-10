@@ -1,8 +1,7 @@
 #---------------------------------------------------------------------------
 # establish a list of installation actions to be taken and get permission to proceed
 #---------------------------------------------------------------------------
-getInstallationPermission <- function(mdiDir, installApps, addToPATH, clone){
-    types <- if(installApps) "framework and app" else "framework"
+getInstallationPermission <- function(mdiDir, installPackages, addToPATH, clone){
 
     # initialize the actions list
     actions <- character()
@@ -18,11 +17,11 @@ getInstallationPermission <- function(mdiDir, installApps, addToPATH, clone){
 
     # will we interact with GitHub to clone or update repositories?
     if(clone) 
-        addAction(paste("clone or update MDI", types, "repositories from GitHub"))
+        addAction(paste("clone or update MDI repositories from GitHub"))
     addAction("check out the most recent version of all definitive MDI repositories")
 
     # will we install apps R package dependencies?
-    if(installApps)
+    if(installPackages)
         addAction(paste0("install or update R packages into '", file.path(mdiDir, "library"), "'"))
 
     # will we attempt to update .bashrc on a Linux server?
