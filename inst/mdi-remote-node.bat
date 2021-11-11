@@ -17,8 +17,13 @@ SET USER=johndoe
 SET SERVER=greatlakes.arc-ts.umich.edu
 
 REM set MDI server variables
+REM     MDI_DIR must end with /mdi, e.g., ~/mdi
+REM     set DATA_DIR and HOST_DIR to NULL if not needed
 SET R_VERSION=4.1.0
 SET SHINY_PORT=3838
+SET MDI_DIR=/treehouse/wilsonte_lab/ssd/mdi
+SET DATA_DIR=NULL
+SET HOST_DIR=NULL
 
 REM set node/job variables
 SET ACCOUNT=johndoe1
@@ -35,7 +40,8 @@ REM launch MDI web server job if one is not already running and report it's acce
 REM await user input for how to close, including whether or not to leave the web server running after exit
 START "%SERVER%" ssh -D %PROXY_PORT% %USER%@%SERVER% ^
 bash mdi-remote-node.sh ^
-%PROXY_PORT% %R_VERSION% %SHINY_PORT% %ACCOUNT% %JOB_TIME_MINUTES% %CPUS_PER_TASK% %MEM_PER_CPU% 
+%PROXY_PORT% %R_VERSION% %SHINY_PORT% %MDI_DIR% %DATA_DIR% %HOST_DIR% ^
+%ACCOUNT% %JOB_TIME_MINUTES% %CPUS_PER_TASK% %MEM_PER_CPU% 
 
 REM open a Chrome browser window that uses the SOCKS5 proxy port (without changing system settings)
 CD "C:\Program Files (x86)\Google\Chrome\Application"

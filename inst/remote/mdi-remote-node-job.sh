@@ -6,8 +6,6 @@
 #SBATCH --partition=standard
 #SBATCH --output=/home/%u/%x.log
 
-# get input variables
-export SHINY_PORT=$1
-
 # run web server
-Rscript mdi-remote-node.R
+export MDI_REMOTE_MODE=node
+Rscript $MDI_DIR/remote/mdi-remote.R

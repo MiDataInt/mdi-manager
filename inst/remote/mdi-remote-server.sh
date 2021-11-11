@@ -2,6 +2,10 @@
 
 # get input variables
 export SHINY_PORT=$1
+export MDI_DIR=$2 # must be valid, as it was used to call this script
+export DATA_DIR=$3
+export HOST_DIR=$4
+export MDI_REMOTE_MODE=remote
 
 # check for server currently running on SHINY_PORT
 PID_FILE=mdi-remote-pid-$SHINY_PORT.txt
@@ -17,7 +21,7 @@ if [ "$EXISTS" = "" ]; then
     echo $SEPARATOR 
     echo "Please wait $WAIT_SECONDS seconds for the web server to start"
     echo $SEPARATOR
-    Rscript mdi-remote-server.R &
+    Rscript $MDI_DIR/remote/mdi-remote.R &
     MDI_PID=$!
     echo "$MDI_PID" > $PID_FILE
     sleep $WAIT_SECONDS # give Shiny time to start up before showing further prompts   
@@ -47,7 +51,7 @@ done
 
 # kill the web server process if requested
 if [ "$USER_ACTION" = "1" ]; then
-    source mdi-kill-remote.sh
+    source $MDI_DIR/remote/mdi-kill-remote.sh
 fi
 
 # send a final helpful message

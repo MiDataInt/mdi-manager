@@ -1,13 +1,16 @@
 #!/bin/bash
 
 # get input variables
-PROXY_PORT=$1
-R_VERSION=$2
-SHINY_PORT=$3
-ACCOUNT=$4
-JOB_TIME_MINUTES=$5
-CPUS_PER_TASK=$6
-MEM_PER_CPU=$7
+export PROXY_PORT=$1
+export R_VERSION=$2
+export SHINY_PORT=$3
+export MDI_DIR=$4 # must be valid, as it was used to call this script
+export DATA_DIR=$5
+export HOST_DIR=$6
+export ACCOUNT=$7
+export JOB_TIME_MINUTES=$8
+export CPUS_PER_TASK=$9
+export MEM_PER_CPU=$10
 
 # set a function to discover any currently running MDI web server job
 function set_server_node {
@@ -28,7 +31,7 @@ if [[ "$NODE" = "" || "$NODE" = "(None)" ]]; then
         --time $JOB_TIME_MINUTES \
         --cpus-per-task $CPUS_PER_TASK \
         --mem-per-cpu $MEM_PER_CPU \
-        mdi-remote-node-job.sh $SHINY_PORT
+        $MDI_DIR/remote/mdi-remote-node-job.sh
     set_server_node
     while [[ "$NODE" = "" || "$NODE" = "(None)" ]]; do
         sleep 10
