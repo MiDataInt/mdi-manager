@@ -26,7 +26,7 @@ REM do not edit anything below this line
 REM ssh into server and execute the install command sequence
 ssh %USER%@%SERVER% ^
 %R_LOAD%; ^
-Rscript -e """install.packages('remotes')"""; ^
+Rscript -e """install.packages('remotes', repos = 'https://cloud.r-project.org')"""; ^
 Rscript -e """gC <- '~/gitCredentials.R'; if(file.exists(gC)) source(gC); remotes::install_github('MiDataInt/mdi-manager')"""; ^
 Rscript -e """mdi::install('%MDI_DIR%', installPackages = %INSTALL_PACKAGES%, addToPATH = %ADD_TO_PATH%)"""; ^
 echo; ^
