@@ -1,10 +1,10 @@
 ECHO OFF
 REM ----------------------------------------------------------------
 REM launch the MDI web server and browser client in 'remote' mode
-REM     web server runs on a remote server on the login node
-REM     web browser runs on a user's local desktop/laptop computer
-REM     communication from browser to server is via SSH local port forwarding
-REM     thus, address entered into web browser is "http://127.0.0.1:SHINY_PORT"
+REM   web server runs on a remote server on the login node
+REM   web browser runs on a user's local desktop/laptop computer
+REM   communication from browser to server is via SSH local port forwarding
+REM   thus, address entered into web browser is "http://127.0.0.1:SHINY_PORT"
 REM ----------------------------------------------------------------
 
 REM set ssh server (i.e., login node) variables
@@ -12,10 +12,10 @@ SET USER=johndoe
 SET SERVER=johndoe.example.org
 
 REM set node/job variables
-REM     set SHINY_PORT to not conflict on the server (Shiny default is 3838)
-REM     MDI_DIR must end with /mdi, e.g., ~/mdi
-REM     set DATA_DIR and HOST_DIR to NULL if not needed
-REM     DEVELOPER must be TRUE or FALSE
+REM   set SHINY_PORT to not conflict on the server (Shiny default is 3838)
+REM   MDI_DIR must end with /mdi, e.g., ~/mdi
+REM   set DATA_DIR and HOST_DIR to NULL if not needed
+REM   DEVELOPER must be TRUE or FALSE
 SET SHINY_PORT=3838
 SET MDI_DIR=~/mdi
 SET DATA_DIR=NULL

@@ -1,12 +1,12 @@
 ECHO OFF
 REM ----------------------------------------------------------------
 REM launch the MDI web server and browser client in 'node' mode
-REM     web server runs on a worker node on a Slurm cluster via an sbatch job on a time limit
-REM     web browser runs on a user's local desktop/laptop computer
-REM     communication from browser to server is via SSH dynamic port forwarding (i.e., SOCKS5)
-REM     thus:
-REM         address entered into web browser is "http://NODE:SHINY_PORT"
-REM         SwitchyOmega browser extension is used to proxy via "socks5://127.0.0.1:PROXY_PORT"
+REM   web server runs on a worker node on a Slurm cluster via an sbatch job on a time limit
+REM   web browser runs on a user's local desktop/laptop computer
+REM   communication from browser to server is via SSH dynamic port forwarding (i.e., SOCKS5)
+REM   thus:
+REM     address entered into web browser is "http://NODE:SHINY_PORT"
+REM     SwitchyOmega browser extension is used to proxy via "socks5://127.0.0.1:PROXY_PORT"
 REM ----------------------------------------------------------------
 
 REM set local (i.e., client) variables
@@ -17,11 +17,11 @@ SET USER=johndoe
 SET SERVER=greatlakes.arc-ts.umich.edu
 
 REM set MDI server variables
-REM     R_VERSION must be compatible with module load R/<R_VERSION>
-REM     set SHINY_PORT to not conflict on the server (Shiny default is 3838)
-REM     MDI_DIR must end with /mdi, e.g., ~/mdi
-REM     set DATA_DIR and HOST_DIR to NULL if not needed
-REM     DEVELOPER must be TRUE or FALSE
+REM   R_VERSION must be compatible with module load R/<R_VERSION>
+REM   set SHINY_PORT to not conflict on the server (Shiny default is 3838)
+REM   MDI_DIR must end with /mdi, e.g., ~/mdi
+REM   set DATA_DIR and HOST_DIR to NULL if not needed
+REM   DEVELOPER must be TRUE or FALSE
 SET R_VERSION=4.1.0
 SET SHINY_PORT=3838
 SET MDI_DIR=~/mdi
