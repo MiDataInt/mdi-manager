@@ -6,7 +6,7 @@
 \usage{
 install(
   mdiDir = "~",
-  installApps = TRUE,
+  installPackages = TRUE,
   confirm = TRUE,
   addToPATH = TRUE,
   gitUser = NULL,
@@ -14,8 +14,7 @@ install(
   clone = TRUE,
   cranRepo = "https://repo.miserver.it.umich.edu/cran/",
   packages = NULL,
-  force = FALSE,
-  ondemand = FALSE
+  force = FALSE
 )
 }
 \arguments{
@@ -23,11 +22,13 @@ install(
 been installed. Defaults to your home directory, such that the MDI will 
 be installed into '~/mdi' by default.}
 
-\item{installApps}{logical. If TRUE (the default), \code{mdi::install()} 
-will install both Stage 1 pipelines and Stage 2 apps. If you know you will 
-only want to use Stage 1 pipelines from an installation, setting 
-\code{installApps} to FALSE will skip the much slower installation of the 
-R packages library.}
+\item{installPackages}{logical. If TRUE (the default), \code{mdi::install()} 
+will fully install both Stage 1 Pipelines and Stage 2 Apps. If you know you  
+will only want to use Stage 1 Pipelines from your installation, or if you 
+will always use \code{mdi::run()} option \code{hostDir} to run the Stage 2  
+Apps server with code sourced from a shared MDI installation, then setting 
+\code{installPackages} to FALSE will skip the much slower installation of  
+the Stage 2 R packages library.}
 
 \item{confirm}{logical. If TRUE (the default) and in interactive mode,
 \code{mdi::install()} will list all actions to be taken and prompt for 
@@ -46,8 +47,8 @@ suites/developer-forks and used by \code{mdi::develop()} instead of the
 upstream repos, when available.}
 
 \item{token}{character. The GitHub Personal Access Token (PAT) that grants
-permissions for accessing forked repositories in the \code{gitUser} account,
-and/or any tool suites that have restricted access. You can also preset the 
+permissions for accessing any tool suites that have restricted access and/or
+forked repositories in the \code{gitUser} account. You can also preset the 
 token into environment variable \code{GITHUB_PAT} using
 \code{Sys.setenv(GITHUB_PAT = "your_token")}.}
 
@@ -68,17 +69,13 @@ file will not be updated.}
 does not attempt to update R packages that have previously been installed,
 regardless of version. When TRUE, all packages are installed without further
 prompting.}
-
-\item{ondemand}{logical. If TRUE, the installer will not install _any_ R
-packages, as they will be used from the managed host installation. Default
-is FALSE.}
 }
 \value{
 A list of installation data with names components 'versions', dirs', 
 'repos', 'rRepos', 'packages'. This information will be incomplete if 
 \code{packages} was not NULL (repos and rRepos will be NULL, packages will  
-only contain\code{packages}) or if installApps was FALSE (repos, rRepos and 
-packages will all be NULL).
+only contain\code{packages}) or if installPackages was FALSE (repos, rRepos  
+and packages will all be NULL).
 }
 \description{
 Install all dependencies of the Michigan Data Interface (MDI). This will 
@@ -93,7 +90,6 @@ local mode on their desktop or laptop computer.
 
 All componenents will be install into directory \code{mdiDir}. 
 \code{mdiDir} must already exist, it will not be created. 
-
 If \code{mdiDir} ends with '/mdi' it will be used as is without further 
 prompting. Otherwise, a subdirectory of that name will be created in 
 \code{mdiDir} after prompting for confirmation.
@@ -101,10 +97,12 @@ prompting. Otherwise, a subdirectory of that name will be created in
 If they do not already exist, \code{mdi::install()} will create a series of
 subdirectories in \code{mdiDir} without further prompting, as follows:
 \itemize{
+  \item config = configuration data for the MDI installation
   \item data = project-specific input and output files
   \item environments = conda environments used by data analysis pipelines
   \item frameworks = git repositories with common code for all pipelines and apps
   \item library = version-controlled library of R packages private to the MDI
+  \item remote = scripts to help run the MDI in remote modes
   \item resources = version-controlled ~static files such as reference data sets
   \item sessions = temporary files associated with user web sessions
   \item suites = git repositories with code that defines specific pipelines and apps

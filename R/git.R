@@ -37,11 +37,11 @@ setGitCredentials <- function(dirs, gitUser, token){
 }
 
 #---------------------------------------------------------------------------
-# collect information on all git repos relevant to this MDI installation
+# collect information on all git repos relevant to an MDI installation
 #---------------------------------------------------------------------------
-parseGitRepos <- function(dirs, configFilePath){
-    message('collecting git repos from mdi.yml')
-    config <- yaml::read_yaml(configFilePath)
+parseGitRepos <- function(dirs, suitesFilePath){
+    message('collecting git repos from suites.yml')
+    config <- yaml::read_yaml(suitesFilePath)
 
     # prepend the frameworks repos to the suites repos
     upstreamUrls <- sapply(c(pipelinesFrameworkRepo, appsFrameworkRepo), assembleGitUrl, mdiGitUser)
@@ -78,7 +78,7 @@ parseGitRepos <- function(dirs, configFilePath){
             url     = switchGitUser(upstreamUrls, Sys.getenv('GIT_USER')) # NB: some forked repos might not exist
         )
     )
-    x$dir <- getRepoDir(dirs$mdi, x$type, x$fork, x$url)
+    x$dir <- getRepoDir(dirs$mdi, x$type, x$fork, x$url) # this is the user's target directory, not a host's
     x$name <- sapply(strsplit(x$dir, '/'), function(y) rev(y)[1])
     x
 }

@@ -1,0 +1,15 @@
+---
+#----------------------------------------------------------------------
+# Stage 1 Pipelines and Stage 2 Apps suites to install
+#----------------------------------------------------------------------
+#   - entries should be GitHub repository URLs
+#   - developers should _not_ list their repo forks here
+#   - when a pipeline/app name is in multiple suites, the first match is used
+#----------------------------------------------------------------------
+# !! Re-run 'mdi::install()' or 'mdi install' after updating this list !!
+#----------------------------------------------------------------------
+suites:
+  pipelines:
+    # - https://github.com/GIT_USER/SUITE_NAME-mdi-pipelines.git
+  apps:
+    # - https://github.com/GIT_USER/SUITE_NAME-mdi-apps.git

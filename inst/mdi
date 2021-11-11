@@ -1,40 +1,34 @@
 #!/bin/bash
 
-# the main executable script that 
-#   - establishes the job manager
-#   - makes calls that execute pipelines
-#   - provides a command line shortcut to mdi::run(), etc. 
+# the main executable command line script that 
+#   - establishes the job manager (Stage 1)
+#   - makes calls that execute pipelines (Stage 1)
+#   - provides a command line shortcut to mdi::run(), etc. (Stage 2)
+#   - enables easy re-installation to add suites, etc. 
 
 #----------------------------------------------------------------------
-# input arguments
+# base directory of the MDI installation
+#----------------------------------------------------------------------
+export MDI_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+#----------------------------------------------------------------------
+# --develop and --help arguments to the mdi command itself
+# if both used, --develop must precede --help
 #----------------------------------------------------------------------
 export DEVELOPER_MODE=""
 TARGET=$1
-if [ "$TARGET" = "develop" ]; then
+if [[ "$TARGET" = "-d" || "$TARGET" = "--develop" ]]; then 
     export DEVELOPER_MODE="TRUE"
     shift    
     TARGET=$1
 fi
-export MDI_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+if [[ "$TARGET" = "-h" ||  "$TARGET" = "--help" ]]; then 
+    TARGET=""
+fi
 
 #----------------------------------------------------------------------
-# Stage 2 shortcuts to mdi R functions via Rscript
+# parse job manager and pipeline paths
 #----------------------------------------------------------------------
-
-# shortcut for launching the web server
-if [ "$TARGET" = "server" ]; then
-    ACTION=$2 # any function exported by mdi R package, e.g., run, develop
-    if [ "$ACTION" = "" ]; then ACTION="run"; fi # default to run if action not specified
-    exec Rscript -e "mdi::$ACTION('$MDI_DIR')"
-    
-# shortcut for re-installing the MDI (could also use 'mdi server install')
-elif [ "$TARGET" = "install" ]; then
-    exec Rscript -e "mdi::install('$MDI_DIR')"
-
-#----------------------------------------------------------------------
-# Stage 1 pipeline execution via the job manager
-#----------------------------------------------------------------------
-else
 
 # use developer fork of mdi-pipelines-framework if present and in developer mode
 export FRAMEWORK_DIR=$MDI_DIR/frameworks/developer-forks/mdi-pipelines-framework
@@ -45,18 +39,22 @@ fi
 # set script paths
 export JOB_MANAGER_DIR=$FRAMEWORK_DIR/job_manager
 JOB_MANAGER_TARGET=$JOB_MANAGER_DIR/jobManager
-JOB_MANAGER_COMMANDS=$(cd $JOB_MANAGER_DIR/lib/commands && ls -1 *.pl |  cut -d '.' -f 1) 
+JOB_MANAGER_COMMANDS=$(cd $JOB_MANAGER_DIR/lib/commands && ls -1 *.pl |  cut -d '.' -f 1 | tr '\n' ' ') 
 
 # set pipelines suites - these values are programatically filled by mdi::install()
 export PIPELINES_SUITE_NAMES="_PIPELINES_SUITE_NAMES_" # space delimited list
 
-# handle a direct call to initialize the job manager (called by mdi::install())
+#----------------------------------------------------------------------
+# handle a direct call to initialize the job manager
+# used by mdi::install(), command not advertised to end users
+#----------------------------------------------------------------------
 if [ "$TARGET" = "initialize" ]; then
-    echo "  $JOB_MANAGER_DIR"
     exec perl $JOB_MANAGER_DIR/initialize.pl $MDI_DIR
 
+#----------------------------------------------------------------------
 # handle job manager functions (submit, report, etc.)
-# also handle mdi called with no arguments
+# also handle mdi called with no arguments, i.e. a help request
+#----------------------------------------------------------------------
 elif [[ "$TARGET" = "" || " $JOB_MANAGER_COMMANDS " =~ " $TARGET " ]]; then
     
     # ensure that the job manager target script has been initialized
@@ -66,15 +64,18 @@ elif [[ "$TARGET" = "" || " $JOB_MANAGER_COMMANDS " =~ " $TARGET " ]]; then
 
     # fork the call to the job manager utility (a close relative of 'q')
     if [ -e "$JOB_MANAGER_TARGET" ]; then
-        exec $JOB_MANAGER_TARGET "$@"
+        if [ "$TARGET" = "" ]; then
+            exec $JOB_MANAGER_TARGET # various routes to top-level mdi help
+        else 
+            exec $JOB_MANAGER_TARGET "$@" # job manager call with a specified target
+        fi
     fi
 
-# capture and pass calls to a pipeline executable when using job manager as a surrogate
+#----------------------------------------------------------------------
+# capture and pass calls to a pipeline when using job manager as a surrogate
 # thus, pipelines cannot have the same name as a job manager command (submit, report, etc.)
-# launcher.pl handle pipeline target errors
+# launcher.pl handles pipeline target/mdi command errors
+#----------------------------------------------------------------------
 else
     exec perl $FRAMEWORK_DIR/pipeline/launcher/launcher.pl $@ 
-
-fi
-
 fi

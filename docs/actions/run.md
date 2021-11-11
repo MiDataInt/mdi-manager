@@ -17,7 +17,7 @@ Run the Michigan Data Interface (MDI) in a web server
 `run()` launches the suites of data analysis applications that comprise
  the Michigan Data Interface (MDI) in a web server, either on a web host
  that is publicly addressable, on your local computer, or on on a cluster
- compute node within an OnDemand batch job. `develop()` is a shortcut
+ compute node or other ssh accessible server. `develop()` is a shortcut
  to `run()` with settings appropriate for developers (mode='local',
  browser=FALSE, debug=TRUE, developer=TRUE).
 
@@ -28,13 +28,13 @@ Run the Michigan Data Interface (MDI) in a web server
 run(
   mdiDir = "~",
   dataDir = NULL,
-  ondemandDir = NULL,
+  hostDir = NULL,
   mode = "local",
   install = TRUE,
   url = "http://localhost",
   port = 3838,
-  browser = mode != "server",
-  debug = mode != "server",
+  browser = mode %in% c("local", "ondemand"),
+  debug = FALSE,
   developer = FALSE,
   gitUser = NULL,
   token = NULL
@@ -47,7 +47,7 @@ develop(
   gitUser = NULL,
   token = NULL
 )
-ondemand(ondemandDir, mdiDir = "~", dataDir = NULL, port = 3838)
+ondemand(hostDir, mdiDir = "~", dataDir = NULL, port = 3838)
 ```
 
 
@@ -55,27 +55,45 @@ ondemand(ondemandDir, mdiDir = "~", dataDir = NULL, port = 3838)
 
 Argument      |Description
 ------------- |----------------
-`mdiDir`     |     character. Path to the directory where the MDI has previously been installed. Defaults to your home directory.
-`dataDir`     |     character. Path to the directory where your MDI data can be found. Defaults to `mdiDir` /data. You might wish to change this to a directory that holds shared data, e.g., for your laboratory.
-`ondemandDir`     |     character. Path to the directory where a public installation of the MDI can be found. Some paths from this installation will be used instead of the user's installation when `mode` is 'ondemand'.
-`mode`     |     character. Either 'server', 'local' or 'ondemand'. Most users want 'local' (the default) to run the MDI on your desktop or laptop. Mode 'server' is for a public web server, 'ondemand' is for managed execution on an HPC cluster via Open OnDemand Interactive Apps. `ondemandDir`  is required if `mode` is set to 'ondemand'.
-`install`     |     logical. When TRUE (the default), `mdi::run()` will call `mdi::install()` prior to launching the web server to clone or pull all repositories and install any missing packages. Setting `install` to FALSE will allow the server to start more quickly.
-`url`     |     character. The complete browser URL to load the web page. Examples: 'http://localhost' or 'https://mymdi.org'.
-`port`     |     integer. The port to use on the host specified in `url` . Example: setting `url` to 'https://mymdi.org' and `port` to 5000 will yield a final access url of 'https://mymdi.org:5000/'.
-`browser`     |     logical. Whether or not to attempt to launch a web browser after starting the MDI server. Defaults to TRUE unless `mode` is 'server'.
-`debug`     |     logical. When `debug` is TRUE, verbose activity logs will be printed to the R console where `mdi::run()` was called. Defaults to TRUE unless `mode` is 'server'.
-`developer`     |     logical. When `developer` is TRUE, additional development utilities are added to the web page and forked repositories will be used if they exist. Only honored if ' `mode` is 'local'.
+`mdiDir`     |     character. Path to the directory where the MDI has previously been installed. Defaults to your home directory, such that the MDI will run from '~/mdi' by default.
+`dataDir`     |     character. Path to the directory where your MDI data can be found. Defaults to ' `mdiDir` /data'. You might wish to change this to a directory that holds shared data, e.g., for your laboratory.
+`hostDir`     |     character. Path to the directory where a hosted, i.e., a shared public, installation of the MDI can be found. The following folders from that installation will be used instead of from the user installation executing the `mdi::run()` command:   
+
+*  config  
+
+*  environments  
+
+*  library  
+
+*  resources  Option `hostDir` must be set if you ran `mdi::install()`  with option `installPackages` set to FALSE.
+`mode`     |     character. Controls aspects of server behavior. The following valid values will help you properly run the MDI web server on/in:   
+
+*  local = your desktop or laptop  
+
+*  remote = a server you have direct access to via SSH  
+
+*  node = a worker node in a Slurm cluster, accessed via SSH to a login node  
+
+*  ondemand = a worker node in a Slurm cluster, accessed via Open OnDemand  
+
+*  server = a mdi-cloud-server container on a publicly addressable cloud instance  Most users manually calling `mdi::run()` want 'local' (the default).
+`install`     |     logical. When TRUE (the default), `mdi::run()` will clone or pull all repositories and install any missing R packages. Setting `install` to FALSE will allow the server to start a bit more quickly. Ignored when `mode` is 'node', since cluster nodes may/will not have internet access to download software.
+`url`     |     character. The complete browser URL to load the web page. Examples: 'http://localhost' (the default) or 'https://mymdi.org'.
+`port`     |     integer. The port to use on the host specified in `url` . Defaults to the canonical Shiny port, 3838. Example: setting `url`  to 'https://mymdi.org' and `port` to 5000 will yield a final access url of 'https://mymdi.org:5000/'.
+`browser`     |     logical. Whether or not to attempt to launch a web browser after starting the MDI server. Defaults to FALSE unless `mode` is 'local' or 'ondemand'.
+`debug`     |     logical. When `debug` is TRUE and `mode` is 'local' or 'ondemand', verbose activity logs will be printed to the R console where `mdi::run()` was called. Defaults to FALSE. Ignored if `mode` is 'remote', 'node', or 'server'.
+`developer`     |     logical. When `developer` is TRUE, additional development utilities are added to the web page and forked repositories will be used if they exist. Ignored if `mode` is set to 'server'.
 `gitUser`     |     character. Developers should use `gitUser` to provide the username of the GitHub account that holds their forks of any frameworks or suites repositories, which will used by `mdi::develop()`  instead of the upstream repos, when available.
 `token`     |     character. The GitHub Personal Access Token (PAT) that grants permissions for accessing forked repositories in the `gitUser` account, and/or any tool suites that have restricted access. You can also preset the token into environment variable `GITHUB_PAT` using `Sys.setenv(GITHUB_PAT = "your_token")` .
 
 
 ## Details
 
-All default settings are consistent with an end user running the
- MDI in local mode on their desktop or laptop computer.
+All default settings are consistent with an end user running the MDI in
+ local mode on their desktop or laptop computer.
  
- `mdiDir` must be the same directory as used in a prior
- call to `mdi::install()` .
+ `mdiDir` must be the same directory as used in a prior call to
+ `mdi::install()` .
  
  When `developer` is FALSE, `run()` will use the definitive
  version of all repositories checked out to the latest version tag on
@@ -88,15 +106,16 @@ All default settings are consistent with an end user running the
  will be checked out to the tip of the 'main' branch.
  
  When `developer` is TRUE, you must have git properly installed on
- your computer. If needed, you will be prompted to provide your email
- address and user name on first use, which will be stored in your local
+ your computer. If needed, you will be prompted to provide your name and
+ email address on first use, which will be stored in your local
  repositories and used to tag your code commits. To pull or push code
  via the GUI, you must also have enabled non-prompted authorized
  access to the remote repositories (e.g., via the command line).
  
  As an alternative to using `gitUser` and `token` , developers and
- users can also create script 'gitCredentials.R' in `mdiDir` , with the
- following contents:
+ users can also create script 'gitCredentials.R' in `mdiDir` , or in
+ their home directory, with the following contents to be sourced by
+ `mdi::run()` :
  Sys.setenv(GIT_USER = "xxxx")
  Sys.setenv(GITHUB_PAT = "xxxx")
 

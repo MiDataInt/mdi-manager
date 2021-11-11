@@ -1,8 +1,7 @@
 #---------------------------------------------------------------------------
 # establish a list of installation actions to be taken and get permission to proceed
 #---------------------------------------------------------------------------
-getInstallationPermission <- function(mdiDir, installApps, addToPATH, clone, ondemand){
-    types <- if(installApps) "framework and app" else "framework"
+getInstallationPermission <- function(mdiDir, installPackages, addToPATH, clone){
 
     # initialize the actions list
     actions <- character()
@@ -12,17 +11,17 @@ getInstallationPermission <- function(mdiDir, installApps, addToPATH, clone, ond
     }
 
     # does the installation directory already exist?
-    mdiDir <- parseMdiDir(mdiDir, check = FALSE)
+    mdiDir <- parseMdiDir(mdiDir, check = FALSE, create = FALSE)
     create <- if(dir.exists(mdiDir)) "" else "create and "
     addAction(paste0(create, "populate directory '", mdiDir, "'"))
 
     # will we interact with GitHub to clone or update repositories?
     if(clone) 
-        addAction(paste("clone or update MDI", types, "repositories from GitHub"))
+        addAction(paste("clone or update MDI repositories from GitHub"))
     addAction("check out the most recent version of all definitive MDI repositories")
 
     # will we install apps R package dependencies?
-    if(installApps && !ondemand)
+    if(installPackages)
         addAction(paste0("install or update R packages into '", file.path(mdiDir, "library"), "'"))
 
     # will we attempt to update .bashrc on a Linux server?
@@ -56,8 +55,8 @@ getInstallationPermission <- function(mdiDir, installApps, addToPATH, clone, ond
 # validate that the mdi has previously been installed into mdiDir
 #---------------------------------------------------------------------------
 confirmPriorInstallation <- function(mdiDir){
-    mdiDir <- parseMdiDir(mdiDir, check = FALSE)
-    isConfig <- file.exists(file.path(mdiDir, 'mdi.yml'))
+    mdiDir <- parseMdiDir(mdiDir, check = FALSE, create = FALSE)
+    isConfig <- file.exists(file.path(mdiDir, 'config', 'suites.yml'))
     if(isConfig) return()
     stop(paste(
         paste0("Not a valid MDI installation: '", mdiDir, "'."),
