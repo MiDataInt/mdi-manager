@@ -7,10 +7,11 @@ export SHINY_PORT=$3
 export MDI_DIR=$4 # must be valid, as it was used to call this script
 export DATA_DIR=$5
 export HOST_DIR=$6
-export ACCOUNT=$7
-export JOB_TIME_MINUTES=$8
-export CPUS_PER_TASK=$9
-export MEM_PER_CPU=$10
+export DEVELOPER=$7
+export ACCOUNT=$8
+export JOB_TIME_MINUTES=$9
+export CPUS_PER_TASK=$10
+export MEM_PER_CPU=$11
 
 # set a function to discover any currently running MDI web server job
 function set_server_node {

@@ -5,6 +5,7 @@ export SHINY_PORT=$1
 export MDI_DIR=$2 # must be valid, as it was used to call this script
 export DATA_DIR=$3
 export HOST_DIR=$4
+export DEVELOPER=$5
 export MDI_REMOTE_MODE=remote
 
 # check for server currently running on SHINY_PORT
