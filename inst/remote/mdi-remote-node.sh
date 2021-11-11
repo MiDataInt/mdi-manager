@@ -27,7 +27,7 @@ if [[ "$NODE" = "" || "$NODE" = "(None)" ]]; then
     echo "please wait for the web server job to start"
     echo $SEPARATOR 
     module load R/$R_VERSION
-    export BIOCONDUCTOR_RELEASE=`Rscript -e "message( BiocManager::version() )"`
+    export BIOCONDUCTOR_RELEASE=` Rscript -e "cat( paste(BiocManager::version(), collapse='.') )"`
     sbatch \
         --account $ACCOUNT \
         --time $JOB_TIME_MINUTES \
