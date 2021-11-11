@@ -11,7 +11,7 @@ getInstallationPermission <- function(mdiDir, installPackages, addToPATH, clone)
     }
 
     # does the installation directory already exist?
-    mdiDir <- parseMdiDir(mdiDir, check = FALSE)
+    mdiDir <- parseMdiDir(mdiDir, check = FALSE, create = FALSE)
     create <- if(dir.exists(mdiDir)) "" else "create and "
     addAction(paste0(create, "populate directory '", mdiDir, "'"))
 
@@ -55,7 +55,7 @@ getInstallationPermission <- function(mdiDir, installPackages, addToPATH, clone)
 # validate that the mdi has previously been installed into mdiDir
 #---------------------------------------------------------------------------
 confirmPriorInstallation <- function(mdiDir){
-    mdiDir <- parseMdiDir(mdiDir, check = FALSE)
+    mdiDir <- parseMdiDir(mdiDir, check = FALSE, create = FALSE)
     isConfig <- file.exists(file.path(mdiDir, 'config', 'suites.yml'))
     if(isConfig) return()
     stop(paste(

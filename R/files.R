@@ -24,7 +24,7 @@ parseDirectories <- function(mdiDir, versions,
     isHosted <- !is.null(hostDir)
     
     # parse the required mdiDir
-    mdiDir <- parseMdiDir(mdiDir, check = TRUE)
+    mdiDir <- parseMdiDir(mdiDir, check = TRUE, create = create)
 
     # parse top-level directory names
     bareDirNames <- c('config', 'data', 'environments', 'frameworks', 'library', 
@@ -56,11 +56,13 @@ parseDirectories <- function(mdiDir, versions,
     
     dirs  
 }
-parseMdiDir <- function(mdiDir, check = TRUE){
+parseMdiDir <- function(mdiDir, check = TRUE, create = FALSE){
     mdiDir <- path.expand(mdiDir)
     if(!dir.exists(mdiDir)) stop(paste("error:", mdiDir, "does not exist"))
     rootFolder <- 'mdi'    
-    if(!endsWith(mdiDir, paste0('/', rootFolder))){
+    endsWithRoot <- endsWith(mdiDir, paste0('\\', rootFolder)) || # windows
+                    endsWith(mdiDir, paste0('/', rootFolder))     # not windows
+    if(!endsWithRoot){
         mdiDir <- file.path(mdiDir, rootFolder)
         if(check && !dir.exists(mdiDir)){
             if(create) dir.create(mdiDir, showWarnings = FALSE) # already confirmed by confirmInstallation()
