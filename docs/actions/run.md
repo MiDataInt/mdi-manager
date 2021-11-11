@@ -77,7 +77,7 @@ Argument      |Description
 *  ondemand = a worker node in a Slurm cluster, accessed via Open OnDemand  
 
 *  server = a mdi-cloud-server container on a publicly addressable cloud instance  Most users manually calling `mdi::run()` want 'local' (the default).
-`install`     |     logical. When TRUE (the default), `mdi::run()` will clone or pull all repositories and install any missing R packages. Setting `install` to FALSE will allow the server to start a bit more quickly.
+`install`     |     logical. When TRUE (the default), `mdi::run()` will clone or pull all repositories and install any missing R packages. Setting `install` to FALSE will allow the server to start a bit more quickly. Ignored when `mode` is 'node', since cluster nodes may/will not have internet access to download software.
 `url`     |     character. The complete browser URL to load the web page. Examples: 'http://localhost' (the default) or 'https://mymdi.org'.
 `port`     |     integer. The port to use on the host specified in `url` . Defaults to the canonical Shiny port, 3838. Example: setting `url`  to 'https://mymdi.org' and `port` to 5000 will yield a final access url of 'https://mymdi.org:5000/'.
 `browser`     |     logical. Whether or not to attempt to launch a web browser after starting the MDI server. Defaults to FALSE unless `mode` is 'local' or 'ondemand'.

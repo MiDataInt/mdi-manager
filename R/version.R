@@ -2,11 +2,11 @@
 # collect the R version in use
 # RVersion is "major.minor", whereas RRelease is "major.minor.patch"
 #---------------------------------------------------------------------------
-getRBioconductorVersions <- function(){
+getRBioconductorVersions <- function(isNode = FALSE){
     list(
         RVersion = getRVersion(),
         RRelease = getRRelease(),
-        BioconductorRelease = BiocManager::version()
+        BioconductorRelease = if(isNode) Sys.getenv('BIOCONDUCTOR_RELEASE') else BiocManager::version()
     )
 }
 getRVersion <- function(){

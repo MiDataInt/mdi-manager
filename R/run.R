@@ -73,6 +73,8 @@
 #' @param install logical. When TRUE (the default), \code{mdi::run()} will
 #' clone or pull all repositories and install any missing R packages. Setting 
 #' \code{install} to FALSE will allow the server to start a bit more quickly.
+#' Ignored when \code{mode} is 'node', since cluster nodes may/will not 
+#' have internet access to download software.
 #'
 #' @param url character. The complete browser URL to load the web page. 
 #' Examples: 'http://localhost' (the default) or 'https://mymdi.org'.
@@ -138,6 +140,7 @@ run <- function(
     # enforce option overrides
     if(mode %in% c('remote', 'node', 'server')) debug <- FALSE # never show developer tools on public servers    
     if(mode == 'server') developer <- FALSE # never show developer tools on public servers
+    if(mode == 'node') install <- FALSE
 
     # establish whether the MDI has been previously installed into mdiDir
     # combined with call to run(), take as permission to continue modifying user files
@@ -145,7 +148,7 @@ run <- function(
 
     # collect directories for the user (i.e, calling) installation, and, if applicable, the host installation
     isHosted <- !is.null(hostDir)
-    versions <- getRBioconductorVersions()
+    versions <- getRBioconductorVersions(mode == 'node')
     dirs <-       list(user = parseDirectories(mdiDir,  versions, create = FALSE))
     dirs$host <- if(isHosted) parseDirectories(hostDir, versions, create = FALSE) else dirs$user
     setGitCredentials(dirs$user, gitUser, token)

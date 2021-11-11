@@ -10,8 +10,8 @@ export HOST_DIR=$6
 export DEVELOPER=$7
 export ACCOUNT=$8
 export JOB_TIME_MINUTES=$9
-export CPUS_PER_TASK=$10
-export MEM_PER_CPU=$11
+export CPUS_PER_TASK=${10}
+export MEM_PER_CPU=${11}
 
 # set a function to discover any currently running MDI web server job
 function set_server_node {
@@ -27,6 +27,7 @@ if [[ "$NODE" = "" || "$NODE" = "(None)" ]]; then
     echo "please wait for the web server job to start"
     echo $SEPARATOR 
     module load R/$R_VERSION
+    export BIOCONDUCTOR_RELEASE=`Rscript -e "message( BiocManager::version() )"`
     sbatch \
         --account $ACCOUNT \
         --time $JOB_TIME_MINUTES \
@@ -35,7 +36,7 @@ if [[ "$NODE" = "" || "$NODE" = "(None)" ]]; then
         $MDI_DIR/remote/mdi-remote-node-job.sh
     set_server_node
     while [[ "$NODE" = "" || "$NODE" = "(None)" ]]; do
-        sleep 10
+        sleep 5
         set_server_node
     done
 fi

@@ -12,12 +12,12 @@ SET USER=johndoe
 SET SERVER=johndoe.example.org
 
 REM set node/job variables
-REM     set SHINY_PORT to not conflict on the server
+REM     set SHINY_PORT to not conflict on the server (Shiny default is 3838)
 REM     MDI_DIR must end with /mdi, e.g., ~/mdi
 REM     set DATA_DIR and HOST_DIR to NULL if not needed
 REM     DEVELOPER must be TRUE or FALSE
 SET SHINY_PORT=3838
-SET MDI_DIR=/treehouse/wilsonte_lab/ssd/mdi
+SET MDI_DIR=~/mdi
 SET DATA_DIR=NULL
 SET HOST_DIR=NULL
 SET DEVELOPER=TRUE

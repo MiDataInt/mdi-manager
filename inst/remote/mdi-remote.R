@@ -10,22 +10,16 @@ for(name in c('DATA_DIR', 'HOST_DIR')){
     if(x != "NULL" && x != "") dirs[[name]] <- x
 }
 
-# attempt to launch the server (may fail, if already running)
-tryCatch(
-    {
-        mdi::run(
-            mdiDir = Sys.getenv('MDI_DIR'),
-            dataDir = dirs$DATA_DIR,
-            hostDir = dirs$HOST_DIR,
-            mode = Sys.getenv('MDI_REMOTE_MODE'),
-            install = TRUE,
-            url = 'http://127.0.0.1',
-            port = port,
-            browser = FALSE,
-            debug = FALSE,
-            developer = as.logical(Sys.getenv('DEVELOPER'))
-        )
-    }, 
-    warning = function(w) message("Warning"),
-    error = function(e) message("Web server already running")
+# launch the server
+mdi::run(
+    mdiDir = Sys.getenv('MDI_DIR'),
+    dataDir = dirs$DATA_DIR,
+    hostDir = dirs$HOST_DIR,
+    mode = Sys.getenv('MDI_REMOTE_MODE'),
+    install = TRUE,
+    url = 'http://127.0.0.1',
+    port = port,
+    browser = FALSE,
+    debug = FALSE,
+    developer = as.logical(Sys.getenv('DEVELOPER'))
 )

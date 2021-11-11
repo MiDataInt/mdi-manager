@@ -67,7 +67,9 @@ Most users manually calling \code{mdi::run()} want 'local' (the default).}
 
 \item{install}{logical. When TRUE (the default), \code{mdi::run()} will
 clone or pull all repositories and install any missing R packages. Setting 
-\code{install} to FALSE will allow the server to start a bit more quickly.}
+\code{install} to FALSE will allow the server to start a bit more quickly.
+Ignored when \code{mode} is 'node', since cluster nodes may/will not 
+have internet access to download software.}
 
 \item{url}{character. The complete browser URL to load the web page. 
 Examples: 'http://localhost' (the default) or 'https://mymdi.org'.}
