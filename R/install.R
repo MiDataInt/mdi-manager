@@ -41,6 +41,11 @@
 #' where GIT_USER and GITHUB_PAT are the username and Personal Access 
 #' Token of a GitHub account that holds any developer forks and/or grants
 #' permissions for accessing any tool suites that have restricted access.
+#' You should protect gitCredentials.R by removing read permissions for 
+#' anyone except yourself. If you are uncomfortable storing sensitive
+#' information on disk, you may alternatively set gitCredentials values  
+#' in the environment using Sys.setenv(GITHUB_PAT = "xxx"), etc., prior to
+#' calling \code{mdi::install()}.
 #'
 #' @param mdiDir character. Path to the directory where the MDI will be/has 
 #' been installed. Defaults to your home directory, such that the MDI will 
