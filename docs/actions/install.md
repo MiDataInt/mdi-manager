@@ -27,8 +27,6 @@ install(
   installPackages = TRUE,
   confirm = TRUE,
   addToPATH = TRUE,
-  gitUser = NULL,
-  token = NULL,
   clone = TRUE,
   cranRepo = "https://repo.miserver.it.umich.edu/cran/",
   packages = NULL,
@@ -45,8 +43,6 @@ Argument      |Description
 `installPackages`     |     logical. If TRUE (the default), `mdi::install()`  will fully install both Stage 1 Pipelines and Stage 2 Apps. If you know you will only want to use Stage 1 Pipelines from your installation, or if you will always use `mdi::run()` option `hostDir` to run the Stage 2 Apps server with code sourced from a shared MDI installation, then setting `installPackages` to FALSE will skip the much slower installation of the Stage 2 R packages library.
 `confirm`     |     logical. If TRUE (the default) and in interactive mode, `mdi::install()` will list all actions to be taken and prompt for permission before creating or modifying any system files.
 `addToPATH`     |     logical. If TRUE (the default) and installing on a Linux platform computer, `mdi::install()` will modify ~/.bashrc to add the 'mdi' executable to your PATH variable at each shell login, so that you may call MDI pipelines from any directory as 'mdi ...'.
-`gitUser`     |     character. Developers should use `gitUser` to provide the username of the GitHub account that holds their forks of any frameworks or suites repositories. Code editing is done in these forks, which will be cloned locally into frameworks/developer-forks and/or suites/developer-forks and used by `mdi::develop()` instead of the upstream repos, when available.
-`token`     |     character. The GitHub Personal Access Token (PAT) that grants permissions for accessing any tool suites that have restricted access and/or forked repositories in the `gitUser` account. You can also preset the token into environment variable `GITHUB_PAT` using `Sys.setenv(GITHUB_PAT = "your_token")` .
 `clone`     |     logical. If TRUE (the default), the apps and pipelines code repositories will be cloned anew from GitHub if they do not already exist, or they will be pulled from the server to update a repository if they have been cloned previously. Developers might want to set this option to FALSE.
 `cranRepo`     |     character. The base URL of the R repository to use, e.g., the URL of a CRAN mirror. Defaults to the University of Michigan CRAN mirror.
 `packages`     |     character vector. If not NULL (the default), only install these specific R packages (for developers to quickly update selected packages). No other actions will be taken and the library's installation.rds file will not be updated.
@@ -60,14 +56,13 @@ No action will be taken unless approved by the user when prompted.
  All default settings are consistent with an end user running the MDI in
  local mode on their desktop or laptop computer.
  
- All componenents will be install into directory `mdiDir` .
+ All components will be install into directory `mdiDir` .
  `mdiDir` must already exist, it will not be created.
- If `mdiDir` ends with '/mdi' it will be used as is without further
- prompting. Otherwise, a subdirectory of that name will be created in
- `mdiDir` after prompting for confirmation.
+ If `mdiDir` ends with '/mdi' it will be used as is. Otherwise,
+ a subdirectory of that name will be created in `mdiDir` .
  
- If they do not already exist, `mdi::install()` will create a series of
- subdirectories in `mdiDir` without further prompting, as follows:
+ If they do not already exist, `mdi::install()` will create a series
+ of subdirectories in `mdiDir` , as follows:
    
 
 *  config = configuration data for the MDI installation  
@@ -88,12 +83,18 @@ No action will be taken unless approved by the user when prompted.
 
 *  suites = git repositories with code that defines specific pipelines and apps 
  
- As an alternative to using `gitUser` and `token` , developers and
- users can also create script 'gitCredentials.R' in `mdiDir` , or in
- their home directory, with the following contents to be sourced by
- `mdi::install()` :
- Sys.setenv(GIT_USER = "xxxx")
- Sys.setenv(GITHUB_PAT = "xxxx")
+ If access to private repositories or developer forks is needed, you must
+ create script 'gitCredentials.R' in `mdiDir` or your home directory,
+ to be sourced by `mdi::install()` , with the following contents:
+ gitCredentials <- list(
+ USER_NAME  = "First Last",
+ USER_EMAIL = "lastf@example.com",
+ GIT_USER   = "xxx",
+ GITHUB_PAT = "xxx"
+ )
+ where GIT_USER and GITHUB_PAT are the username and Personal Access
+ Token of a GitHub account that holds any developer forks and/or grants
+ permissions for accessing any tool suites that have restricted access.
 
 
 ## Value

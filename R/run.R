@@ -25,18 +25,22 @@
 #' will be checked out to the tip of the 'main' branch.
 #' 
 #' When \code{developer} is TRUE, you must have git properly installed on
-#' your computer. If needed, you will be prompted to provide your name and 
-#' email address on first use, which will be stored in your local
-#' repositories and used to tag your code commits. To pull or push code
-#' via the GUI, you must also have enabled non-prompted authorized
-#' access to the remote repositories (e.g., via the command line).
+#' your computer. To pull or push code via the GUI, you must also have 
+#' enabled non-prompted authorized access to the remote repositories 
+#' (e.g., via the command line).
 #' 
-#' As an alternative to using \code{gitUser} and \code{token}, developers and
-#' users can also create script 'gitCredentials.R' in \code{mdiDir}, or in 
-#' their home directory, with the following contents to be sourced by 
-#' \code{mdi::run()}:
-#'     Sys.setenv(GIT_USER = "xxxx")
-#'     Sys.setenv(GITHUB_PAT = "xxxx")
+#' #' If access to private repositories or developer forks is needed, you must
+#' create script 'gitCredentials.R' in \code{mdiDir} or your home directory, 
+#' to be sourced by \code{mdi::run()}, with the following contents:
+#' gitCredentials <- list(
+#'     USER_NAME  = "First Last",
+#'     USER_EMAIL = "lastf@example.com",
+#'     GIT_USER   = "xxx",
+#'     GITHUB_PAT = "xxx"
+#' )
+#' where GIT_USER and GITHUB_PAT are the username and Personal Access 
+#' Token of a GitHub account that holds any developer forks and/or grants
+#' permissions for accessing any tool suites that have restricted access.
 #' 
 #' @param mdiDir character. Path to the directory where the MDI has 
 #' previously been installed. Defaults to your home directory, such that 
@@ -73,8 +77,8 @@
 #' @param install logical. When TRUE (the default), \code{mdi::run()} will
 #' clone or pull all repositories and install any missing R packages. Setting 
 #' \code{install} to FALSE will allow the server to start a bit more quickly.
-#' Ignored when \code{mode} is 'node', since cluster nodes may/will not 
-#' have internet access to download software.
+#' Ignored when \code{mode} is 'node', since cluster nodes are not expected 
+#' to have internet access to download software.
 #'
 #' @param url character. The complete browser URL to load the web page. 
 #' Examples: 'http://localhost' (the default) or 'https://mymdi.org'.
@@ -96,17 +100,6 @@
 #' @param developer logical. When \code{developer} is TRUE, additional
 #' development utilities are added to the web page and forked repositories
 #' will be used if they exist. Ignored if \code{mode} is set to 'server'.
-#'
-#' @param gitUser character. Developers should use \code{gitUser} to provide 
-#' the username of the GitHub account that holds their forks of any
-#' frameworks or suites repositories, which will used by \code{mdi::develop()} 
-#' instead of the upstream repos, when available.
-#'
-#' @param token character. The GitHub Personal Access Token (PAT) that grants
-#' permissions for accessing forked repositories in the \code{gitUser} account,
-#' and/or any tool suites that have restricted access. You can also preset the 
-#' token into environment variable \code{GITHUB_PAT} using
-#' \code{Sys.setenv(GITHUB_PAT = "your_token")}.
 #' 
 #' @return These functions never return. They launch a blocking web server 
 #' that runs perpeptually in the parent R process in the global environment.
@@ -130,9 +123,7 @@ run <- function(
     port = 3838,
     browser = mode %in% c('local', 'ondemand'),
     debug = FALSE,
-    developer = FALSE,
-    gitUser = NULL,
-    token = NULL               
+    developer = FALSE        
 ){
     # NB: the rough order of operations for run() is deliberately parallel to install()
     # generally, run() works to help ensure a proper installation prior to launching the server
@@ -151,7 +142,7 @@ run <- function(
     versions <- getRBioconductorVersions(mode == 'node')
     dirs <-       list(user = parseDirectories(mdiDir,  versions, create = FALSE))
     dirs$host <- if(isHosted) parseDirectories(hostDir, versions, create = FALSE) else dirs$user
-    setGitCredentials(dirs$user, gitUser, token)
+    setGitCredentials(dirs$user)
 
     # collect the list of all framework and suite repositories declared by the host installation
     # and parse the paths where they will be cloned or pulled into the user's installation
@@ -253,9 +244,7 @@ develop <- function(
     mdiDir = '~', 
     dataDir = NULL,            
     url = 'http://localhost', 
-    port = 3838,          
-    gitUser = NULL, 
-    token = NULL
+    port = 3838
 ){
     run(
         mdiDir,
@@ -267,9 +256,7 @@ develop <- function(
         port = port,
         browser = FALSE,
         debug = TRUE,
-        developer = TRUE,
-        gitUser = gitUser,
-        token = token    
+        developer = TRUE
     )
 }
 
@@ -294,8 +281,6 @@ ondemand <- function(
         port = port,
         browser = TRUE,
         debug = FALSE,
-        developer = FALSE,
-        gitUser = NULL,
-        token = NULL
+        developer = FALSE
     )
 }

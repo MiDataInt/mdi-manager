@@ -25,15 +25,13 @@ appsFrameworkRepo      <- 'mdi-apps-framework'
 #---------------------------------------------------------------------------
 # set a user's GitHub PAT into the proper environment variable
 #---------------------------------------------------------------------------
-setGitCredentials <- function(dirs, gitUser, token){ 
+setGitCredentials <- function(dirs){ 
     gitCredentialsFile1 <- file.path(dirs$mdi, "gitCredentials.R")
     gitCredentialsFile2 <- file.path("~", "gitCredentials.R")
-         if(file.exists(gitCredentialsFile1)) source(gitCredentialsFile1, .GlobalEnv)
-    else if(file.exists(gitCredentialsFile2)) source(gitCredentialsFile2, .GlobalEnv)
-    else {
-        if(!is.null(gitUser)) Sys.setenv(GIT_USER = gitUser)
-        if(!is.null(token))   Sys.setenv(GITHUB_PAT = token)
-    }
+         if(file.exists(gitCredentialsFile1)) source(gitCredentialsFile1)
+    else if(file.exists(gitCredentialsFile2)) source(gitCredentialsFile2)
+    else return()
+    do.call(Sys.setenv, gitCredentials)
 }
 
 #---------------------------------------------------------------------------
@@ -219,16 +217,19 @@ getRepoUserId <- function(dir){
     git2r::config(git2r::repository(dir))$local
 }
 promptGitUserId <- function(){
-    userId <- list()
-    message()
-    message('------------------------------------------------------------------')
-    message('Please enter the information needed to identify your git commits.')
-    message('------------------------------------------------------------------')
-    message()
-    abortMessage <- 'User information is required for developer forks of MDI repositories.'
-    userId$name  <- trimws(readline(prompt = "Your full name (e.g., Jane Doe): "))
-    if(userId$name == '')  stop(abortMessage)
-    userId$email <- trimws(readline(prompt = "Email address (e.g. janedoe@umich.edu): "))
+    userId <- list(
+        name  = Sys.getenv('USER_NAME'), 
+        email = Sys.getenv('USER_EMAIL')
+    )
+    # message()
+    # message('------------------------------------------------------------------')
+    # message('Please enter the information needed to identify your git commits.')
+    # message('------------------------------------------------------------------')
+    # message()
+    abortMessage <- 'Complete user information in ~/gitCredentials.R is required for developer forks of MDI repositories.' # nolint
+    # userId$name  <- trimws(readline(prompt = "Your full name (e.g., Jane Doe): "))
+    if(userId$name  == '')  stop(abortMessage)
+    # userId$email <- trimws(readline(prompt = "Email address (e.g. janedoe@umich.edu): "))
     if(userId$email == '') stop(abortMessage) 
     userId
 }
