@@ -35,18 +35,9 @@ run(
   port = 3838,
   browser = mode %in% c("local", "ondemand"),
   debug = FALSE,
-  developer = FALSE,
-  gitUser = NULL,
-  token = NULL
+  developer = FALSE
 )
-develop(
-  mdiDir = "~",
-  dataDir = NULL,
-  url = "http://localhost",
-  port = 3838,
-  gitUser = NULL,
-  token = NULL
-)
+develop(mdiDir = "~", dataDir = NULL, url = "http://localhost", port = 3838)
 ondemand(hostDir, mdiDir = "~", dataDir = NULL, port = 3838)
 ```
 
@@ -77,14 +68,12 @@ Argument      |Description
 *  ondemand = a worker node in a Slurm cluster, accessed via Open OnDemand  
 
 *  server = a mdi-cloud-server container on a publicly addressable cloud instance  Most users manually calling `mdi::run()` want 'local' (the default).
-`install`     |     logical. When TRUE (the default), `mdi::run()` will clone or pull all repositories and install any missing R packages. Setting `install` to FALSE will allow the server to start a bit more quickly. Ignored when `mode` is 'node', since cluster nodes may/will not have internet access to download software.
+`install`     |     logical. When TRUE (the default), `mdi::run()` will clone or pull all repositories and install any missing R packages. Setting `install` to FALSE will allow the server to start a bit more quickly. Ignored when `mode` is 'node', since cluster nodes are not expected to have internet access to download software.
 `url`     |     character. The complete browser URL to load the web page. Examples: 'http://localhost' (the default) or 'https://mymdi.org'.
 `port`     |     integer. The port to use on the host specified in `url` . Defaults to the canonical Shiny port, 3838. Example: setting `url`  to 'https://mymdi.org' and `port` to 5000 will yield a final access url of 'https://mymdi.org:5000/'.
 `browser`     |     logical. Whether or not to attempt to launch a web browser after starting the MDI server. Defaults to FALSE unless `mode` is 'local' or 'ondemand'.
 `debug`     |     logical. When `debug` is TRUE and `mode` is 'local' or 'ondemand', verbose activity logs will be printed to the R console where `mdi::run()` was called. Defaults to FALSE. Ignored if `mode` is 'remote', 'node', or 'server'.
 `developer`     |     logical. When `developer` is TRUE, additional development utilities are added to the web page and forked repositories will be used if they exist. Ignored if `mode` is set to 'server'.
-`gitUser`     |     character. Developers should use `gitUser` to provide the username of the GitHub account that holds their forks of any frameworks or suites repositories, which will used by `mdi::develop()`  instead of the upstream repos, when available.
-`token`     |     character. The GitHub Personal Access Token (PAT) that grants permissions for accessing forked repositories in the `gitUser` account, and/or any tool suites that have restricted access. You can also preset the token into environment variable `GITHUB_PAT` using `Sys.setenv(GITHUB_PAT = "your_token")` .
 
 
 ## Details
@@ -106,18 +95,22 @@ All default settings are consistent with an end user running the MDI in
  will be checked out to the tip of the 'main' branch.
  
  When `developer` is TRUE, you must have git properly installed on
- your computer. If needed, you will be prompted to provide your name and
- email address on first use, which will be stored in your local
- repositories and used to tag your code commits. To pull or push code
- via the GUI, you must also have enabled non-prompted authorized
- access to the remote repositories (e.g., via the command line).
+ your computer. To pull or push code via the GUI, you must also have
+ enabled non-prompted authorized access to the remote repositories
+ (e.g., via the command line).
  
- As an alternative to using `gitUser` and `token` , developers and
- users can also create script 'gitCredentials.R' in `mdiDir` , or in
- their home directory, with the following contents to be sourced by
- `mdi::run()` :
- Sys.setenv(GIT_USER = "xxxx")
- Sys.setenv(GITHUB_PAT = "xxxx")
+ #' If access to private repositories or developer forks is needed, you must
+ create script 'gitCredentials.R' in `mdiDir` or your home directory,
+ to be sourced by `mdi::run()` , with the following contents:
+ gitCredentials <- list(
+ USER_NAME  = "First Last",
+ USER_EMAIL = "lastf@example.com",
+ GIT_USER   = "xxx",
+ GITHUB_PAT = "xxx"
+ )
+ where GIT_USER and GITHUB_PAT are the username and Personal Access
+ Token of a GitHub account that holds any developer forks and/or grants
+ permissions for accessing any tool suites that have restricted access.
 
 
 ## Value

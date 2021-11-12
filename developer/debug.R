@@ -1,9 +1,13 @@
 #---------------------------------------------------------------------------
 # functions to debug mdi-manager code changes
 #---------------------------------------------------------------------------
-# developers should create file 'gitCredentials.R' in MDI_DIR or HOME as follows:
-#   Sys.setenv(GIT_USER = 'xxx')
-#   Sys.setenv(GITHUB_PAT = 'xxx')
+# developers must create file 'gitCredentials.R' in HOME or MDI_DIR as follows:
+# gitCredentials <- list(
+#     USER_NAME  = "First Last",
+#     USER_EMAIL = "lastf@example.com",
+#     GIT_USER   = "xxx",
+#     GITHUB_PAT = "xxx"
+# )
 #---------------------------------------------------------------------------
 debugInstall <- function(
     mdiDir = 'C:/mdi',

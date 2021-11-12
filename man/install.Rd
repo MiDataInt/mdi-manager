@@ -9,8 +9,6 @@ install(
   installPackages = TRUE,
   confirm = TRUE,
   addToPATH = TRUE,
-  gitUser = NULL,
-  token = NULL,
   clone = TRUE,
   cranRepo = "https://repo.miserver.it.umich.edu/cran/",
   packages = NULL,
@@ -38,19 +36,6 @@ permission before creating or modifying any system files.}
 platform computer, \code{mdi::install()} will modify ~/.bashrc to add
 the 'mdi' executable to your PATH variable at each shell login, so that 
 you may call MDI pipelines from any directory as 'mdi ...'.}
-
-\item{gitUser}{character. Developers should use \code{gitUser} to provide 
-the username of the GitHub account that holds their forks of any
-frameworks or suites repositories. Code editing is done in these forks,
-which will be cloned locally into frameworks/developer-forks and/or 
-suites/developer-forks and used by \code{mdi::develop()} instead of the 
-upstream repos, when available.}
-
-\item{token}{character. The GitHub Personal Access Token (PAT) that grants
-permissions for accessing any tool suites that have restricted access and/or
-forked repositories in the \code{gitUser} account. You can also preset the 
-token into environment variable \code{GITHUB_PAT} using
-\code{Sys.setenv(GITHUB_PAT = "your_token")}.}
 
 \item{clone}{logical. If TRUE (the default), the apps and pipelines code 
 repositories will be cloned anew from GitHub if they do not already exist, 
@@ -88,14 +73,13 @@ No action will be taken unless approved by the user when prompted.
 All default settings are consistent with an end user running the MDI in 
 local mode on their desktop or laptop computer.
 
-All componenents will be install into directory \code{mdiDir}. 
+All components will be install into directory \code{mdiDir}. 
 \code{mdiDir} must already exist, it will not be created. 
-If \code{mdiDir} ends with '/mdi' it will be used as is without further 
-prompting. Otherwise, a subdirectory of that name will be created in 
-\code{mdiDir} after prompting for confirmation.
+If \code{mdiDir} ends with '/mdi' it will be used as is. Otherwise, 
+a subdirectory of that name will be created in \code{mdiDir}.
 
-If they do not already exist, \code{mdi::install()} will create a series of
-subdirectories in \code{mdiDir} without further prompting, as follows:
+If they do not already exist, \code{mdi::install()} will create a series 
+of subdirectories in \code{mdiDir}, as follows:
 \itemize{
   \item config = configuration data for the MDI installation
   \item data = project-specific input and output files
@@ -108,10 +92,16 @@ subdirectories in \code{mdiDir} without further prompting, as follows:
   \item suites = git repositories with code that defines specific pipelines and apps
 }
 
-As an alternative to using \code{gitUser} and \code{token}, developers and
-users can also create script 'gitCredentials.R' in \code{mdiDir}, or in 
-their home directory, with the following contents to be sourced by 
-\code{mdi::install()}:
-    Sys.setenv(GIT_USER = "xxxx")
-    Sys.setenv(GITHUB_PAT = "xxxx")
+If access to private repositories or developer forks is needed, you must
+create script 'gitCredentials.R' in \code{mdiDir} or your home directory, 
+to be sourced by \code{mdi::install()}, with the following contents:
+gitCredentials <- list(
+    USER_NAME  = "First Last",
+    USER_EMAIL = "lastf@example.com",
+    GIT_USER   = "xxx",
+    GITHUB_PAT = "xxx"
+)
+where GIT_USER and GITHUB_PAT are the username and Personal Access 
+Token of a GitHub account that holds any developer forks and/or grants
+permissions for accessing any tool suites that have restricted access.
 }
