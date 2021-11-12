@@ -31,7 +31,11 @@ setGitCredentials <- function(dirs){
          if(file.exists(gitCredentialsFile1)) source(gitCredentialsFile1)
     else if(file.exists(gitCredentialsFile2)) source(gitCredentialsFile2)
     else return()
-    do.call(Sys.setenv, gitCredentials)
+    for(name in names(gitCredentials)){ # remove unspecified items to not overwrite current environment
+        x <- gitCredentials[[name]]
+        if(is.na(x) || x == "") gitCredentials[[name]] <- NULL
+    }
+    do.call(Sys.setenv, gitCredentials) # set specific values into environment
 }
 
 #---------------------------------------------------------------------------
