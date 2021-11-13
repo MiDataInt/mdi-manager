@@ -51,6 +51,13 @@
 #' been installed. Defaults to your home directory, such that the MDI will 
 #' be installed into '~/mdi' by default.
 #'
+#' @param hostDir character. Path to the directory where a hosted, i.e., a 
+#' shared public, installation of the MDI can be found. If not NULL (the default),
+#' the only action taken will be to clone or update copies of the pipelines and  
+#' apps suites specified in \code{hostDir}/config/suites.yml, which also forces 
+#' \code{installPackages} to FALSE. The purpose of setting hostDir for 
+#' \code{mdi::install()} is mainly to prepare to execute hosted Stage 1 pipelines.
+#' 
 #' @param installPackages logical. If TRUE (the default), \code{mdi::install()} 
 #' will fully install both Stage 1 Pipelines and Stage 2 Apps. If you know you  
 #' will only want to use Stage 1 Pipelines from your installation, or if you 
@@ -96,6 +103,7 @@
 #---------------------------------------------------------------------------
 install <- function(
     mdiDir = '~',
+    hostDir = NULL, 
     installPackages = TRUE,
     confirm = TRUE,
     addToPATH = TRUE,                 
@@ -104,6 +112,10 @@ install <- function(
     packages = NULL,
     force = FALSE
 ){
+    # enforce option overrides
+    isHosted <- !is.null(hostDir)
+    if(isHosted) installPackages <- FALSE
+
     # collate actions to be take and prompt for confirmation
     if(confirm && interactive()) 
         getInstallationPermission(mdiDir, installPackages, addToPATH, clone)
@@ -127,6 +139,7 @@ install <- function(
     copyRemoteFiles(dirs) 
 
     # collect the list of all framework and suite repositories for this installation
+    if(isHosted) suitesFilePath <- file.path(hostDir, 'config', 'suites.yml')
     repos <- parseGitRepos(dirs, suitesFilePath)
 
     # for most users, download (clone or pull) the most current version of the git repositories
@@ -154,34 +167,28 @@ install <- function(
     }, repos$dir, repos$fork, repos$version)
 
     # initialize MDI root batch execution files
-    pipelinesSuites <- filterRepos(
-        repos, 
-        fork  = Forks$definitive,         
-        stage = Stages$pipelines,         
-        type  = Types$suite
-    )    
     mdiPath <- updateRootFile(
         dirs, 
         'mdi',
-        list(PIPELINES_SUITE_NAMES = paste(pipelinesSuites$name, collapse = " ")),
         executable = TRUE
     ) 
     if(.Platform$OS.type != "unix") {
         updateRootFile(
             dirs, 
             'mdi-local.bat', 
-            list(PATH_TO_R  = R.home(), 
-                GITHUB_PAT = Sys.getenv('GITHUB_PAT'))
+            replace = list(PATH_TO_R  = R.home())
         )
     }
 
-    # initialize the Stage 1 pipelines management utility
+    # initialize the mdi command line utility
     if(.Platform$OS.type == "unix") {
         initializeJobManager(mdiPath)
         dir <- file.path(mdiDir, "frameworks/developer-forks/mdi-pipelines-framework")
         if(dir.exists(dir)) initializeJobManager(mdiPath, developer = TRUE)
         addMdiDirToPATH(mdiDir = mdiDir, addToPATH = addToPATH)
     }
+
+    # install Stage 2 apps packages
     if(!installPackages) return( getInstallationData(versions, dirs) )
     return( collectAndInstallPackages(cranRepo, force, versions, dirs, repos) )
 }
