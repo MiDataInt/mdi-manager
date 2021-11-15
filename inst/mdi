@@ -44,7 +44,7 @@ JOB_MANAGER_COMMANDS=$(cd $JOB_MANAGER_DIR/lib/commands && ls -1 *.pl |  cut -d 
 
 # set known pipelines
 # TODO: will jobManager script need PIPELINES_SUITES? if not, move prior to call to launcher.pl
-PIPELINES_SUITES=`ls -d $MDI_DIR/suites/*/*/pipelines/*/`
+export PIPELINES_SUITES=`ls -d $MDI_DIR/suites/*/*/pipelines/*/`
 
 #----------------------------------------------------------------------
 # handle a direct call to initialize the job manager
