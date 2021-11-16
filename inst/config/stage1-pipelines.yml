@@ -20,10 +20,9 @@ shared:
 
 # configure a shared conda implementation
 conda:
-  # where MDI program environments are installed
-  base-directory: $HOME/mdi/environments
     
   # optional command to load conda for use (e.g. 'module load conda')
+  # use null if conda is always available on the server where mdi is run
   load-command: module load $ANACONDA
     
   # path to conda.sh initialization script

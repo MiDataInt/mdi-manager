@@ -35,7 +35,7 @@ if [[ "$NODE" = "" || "$NODE" = "(None)" ]]; then
         --mem-per-cpu $MEM_PER_CPU \
         $MDI_DIR/remote/mdi-remote-node-job.sh
     set_server_node
-    while [[ "$NODE" = "" || "$NODE" = "(None)" ]]; do
+    while [[ "$NODE" = "" || "$NODE" = "("* ]]; do
         sleep 5
         set_server_node
     done

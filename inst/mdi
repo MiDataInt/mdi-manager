@@ -39,14 +39,15 @@ fi
 # set script paths
 export JOB_MANAGER_DIR=$FRAMEWORK_DIR/job_manager
 JOB_MANAGER_TARGET=$JOB_MANAGER_DIR/jobManager
+Q_TYPE_FILE=$JOB_MANAGER_DIR/qType
 JOB_MANAGER_COMMANDS=$(cd $JOB_MANAGER_DIR/lib/commands && ls -1 *.pl |  cut -d '.' -f 1 | tr '\n' ' ') 
 
-# set pipelines suites - these values are programatically filled by mdi::install()
-export PIPELINES_SUITE_NAMES="_PIPELINES_SUITE_NAMES_" # space delimited list
+# set known pipelines
+# TODO: will jobManager script need PIPELINES_SUITES? if not, move prior to call to launcher.pl
+export PIPELINE_DIRS=`ls -d $MDI_DIR/suites/*/*/pipelines/*/`
 
 #----------------------------------------------------------------------
 # handle a direct call to initialize the job manager
-# used by mdi::install(), command not advertised to end users
 #----------------------------------------------------------------------
 if [ "$TARGET" = "initialize" ]; then
     exec perl $JOB_MANAGER_DIR/initialize.pl $MDI_DIR
@@ -58,8 +59,12 @@ if [ "$TARGET" = "initialize" ]; then
 elif [[ "$TARGET" = "" || " $JOB_MANAGER_COMMANDS " =~ " $TARGET " ]]; then
     
     # ensure that the job manager target script has been initialized
-    if [ ! -e "$JOB_MANAGER_TARGET" ]; then
-        perl $JOB_MANAGER_DIR/initialize.pl $MDI_DIR
+    Q_TYPE=""
+    if [ -e "$Q_TYPE_FILE" ]; then
+        Q_TYPE=`cat $Q_TYPE_FILE` # recovers cases when job scheduler wasn't discovered in prior initialize
+    fi
+    if [[ ! -e "$JOB_MANAGER_TARGET" || "$Q_TYPE" = "" ]]; then
+        perl $JOB_MANAGER_DIR/initialize.pl $MDI_DIR suppressLog
     fi    
 
     # fork the call to the job manager utility (a close relative of 'q')
