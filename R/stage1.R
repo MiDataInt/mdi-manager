@@ -34,12 +34,12 @@ addMdiDirToPATH <- function(mdiDir, addToPATH = FALSE){
     # assemble mdi PATH entry
     head <- "# >>> mdi initialize >>>"
     notice <- "# !! Contents within this block are managed by 'mdi initialize' !!"
-    PATH <- paste0('export PATH="', mdiDir, ':$PATH"')
+    PATH <- paste0('export PATH="', parseMdiDir(mdiDir, check = FALSE, create = FALSE), ':$PATH"')
     tail <- "# <<< mdi initialize <<<"
     payload <- paste(head, notice, PATH, tail, "\n", sep = "\n")
     filter <- paste0(head, ".+", tail)
 
-    # check if is payload already present, i.e., nothing to do
+    # check if payload is already present, i.e., nothing to do
     if(grepl(payload, bashRcContents)) return()
 
     # append MDI PATH entry, or replace (i.e., overwrite) prior entry
