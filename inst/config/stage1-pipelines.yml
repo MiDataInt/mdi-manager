@@ -17,6 +17,7 @@ variables:
 shared:
   resources:
     tmp-dir: /tmpssd  
+    tmp-dir-large: /tmp
 
 # configure a shared conda implementation
 conda:
