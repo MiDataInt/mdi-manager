@@ -11,10 +11,6 @@ getAppsPackages <- function(repos, rRepos) {
     addYmlPackages <- function(yml){
         if(is.null(yml)) return()
         for(x in names(pkgLists)) if(!is.null(yml[[x]])){
-            
-            #########################
-            str(  unname(unlist(yml[[x]]))  )
-            
             pkgLists[[x]] <<- c(pkgLists[[x]], unname(unlist(yml[[x]])))
         }     
     }
@@ -46,13 +42,15 @@ getAppsPackages <- function(repos, rRepos) {
             addYmlPackages(yml$packages)              
         }
     }
-    
-    #######################
-    str(pkgLists)
 
     # expand the package list to required dependencies
     message('recursively expanding package dependencies ...')
     suppressWarnings( for(x in names(pkgLists)) {
+        
+        message()
+        message(x)
+        str(unique(pkgLists[[x]]))
+        
         pkgLists[[x]] <- if(length(pkgLists[[x]]) > 0) miniCRAN::pkgDep(
             unique(pkgLists[[x]]), # the packages named by the MDI framework and apps
             repos = rRepos[[x]],
