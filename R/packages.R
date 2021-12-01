@@ -42,18 +42,11 @@ getAppsPackages <- function(repos, rRepos) {
             addYmlPackages(yml$packages)              
         }
     }
-    
-    ###############
-    message()
-    print(BiocManager::repositories())
-    message()
 
     # expand the package list to required dependencies
     message('recursively expanding package dependencies ...')
-    suppressWarnings( for(x in names(pkgLists)) {
-        message(paste(x, 'packages'))
-        str(unique(pkgLists[[x]]))
-        message(rRepos[[x]])
+    # suppressWarnings( for(x in names(pkgLists)) {
+    suppressWarnings( for(x in 'R') {
         pkgLists[[x]] <- if(length(pkgLists[[x]]) > 0) miniCRAN::pkgDep(
             unique(pkgLists[[x]]), # the packages named by the MDI framework and apps
             repos = rRepos[[x]],
@@ -65,6 +58,9 @@ getAppsPackages <- function(repos, rRepos) {
             quiet = TRUE
         ) else NULL
     } )
+    
+    # having problems expanding Bioconductor packages above, BiocManager::install should do this downstream
+    pkgLists$Bioconductor <- if(length(pkgLists$Bioconductor) > 0) unique(pkgLists$Bioconductor) else NULL
     
     # return our results
     pkgLists
