@@ -21,7 +21,7 @@ run(
 
 develop(mdiDir = "~", dataDir = NULL, url = "http://localhost", port = 3838)
 
-ondemand(hostDir, mdiDir = "~", dataDir = NULL, port = 3838)
+ondemand(hostDir, mdiDir = "~", dataDir = NULL, port = 3838, debug = FALSE)
 }
 \arguments{
 \item{mdiDir}{character. Path to the directory where the MDI has 
@@ -74,10 +74,9 @@ url of 'https://mymdi.org:5000/'.}
 after starting the MDI server. Defaults to FALSE unless \code{mode} is 'local'
 or 'ondemand'.}
 
-\item{debug}{logical. When \code{debug} is TRUE and \code{mode} is 'local'
-or 'ondemand', verbose activity logs will be printed to the R console where 
-\code{mdi::run()} was called. Defaults to FALSE. Ignored if \code{mode} is 
-'remote', 'node', or 'server'.}
+\item{debug}{logical. When \code{debug} is TRUE, verbose activity logs 
+will be printed to the R console where \code{mdi::run()} was called. 
+Defaults to FALSE.}
 
 \item{developer}{logical. When \code{developer} is TRUE, additional
 development utilities are added to the web page and forked repositories

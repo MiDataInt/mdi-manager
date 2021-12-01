@@ -38,7 +38,7 @@ run(
   developer = FALSE
 )
 develop(mdiDir = "~", dataDir = NULL, url = "http://localhost", port = 3838)
-ondemand(hostDir, mdiDir = "~", dataDir = NULL, port = 3838)
+ondemand(hostDir, mdiDir = "~", dataDir = NULL, port = 3838, debug = FALSE)
 ```
 
 
@@ -72,7 +72,7 @@ Argument      |Description
 `url`     |     character. The complete browser URL to load the web page. Examples: 'http://localhost' (the default) or 'https://mymdi.org'.
 `port`     |     integer. The port to use on the host specified in `url` . Defaults to the canonical Shiny port, 3838. Example: setting `url`  to 'https://mymdi.org' and `port` to 5000 will yield a final access url of 'https://mymdi.org:5000/'.
 `browser`     |     logical. Whether or not to attempt to launch a web browser after starting the MDI server. Defaults to FALSE unless `mode` is 'local' or 'ondemand'.
-`debug`     |     logical. When `debug` is TRUE and `mode` is 'local' or 'ondemand', verbose activity logs will be printed to the R console where `mdi::run()` was called. Defaults to FALSE. Ignored if `mode` is 'remote', 'node', or 'server'.
+`debug`     |     logical. When `debug` is TRUE, verbose activity logs will be printed to the R console where `mdi::run()` was called. Defaults to FALSE.
 `developer`     |     logical. When `developer` is TRUE, additional development utilities are added to the web page and forked repositories will be used if they exist. Ignored if `mode` is set to 'server'.
 
 
