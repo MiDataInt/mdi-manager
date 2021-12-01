@@ -97,10 +97,9 @@
 #' after starting the MDI server. Defaults to FALSE unless \code{mode} is 'local'
 #' or 'ondemand'.
 #'
-#' @param debug logical. When \code{debug} is TRUE and \code{mode} is 'local'
-#' or 'ondemand', verbose activity logs will be printed to the R console where 
-#' \code{mdi::run()} was called. Defaults to FALSE. Ignored if \code{mode} is 
-#' 'remote', 'node', or 'server'.
+#' @param debug logical. When \code{debug} is TRUE, verbose activity logs 
+#' will be printed to the R console where \code{mdi::run()} was called. 
+#' Defaults to FALSE. 
 #' 
 #' @param developer logical. When \code{developer} is TRUE, additional
 #' development utilities are added to the web page and forked repositories
@@ -134,7 +133,6 @@ run <- function(
     # generally, run() works to help ensure a proper installation prior to launching the server
 
     # enforce option overrides
-    if(mode %in% c('remote', 'node', 'server')) debug <- FALSE # never show developer tools on public servers    
     if(mode == 'server') developer <- FALSE # never show developer tools on public servers
     if(mode == 'node') install <- FALSE
 
@@ -274,7 +272,8 @@ ondemand <- function(
     hostDir, 
     mdiDir = '~', 
     dataDir = NULL, 
-    port = 3838
+    port = 3838,
+    debug = FALSE
 ){
     run(
         mdiDir,
@@ -285,7 +284,7 @@ ondemand <- function(
         url = 'http://localhost:',
         port = port,
         browser = TRUE,
-        debug = FALSE,
+        debug = debug,
         developer = FALSE
     )
 }
