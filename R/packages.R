@@ -42,18 +42,21 @@ getAppsPackages <- function(repos, rRepos) {
             addYmlPackages(yml$packages)              
         }
     }
+    
+    ###############
+    message()
+    print(BiocManager::repositories())
+    message()
 
     # expand the package list to required dependencies
     message('recursively expanding package dependencies ...')
     suppressWarnings( for(x in names(pkgLists)) {
-        
-        message()
-        message(x)
+        message(paste(x, 'packages'))
         str(unique(pkgLists[[x]]))
-        
+        message(rRepos[[x]])
         pkgLists[[x]] <- if(length(pkgLists[[x]]) > 0) miniCRAN::pkgDep(
             unique(pkgLists[[x]]), # the packages named by the MDI framework and apps
-            #repos = rRepos[[x]],
+            repos = rRepos[[x]],
             type = "source",
             depends = TRUE,
             suggests = FALSE,
