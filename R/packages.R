@@ -11,6 +11,10 @@ getAppsPackages <- function(repos, rRepos) {
     addYmlPackages <- function(yml){
         if(is.null(yml)) return()
         for(x in names(pkgLists)) if(!is.null(yml[[x]])){
+            
+            #########################
+            str(  unname(unlist(yml[[x]]))  )
+            
             pkgLists[[x]] <<- c(pkgLists[[x]], unname(unlist(yml[[x]])))
         }     
     }
@@ -42,6 +46,9 @@ getAppsPackages <- function(repos, rRepos) {
             addYmlPackages(yml$packages)              
         }
     }
+    
+    #######################
+    str(pkgLists)
 
     # expand the package list to required dependencies
     message('recursively expanding package dependencies ...')
