@@ -15,6 +15,7 @@ access_control: null
 paths:
   demo1: /path/to/demo1
   demo2: /path/to/demo2
+job_default: demo1 # the path used as a default by Pipeline Runner
 
 #--------------------------------------------------------------
 # Client information when access_control = oauth2
@@ -32,29 +33,48 @@ oauth2:
 #--------------------------------------------------------------
 # Users granted access when access_control = oauth2
 #--------------------------------------------------------------
-#   - email addresses must be quoted to be valid YAML
 #   - email addresses may include wildcards (*)
-#   - the highest permission level in any matching entry will be granted
+#   - the _first_ matching email is used, so put wildcards with restricted access last
 #   - paths under 'paths: read' will be read-only for the user
 #   - paths under 'paths: write' can additionally be written to (implies read)
 #--------------------------------------------------------------
 # Paths and apps may be entered as:
 #   all, to give access to all named paths or all apps
-#   null, to deny all access (e.g., to disable file browsing)
-#   one, or an array, of named paths or apps
+#   null, to deny all access (i.e., to disable file browsing)
+#   one, or an array, of path or app names
 #--------------------------------------------------------------
-users:
-  "*@*": # i.e., all authenticated email addresses
-    paths: null
-    apps:
-      - demoApp
-  "*@umich.edu": # i.e., all users with an authenticated Michigan email
+# Optionally, paths may contain named entries for:
+#   load_default      name of the readable path to start with for loading files
+#   bookmark_default  name of the writable path to start with for saving bookmarks
+#--------------------------------------------------------------
+user_groups:
+  public_access:
+    emails:
+      - *@* # i.e., all authenticated email addresses
+    paths: 
+      read: null
+      write: null
+      load_default: null
+      bookmark_default: null
+    apps: demoApp
+  limited_access:
+    emails:
+      - *@umich.edu # i.e., all users with an authenticated Michigan email
     paths: 
       read: demo1
-  "wilsonte@umich.edu":
+      write: null
+      load_default: demo1
+      bookmark_default: null
+    apps: all
+  full_access:
+    emails: # list of specific users authenticated by login email
+      - johndoe@umich.edu
+      - janedoe@umich.edu
     paths: 
       read: all
       write: demo2
+      load_default: demo1
+      bookmark_default: demo2
     apps: all
 
 #--------------------------------------------------------------
