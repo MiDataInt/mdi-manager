@@ -113,6 +113,7 @@ install <- function(
     force = FALSE
 ){
     # enforce option overrides
+    if(hostDir == "NULL") hostDir <- NULL # deal with vagary of remote scripts
     isHosted <- !is.null(hostDir)
     if(isHosted) installPackages <- FALSE
 

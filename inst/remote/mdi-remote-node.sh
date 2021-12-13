@@ -1,14 +1,21 @@
 #!/bin/bash
+#----------------------------------------------------------------
+# run the MDI R server in 'node' mode
+# this script executes on the remote login server (not the user's 
+#    local computer, and not on the node)
+#----------------------------------------------------------------
+# at present, only supports the Slurm job scheduler
+#----------------------------------------------------------------
 
 # get input variables
 export PROXY_PORT=$1
-export R_VERSION=$2
+export R_LOAD_COMMAND=$2
 export SHINY_PORT=$3
-export MDI_DIR=$4 # must be valid, as it was used to call this script
-export DATA_DIR=$5
-export HOST_DIR=$6
+export MDI_DIRECTORY=$4 # must be valid, as it was used to call this script
+export DATA_DIRECTORY=$5
+export HOST_DIRECTORY=$6
 export DEVELOPER=$7
-export ACCOUNT=$8
+export CLUSTER_ACCOUNT=$8
 export JOB_TIME_MINUTES=$9
 export CPUS_PER_TASK=${10}
 export MEM_PER_CPU=${11}
@@ -26,14 +33,14 @@ if [[ "$NODE" = "" || "$NODE" = "(None)" ]]; then
     echo $SEPARATOR
     echo "please wait for the web server job to start"
     echo $SEPARATOR 
-    module load R/$R_VERSION
+    $R_LOAD_COMMAND
     export BIOCONDUCTOR_RELEASE=` Rscript -e "cat( paste(BiocManager::version(), collapse='.') )"`
     sbatch \
-        --account $ACCOUNT \
+        --account $CLUSTER_ACCOUNT \
         --time $JOB_TIME_MINUTES \
         --cpus-per-task $CPUS_PER_TASK \
         --mem-per-cpu $MEM_PER_CPU \
-        $MDI_DIR/remote/mdi-remote-node-job.sh
+        $MDI_DIRECTORY/remote/mdi-remote-node-job.sh
     set_server_node
     while [[ "$NODE" = "" || "$NODE" = "("* ]]; do
         sleep 5

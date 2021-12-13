@@ -1,11 +1,16 @@
 #!/bin/bash
+#----------------------------------------------------------------
+# run the MDI R server in 'remote' mode
+# this script executes on the remote login server (not the user's local computer)
+#----------------------------------------------------------------
 
 # get input variables
 export SHINY_PORT=$1
-export MDI_DIR=$2 # must be valid, as it was used to call this script
-export DATA_DIR=$3
-export HOST_DIR=$4
+export MDI_DIRECTORY=$2 # must be valid, as it was used to call this script
+export DATA_DIRECTORY=$3
+export HOST_DIRECTORY=$4
 export DEVELOPER=$5
+export R_LOAD_COMMAND=$6
 export MDI_REMOTE_MODE=remote
 
 # check for server currently running on SHINY_PORT
@@ -13,7 +18,7 @@ PID_FILE=mdi-remote-pid-$SHINY_PORT.txt
 MDI_PID=""
 if [ -e $PID_FILE ]; then MDI_PID=`cat $PID_FILE`; fi
 EXISTS=""
-if [ "$MDI_PID" != "" ]; then EXISTS=`ps -p $MDI_PID | grep -v PID`; fi  
+if [ "$MDI_PID" != "" ]; then EXISTS=`ps -p $MDI_PID | grep -v PID`; fi 
 
 # launch Shiny if not already running
 SEPARATOR="---------------------------------------------------------------------"
@@ -22,7 +27,8 @@ if [ "$EXISTS" = "" ]; then
     echo $SEPARATOR 
     echo "Please wait $WAIT_SECONDS seconds for the web server to start"
     echo $SEPARATOR
-    Rscript $MDI_DIR/remote/mdi-remote.R &
+    $R_LOAD_COMMAND
+    Rscript $MDI_DIRECTORY/remote/mdi-remote.R &
     MDI_PID=$!
     echo "$MDI_PID" > $PID_FILE
     sleep $WAIT_SECONDS # give Shiny time to start up before showing further prompts   
@@ -52,8 +58,8 @@ done
 
 # kill the web server process if requested
 if [ "$USER_ACTION" = "1" ]; then
-    source $MDI_DIR/remote/mdi-kill-remote.sh
-fi
+    source $MDI_DIRECTORY/remote/mdi-kill-remote.sh
+fi 
 
 # send a final helpful message
 # note: the ssh process on client will NOT exit when this script exits since it is port forwarding still

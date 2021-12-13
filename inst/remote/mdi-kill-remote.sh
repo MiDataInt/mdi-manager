@@ -1,3 +1,8 @@
+#----------------------------------------------------------------
+# kill an MDI R server process when running in 'remote' mode
+# soured by 'mdi-remote-server.sh' as needed
+#----------------------------------------------------------------
+
 # get input variables
 if [ "$SHINY_PORT" = "" ]; then SHINY_PORT=$1; fi
 if [ "$SHINY_PORT" = "" ]; then 
