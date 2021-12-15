@@ -58,10 +58,11 @@ parseDirectories <- function(mdiDir, versions,
 }
 parseMdiDir <- function(mdiDir, check = TRUE, create = FALSE){
     mdiDir <- path.expand(mdiDir)
-    if(!dir.exists(mdiDir)) stop(paste("error:", mdiDir, "does not exist"))
-    rootFolder <- 'mdi'    
+    rootFolder <- 'mdi'  
     endsWithRoot <- endsWith(mdiDir, paste0('\\', rootFolder)) || # windows
-                    endsWith(mdiDir, paste0('/', rootFolder))     # not windows
+                    endsWith(mdiDir, paste0('/', rootFolder))     # not windows  
+    mustExistDir <- if(endsWithRoot) dirname(mdiDir) else mdiDir
+    if(!dir.exists(mustExistDir)) stop(paste("error:", mustExistDir, "does not exist"))
     if(!endsWithRoot){
         mdiDir <- file.path(mdiDir, rootFolder)
         if(check && !dir.exists(mdiDir)){
