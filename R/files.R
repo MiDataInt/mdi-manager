@@ -63,12 +63,10 @@ parseMdiDir <- function(mdiDir, check = TRUE, create = FALSE){
                     endsWith(mdiDir, paste0('/', rootFolder))     # not windows  
     mustExistDir <- if(endsWithRoot) dirname(mdiDir) else mdiDir
     if(!dir.exists(mustExistDir)) stop(paste("error:", mustExistDir, "does not exist"))
-    if(!endsWithRoot){
-        mdiDir <- file.path(mdiDir, rootFolder)
-        if(check && !dir.exists(mdiDir)){
-            if(create) dir.create(mdiDir, showWarnings = FALSE) # already confirmed by confirmInstallation()
-                  else throwMdiDirError(mdiDir)
-        }
+    if(!endsWithRoot) mdiDir <- file.path(mdiDir, rootFolder)
+    if(check && !dir.exists(mdiDir)){
+        if(create) dir.create(mdiDir, showWarnings = FALSE) # already confirmed by confirmInstallation()
+              else throwMdiDirError(mdiDir)
     }
     mdiDir
 }
