@@ -9,7 +9,7 @@
 
 # get input variables
 export PROXY_PORT=$1
-export R_LOAD_COMMAND=$2
+export R_LOAD_COMMAND=`echo $2 | sed 's/~~/ /g'`
 export SHINY_PORT=$3
 export MDI_DIRECTORY=$4 # must be valid, as it was used to call this script
 export DATA_DIRECTORY=$5
