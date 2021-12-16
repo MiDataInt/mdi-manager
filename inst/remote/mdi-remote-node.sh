@@ -55,9 +55,13 @@ echo "Web server process running on remote node $NODE, port $SHINY_PORT, as job 
 # report on usage within the command shell on user's local computer
 echo $SEPARATOR 
 echo "To use the MDI, point any web browser to:"
+echo
 echo "    http://$NODE:$SHINY_PORT"
+echo
 echo "and use SwitchyOmega to set the proxy server to:"
+echo
 echo "    socks5://127.0.0.1:$PROXY_PORT"
+echo
 
 # prompt for exit action, with or without killing of the R web server process
 USER_ACTION=""
