@@ -50,7 +50,7 @@ oauth2:
 user_groups:
   public_access:
     emails:
-      - *@* # i.e., all authenticated email addresses
+      - "*@*" # i.e., all authenticated email addresses
     paths: 
       read: null
       write: null
@@ -59,7 +59,7 @@ user_groups:
     apps: demoApp
   limited_access:
     emails:
-      - *@umich.edu # i.e., all users with an authenticated Michigan email
+      - "*@umich.edu" # i.e., all users with an authenticated Michigan email
     paths: 
       read: demo1
       write: null
