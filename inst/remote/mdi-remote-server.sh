@@ -41,7 +41,9 @@ echo "Web server process running on remote port $SHINY_PORT as PID $MDI_PID"
 # report on browser usage within the command shell on user's local computer
 echo $SEPARATOR
 echo "To use the MDI, point any web browser to:"
+echo
 echo "http://127.0.0.1:$SHINY_PORT"
+echo
 
 # prompt for exit action, with or without killing of the R web server process
 USER_ACTION=""
