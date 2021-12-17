@@ -173,13 +173,6 @@ install <- function(
         'mdi',
         executable = TRUE
     ) 
-    if(.Platform$OS.type != "unix") {
-        updateRootFile(
-            dirs, 
-            'mdi-local.bat', 
-            replace = list(PATH_TO_R  = R.home())
-        )
-    }
 
     # initialize the mdi command line utility
     if(.Platform$OS.type == "unix") {
