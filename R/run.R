@@ -208,6 +208,7 @@ run <- function(
 
     # set environment variables with two values, one for user, one for host installation
     Sys.setenv(IS_HOSTED = isHosted)
+    Sys.setenv(HOST_DIR = if(isHosted) hostDir else "")
     Sys.setenv(USER_CONFIG_DIR = dirs$user$config) # downstream might need portions of each config
     Sys.setenv(HOST_CONFIG_DIR = dirs$host$config)
     Sys.setenv(USER_RESOURCES_DIR = dirs$user$resources) # similarly, may use shared or personal resources
