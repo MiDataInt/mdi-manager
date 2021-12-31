@@ -13,7 +13,7 @@ Remotes  <- list(upstream = "upstream", origin = "origin")
 Forks    <- list(definitive = "definitive", developer = "developer-forks")
 Branches <- list(main = "main")
 Types    <- list(framework = 'frameworks', suite = 'suites')
-Stages   <- list(pipelines = 'pipelines', apps = 'apps')
+Stages   <- list(pipelines = 'pipelines', apps = 'apps', tools = 'tools')
 #---------------------------------------------------------------------------
 # there are two different framework repositories, corresponding to the two main stages of execution
 #   mdi-pipelines-framework = code that runs mostly non-interactively, stage 1, resource-intensive processing
@@ -46,8 +46,10 @@ parseGitRepos <- function(dirs, suitesFilePath){
     config <- yaml::read_yaml(suitesFilePath)
 
     # prepend the frameworks repos to the suites repos
-    upstreamUrls <- sapply(c(pipelinesFrameworkRepo, appsFrameworkRepo), assembleGitUrl, mdiGitUser)
-    upstreamUrls <- c(upstreamUrls, config$suites$pipelines, config$suites$apps) 
+    upstreamUrls <- c(
+        sapply(c(pipelinesFrameworkRepo, appsFrameworkRepo), assembleGitUrl, mdiGitUser), 
+        expandGitUrls(config$suites)
+    )
     types <- c(
         rep(Types$framework, 2), 
         rep(Types$suite, length(upstreamUrls) - 2)
@@ -55,8 +57,7 @@ parseGitRepos <- function(dirs, suitesFilePath){
     stages <- c(
         Stages$pipelines, 
         Stages$apps, 
-        rep(Stages$pipelines, length(config$suites$pipelines)), 
-        rep(Stages$apps, length(config$suites$apps))
+        rep(Stages$tools, length(config$suites))
     )
     order <- seq_along(types)
 
@@ -88,6 +89,12 @@ assembleGitUrl <- function(repoName, gitUser) {
     repo <- paste(repoName, 'git', sep = ".")
     paste(gitHubUrl, gitUser, repo, sep = "/")
 }
+expandGitUrls <- function(urls){ # turn GIT_USER/SUITE_NAME into https://github.com/GIT_USER/SUITE_NAME-mdi-pipelines.git # nolint
+    if(is.null(urls)) return(character())
+    urls <- ifelse(startsWith(urls, gitHubUrl), urls, paste(gitHubUrl, urls, sep = "/"))
+    urls <- ifelse(endsWith(urls, ".git"), urls, paste(urls, "git", sep = "."))
+    urls
+}
 switchGitUser <- Vectorize(function(url, gitUser){
     if(is.null(gitUser) || gitUser == "") return(NA)
     parts <- strsplit(url, '/')[[1]]
@@ -102,7 +109,7 @@ getRepoDir <- Vectorize(function(mdiDir, type, fork, url){
 })
 repoFilter <- function(repos, type, stage, fork){
     isType  <- if(is.null(type))  TRUE else repos$type  == type
-    isStage <- if(is.null(stage)) TRUE else repos$stage == stage
+    isStage <- if(is.null(stage)) TRUE else repos$stage == stage | repos$stage == Stages$tools
     isFork  <- if(is.null(fork))  TRUE else repos$fork  == fork
     !is.null(repos$dir) &
     !is.na(repos$dir) & 

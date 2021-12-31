@@ -25,7 +25,7 @@ more information.
 The MDI manager and Stage 2 web apps are R programs.
 Accordingly, R must be installed on the host machine. See:
 
-<https://www.r-project.org/>
+- <https://www.r-project.org/>
 
 We recommend updating to the latest stable R release prior
 to installing the MDI, as MDI installations are tied to specific 

@@ -33,13 +33,16 @@ getAppsPackages <- function(repos, rRepos) {
     targetRepoDirs <- filterRepoDirs(
         repos[repos$exists, ], # will query all apps defined in framework and suites
         stage = Stages$apps
-    )   
+    ) 
     pattern <- "(config\\.yml|module\\.yml)"
     for(dir in targetRepoDirs){
-        files <- list.files(path = dir, pattern = pattern, full.names = TRUE, recursive = TRUE)
-        for(file in files){
-            yml <- yaml::read_yaml(file)
-            addYmlPackages(yml$packages)              
+        shinyDir <- file.path(dir, 'shiny')
+        if(dir.exists(shinyDir)){ # could be false for a pipelines-only suite
+            files <- list.files(path = shinyDir, pattern = pattern, full.names = TRUE, recursive = TRUE)
+            for(file in files){
+                yml <- yaml::read_yaml(file)
+                addYmlPackages(yml$packages)              
+            }
         }
     }
 

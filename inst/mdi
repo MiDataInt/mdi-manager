@@ -43,7 +43,6 @@ Q_TYPE_FILE=$JOB_MANAGER_DIR/qType
 JOB_MANAGER_COMMANDS=$(cd $JOB_MANAGER_DIR/lib/commands && ls -1 *.pl |  cut -d '.' -f 1 | tr '\n' ' ') 
 
 # set known pipelines
-# TODO: will jobManager script need PIPELINES_SUITES? if not, move prior to call to launcher.pl
 export PIPELINE_DIRS=`ls -d $MDI_DIR/suites/*/*/pipelines/*/`
 
 #----------------------------------------------------------------------
