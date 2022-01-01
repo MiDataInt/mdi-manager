@@ -13,7 +13,7 @@ Remotes  <- list(upstream = "upstream", origin = "origin")
 Forks    <- list(definitive = "definitive", developer = "developer-forks")
 Branches <- list(main = "main")
 Types    <- list(framework = 'frameworks', suite = 'suites')
-Stages   <- list(pipelines = 'pipelines', apps = 'apps', tools = 'tools')
+Stages   <- list(pipelines = 'pipelines', apps = 'apps', tools = 'tools') # tool suites may contain pipelines and/or apps # nolint
 #---------------------------------------------------------------------------
 # there are two different framework repositories, corresponding to the two main stages of execution
 #   mdi-pipelines-framework = code that runs mostly non-interactively, stage 1, resource-intensive processing
@@ -90,7 +90,7 @@ assembleGitUrl <- function(repoName, gitUser) {
     paste(gitHubUrl, gitUser, repo, sep = "/")
 }
 expandGitUrls <- function(urls){ # turn GIT_USER/SUITE_NAME into https://github.com/GIT_USER/SUITE_NAME-mdi-pipelines.git # nolint
-    if(is.null(urls)) return(character())
+    if(is.null(urls) || length(urls) == 0) return(character())
     urls <- ifelse(startsWith(urls, gitHubUrl), urls, paste(gitHubUrl, urls, sep = "/"))
     urls <- ifelse(endsWith(urls, ".git"), urls, paste(urls, "git", sep = "."))
     urls
