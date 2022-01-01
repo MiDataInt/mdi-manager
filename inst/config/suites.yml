@@ -9,5 +9,5 @@
 # !! Re-run 'mdi::install()' or 'mdi install' after updating this list !!
 #----------------------------------------------------------------------
 suites:
-  # - https://github.com/GIT_USER/SUITE_NAME-mdi-pipelines.git
-  # - GIT_USER/SUITE_NAME # either format works
+  # - https://github.com/GIT_USER/SUITE_NAME-mdi-tools.git
+  # - GIT_USER/SUITE_NAME-mdi-tools # either format works

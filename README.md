@@ -45,7 +45,7 @@ following links to learn how to:
 
 ### Manual installation in R
 
-Developers may wish to execute the following commands from within an R console.
+Some may prefer to execute the following commands from within an R console.
 They install 'remotes', which is used to install this 'mdi-manager' R package, 
 which in turn installs the data analysis frameworks.
 
@@ -89,8 +89,8 @@ from within the Stage 2 web server, or run the following from the
 command line:
 
 ```bash
-mdi add https://github.com/GIT_USER/SUITE_NAME-mdi-tools.git
-mdi add GIT_USER/SUITE_NAME-mdi-tools # either format works
+mdi add -p -s https://github.com/GIT_USER/SUITE_NAME-mdi-tools.git
+mdi add -p -s GIT_USER/SUITE_NAME-mdi-tools # either format works
 ```
 
 ## Run the MDI web server
