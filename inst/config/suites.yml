@@ -1,6 +1,6 @@
 ---
 #----------------------------------------------------------------------
-# MDI tool suites to install
+# Tool suites to install
 #----------------------------------------------------------------------
 #   - entries should point to GitHub repositories
 #   - developers should _not_ list their repo forks here

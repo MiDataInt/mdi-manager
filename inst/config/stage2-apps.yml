@@ -1,5 +1,15 @@
 ---
 #--------------------------------------------------------------
+# optional:  customize the Stage 2 Apps web page appearance
+#--------------------------------------------------------------
+#   site_name   replaces 'MDI' as the name of the page, keep it short
+#--------------------------------------------------------------
+# additionally, include these files in mdi/config to override the framework
+#   launch-page-header.md (replaces shiny/shared/static/launch-page-header.md)
+#-------------------------------------------------------------
+site_name: null
+
+#--------------------------------------------------------------
 # Stage 2 Apps web server access control
 #--------------------------------------------------------------
 # Access control types:
