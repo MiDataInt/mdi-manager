@@ -61,6 +61,7 @@
 #' executing the \code{mdi::run()} command:
 #' \itemize{
 #'   \item config
+#'   \item containers
 #'   \item environments
 #'   \item library
 #'   \item resources

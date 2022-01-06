@@ -2,6 +2,7 @@
 # create and return the ordered folder structure of a MDI installation
 #   mdi
 #       config
+#       containers
 #       data
 #       environments
 #       frameworks
@@ -27,7 +28,7 @@ parseDirectories <- function(mdiDir, versions,
     mdiDir <- parseMdiDir(mdiDir, check = TRUE, create = create)
 
     # parse top-level directory names
-    bareDirNames <- c('config', 'data', 'environments', 'frameworks', 'library', 
+    bareDirNames <- c('config', 'containers', 'data', 'environments', 'frameworks', 'library', 
                       'remote', 'resources', 'sessions', 'suites') 
     dirs <- as.list( file.path(mdiDir, bareDirNames) )
     names(dirs) <- bareDirNames
@@ -38,7 +39,7 @@ parseDirectories <- function(mdiDir, versions,
 
     # override public directories when an installation uses shared code and resources
     if(isHosted){
-        publicDirNames <- c('config', 'environments', 'library', 'resources')
+        publicDirNames <- c('config', 'containers', 'environments', 'library', 'resources')
         for(dirName in publicDirNames) dirs[[dirName]] <- file.path(hostDir, dirName)
     }
 
