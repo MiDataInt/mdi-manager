@@ -29,3 +29,7 @@ conda:
   # path to conda.sh initialization script
   # if null, tries $(conda info --base)/etc/profile.d/conda.sh
   profile-script: /sw/arcts/centos7/$ANACONDA/etc/profile.d/conda.sh
+
+# optional command to load singularity if not already available in PATH
+singularity:
+  load-command: module load singularity # cannot include variables
