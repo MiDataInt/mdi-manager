@@ -128,7 +128,8 @@ run <- function(
     port = 3838,
     browser = mode %in% c('local', 'ondemand'),
     debug = FALSE,
-    developer = FALSE        
+    developer = FALSE,
+    frameworkVersion = "latest"        
 ){
     # NB: the rough order of operations for run() is deliberately parallel to install()
     # generally, run() works to help ensure a proper installation prior to launching the server
@@ -189,6 +190,18 @@ run <- function(
     #   definitive repositories use the most recent tagged version, 
     #       or the tip of main if no versions are declared or we are in developer mode
     #   developer-forks stay where the developer had them
+
+    # TODO: definitive apps-framework should be set to frameworkVersion if not 'latest'
+    # in contrast, tools suite versions probably don't need to be set here at all - set and working-copy them as apps load
+    # thus, framework versons are set at server launch, suite versions are set within the running server, per session
+    # actually, even the working copy is probably superfluous - remember that apps code is SOURCED all at once!
+    # so, in fact, as app loads, determine the version, lock the repo, checkout as needed, source code, release the lock
+    # all this is likely coordinated by observeLoadRequest and the file loading functions that call it
+    # a careful look at observeLoadRequest might also reveal that the _session_ code in framework could also be versioned? 
+    # but that is potentially dangerous, since the framework could be mixing code from different versions...
+    # last thought for now: one a single-user server (e.g. local), could also restart the server with a new framework version
+    # everything but run_server.R could probably be reset
+
     mapply(function(dir, fork, version){
         if(fork == Forks$definitive){
             branch <- if(developer || is.null(version) || is.na(version)) 'main' else paste0('v', version)
