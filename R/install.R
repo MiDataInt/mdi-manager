@@ -93,6 +93,15 @@
 #' does not attempt to update R packages that have previously been installed,
 #' regardless of version. When TRUE, all packages are installed without further
 #' prompting.
+#' 
+#' @param checkout list.  When not NULL (the default), a list of version tags, 
+#' branch names, or git commit identifiers to check out prior to installing 
+#' Stage 2 R packages, of form 
+#' \code{list(framework = "v0.0.0", suites = list(<suiteName> = "v0.0.0", ...))}
+#' where framework refers to the mdi-apps-framework. If \code{checkout} or the 
+#' list entry for a git repository is NULL or NA, the latest release tag will 
+#' be checked out prior to installation (ignored for developer-forks of git repos). 
+#' Finally, if \code{checkout} is FALSE, no git checkout actions will be taken.
 #'  
 #' @return A list of installation data with names components 'versions', dirs', 
 #' 'repos', 'rRepos', 'packages'. This information will be incomplete if 
@@ -111,7 +120,8 @@ install <- function(
     clone = TRUE,
     cranRepo = 'https://repo.miserver.it.umich.edu/cran/',                    
     packages = NULL,
-    force = FALSE
+    force = FALSE,
+    checkout = NULL
 ){
     # enforce option overrides
     if(!is.null(hostDir) && hostDir == "NULL") hostDir <- NULL # deal with vagary of remote scripts
@@ -153,20 +163,13 @@ install <- function(
 
     # get the latest tagged versions of all repos
     repos$exists <- repoExists(repos$dir)
-    repos$version <- do.call(getLatestVersions, repos)
+    repos$latest <- do.call(getLatestVersions, repos)
 
     # checkout the appropriate repository versions to continue with the installation
-    #   definitive repositories use the most recent tagged version
-    #   developer-forks stay where the developer had them (tip of 'main' if a new installation)
+    # for install, both definitive and developer forks are scanned for R packages
     message('checking out most recent versions')
-    mapply(function(dir, fork, version){
-        if(!is.null(dir) && !is.na(dir) && 
-           !is.null(version) && !is.na(version) &&
-           fork == Forks$definitive){
-            branch <- paste0('v', version)
-            checkoutGitBranch(dir, branch) # git checkout <tag> is fine but results in a detached head
-        }        
-    }, repos$dir, repos$fork, repos$version)
+    setMdiGitLock(repos$dir[repos$exists, ])
+    checkoutRepoTargets(repos, checkout)
 
     # initialize MDI root batch execution files
     mdiPath <- updateRootFile(
@@ -184,8 +187,12 @@ install <- function(
     }
 
     # install Stage 2 apps packages
-    if(!installPackages) return( getInstallationData(versions, dirs) )
-    return( collectAndInstallPackages(cranRepo, force, versions, dirs, repos) )
+    # all paths must release repo locks
+    if(!installPackages){
+        releaseMdiGitLock(repos$dir[repos$exists, ])
+        return( getInstallationData(versions, dirs) ) 
+    }
+    collectAndInstallPackages(cranRepo, force, versions, dirs, repos)
 }
 getInstallationData <- function(versions, dirs, repos = NULL, rRepos = NULL, packages = NULL){
     list(
@@ -201,7 +208,7 @@ getInstallationData <- function(versions, dirs, repos = NULL, rRepos = NULL, pac
 # use BiocManager to install all apps R packages (whether CRAN or Bioconductor)
 #---------------------------------------------------------------------------
 collectAndInstallPackages <- function(cranRepo, force, 
-                                      versions, dirs, repos){
+                                      versions, dirs, repos, releaseLocks = TRUE){
 
     # set the public R package repositories
     message('collecting R repository information')
@@ -221,6 +228,7 @@ collectAndInstallPackages <- function(cranRepo, force,
     saveRDS(installationData, installationFile)
 
     # install or update all required apps R packages
+    if(releaseLocks) releaseMdiGitLock(repos$dir[repos$exists, ])
     installPackages(versions, dirs, packages, force)
 
     # return installation data

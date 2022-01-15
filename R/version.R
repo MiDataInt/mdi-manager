@@ -19,34 +19,36 @@ getRRelease <- function(){
 }
 
 #---------------------------------------------------------------------------
-# get the latest semantic version tags, i.e., release, of the main branch of upstream, definitive repos
+# get the latest/all semantic version tags, i.e., release, of upstream, definitive repos
 #---------------------------------------------------------------------------
-semVerToIntegers <- function(semVer){ # major.minor.patch
-    x <- as.integer(strsplit(semVer, "\\.")[[1]])
-    names(x) <- c('major', 'minor', 'patch')
-    as.list(x) # i.e. integer(major, minor, patch)
-}
-semVerToSortableInteger <- Vectorize(function(semVer){ # major.minor.patch
-    x <- as.list(as.integer(strsplit(semVer, "\\.")[[1]]))
-    names(x) <- c('major', 'minor', 'patch')    
-    x$major * 1e8 + x$minor * 1e4 + x$patch # thus, most recent versions have the highest number
+semVerToSortableInteger <- Vectorize(function(semVer){ # expects vMajor.Minor.Patch
+    x <- gsub('v', '', semVer) # Major.Minor.Patch (no 'v')
+    x <- as.integer(strsplit(x, "\\.")[[1]])
+    x[1] * 1e10 + x[2] * 1e5 + x[3] # thus, most recent versions have the highest integer value
 })
-filterSemVerTags <- function(tags){ # discard all tags except [v]major.minor.patch
-    isSemVer <- grepl('^v{0,1}\\d+\\.\\d+\\.\\d+$', tags, perl = TRUE)
-    tags <- tags[isSemVer]
-    gsub('v', '', tags) # return major.minor.patch (no 'v')
-}
-getLatestVersion <- function(tags){ # return most recent version tag as major.minor.patch
+getLatestVersion <- function(tags){ # return most recent version tag as vMajor.Minor.Patch
     if(length(tags) == 0) return(NA)
-    semVer <- filterSemVerTags(tags)
+    isSemVer <- grepl('^v{0,1}\\d+\\.\\d+\\.\\d+$', tags, perl = TRUE)
+    semVer <- tags[isSemVer]
     if(length(semVer) == 0) return(NA)
-    semVer[ which.max( semVerToSortableInteger(semVer) ) ]
+    semVerI <- semVerToSortableInteger(semVer)
+    semVer[ which.max(semVerI) ]
 }
-getLatestVersions <- Vectorize(function(dir, fork, ...) {
-    if(fork == Forks$definitive){
+getLatestVersions <- Vectorize(function(dir, fork, exists, ...) {
+    if(fork == Forks$definitive && exists){
         tags <- git2r::tags(dir) # tag (name) = commit data list (value)
         getLatestVersion( names(tags) )
     } else {
         NA # we will never check out tags in forked repos
     }
 })
+getAllVersions <- function(dir, ...) {
+    tags <- git2r::tags(dir) # tag (name) = commit data list (value)
+    if(length(tags) == 0) return(character())
+    tags <- names(tags)
+    isSemVer <- grepl('^v{0,1}\\d+\\.\\d+\\.\\d+$', tags, perl = TRUE)
+    semVer <- tags[isSemVer]
+    if(length(semVer) == 0) return(character())
+    semVerI <- semVerToSortableInteger(semVer)
+    rev( semVer[ rank(semVerI) ] ) # thus, latest release tag is always first in list
+}

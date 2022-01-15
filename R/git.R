@@ -202,15 +202,19 @@ repoExists <- Vectorize(function(dir){
 
 #---------------------------------------------------------------------------
 # checkout (i.e. change to) a specific branch
+# do not check or set repo locks here, caller must manage locks as needed
 #---------------------------------------------------------------------------
 checkoutGitBranch <- function(dir, branch = 'main', create = FALSE, silent = FALSE) {
     if(!silent) message(paste('setting', dir, 'head to', branch))
     git2r::checkout(
         object = dir,
-        branch = branch,
+        branch = branch, # git2r calls it 'branch', but can be anything that can be checked out
         force = FALSE,
         create = create
     )
+    x <- list() # record the current branch of all repos in environment for rapid checking later
+    x[[dir]] <- branch       
+    do.call(Sys.setenv, x)
 }
 
 #---------------------------------------------------------------------------
@@ -265,6 +269,81 @@ setGitConfigUser <- function(dir, nullUser = FALSE){
     )
 }
 
+#---------------------------------------------------------------------------
+# set and clear MDI locks on git repositories
+# use same format as mdi-pipelines-framework so locks are shared between Stages 1 and 2
+# locks are _not_ fork-specific, i.e., a lock applies equally to definitive and developer-forks
+#---------------------------------------------------------------------------
+getMdiLockFile <- function(repoDir){
+    parts <- rev(strsplit(repoDir, '/')[[1]])
+    repo <- parts[1]
+    fork <- parts[2] # definitive or developer-forks
+    type <- parts[3] # suites or frameworks
+    lockFile <- paste(repo, 'lock', sep = ".")
+    file.path(mdiDir, type, lockFile)
+}
+waitForRepoLock <- function(lockFile = NULL, repoDir = NULL){
+    if(is.null(lockFile)) lockFile <- getMdiLockFile(repoDir)
+    if(!file.exists(lockFile)) return()  
+    message(paste("waiting for lock to clear:", lockfile))  
+    maxLockWaitSec <- 30
+    cumLockWaitSec <- 0
+    while(file.exists(lockFile) && cumLockWaitSec <= maxLockWaitSec){ # wait for others to release their lock
+        cumLockWaitSec <- cumLockWaitSec + 1
+        Sys.sleep(1);
+    }
+    if(file.exists(lockFile)){
+        message(paste0(
+            "\nrepository is locked:\n    ", 
+                repoDir,
+            "\nif you know the repository is not in use, try deleting its lock file:\n    ", 
+                lockFile, "\n"
+        ))
+        stop('no')
+    }
+}
+setMdiGitLock <- Vectorize(function(repoDir){ # expect that caller has used waitForRepoLock as needed
+    lockFile <- getMdiLockFile(repoDir)
+    waitForRepoLock(lockFile)
+    file.create(lockFile)
+})
+releaseMdiGitLock <- Vectorize(function(repoDir){
+    lockFile <- getMdiLockFile(repoDir)
+    if(file.exists(lockFile)) unlink(lockFile)
+})
+
+#---------------------------------------------------------------------------
+# checkout the appropriate repository versions
+#---------------------------------------------------------------------------
+# the definitive mdi-pipelines-framework uses the most recent tagged version (which always exists)
+# definitive mdi-apps-framework and tool suite repositories use, in order of highest precedence:
+#   the override value found in 'checkout' list
+#   the tip of main if launching server in developer mode
+#   the most recent tagged version
+#   the tip of main if no release tags
+# all developer-forks stay where the developer had them (tip of 'main' if a new installation)
+#---------------------------------------------------------------------------
+checkoutRepoTargets <- function(repos, checkout, developer = FALSE){
+    if(is.logical(checkout) && checkout == FALSE) return()
+    areOverrides <- is.list(checkout)
+    if(areOverrides && is.null(checkout$suites)) checkout$suites <- list()     
+    mapply(function(name, dir, exists, fork, stage, type, latest){
+        if(exists && fork == Forks$definitive){
+            default <- if(developer || is.na(latest)) 'main' else latest # a branch or version tag
+            isPipelinesFramework <- stage == Stages$pipelines && type == Types$framework
+            target <- if(isPipelinesFramework || !areOverrides){
+                default            
+            } else { # look for version overrides on apps framework and tool suites
+                isAppsFramework <- stage == Stages$apps && type == Types$framework 
+                override <- if(isAppsFramework) checkout$framework else checkout$suites[[name]]
+                if(is.null(override) || override == "latest") default # honor MDI version directives
+                    else if(override == "pre-release") 'main'
+                    else override
+            }
+            checkoutGitBranch(dir, target) # git checkout <tag> is fine but results in a detached head
+        }        
+    }, repos$name, repos$dir, repos$exists, repos$fork, repos$stage, repos$type, repos$latest)    
+}
 
 
 # checkGitConfiguration <- function(dir, gitConfig, user=NULL){

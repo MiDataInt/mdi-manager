@@ -16,7 +16,8 @@
 #' 
 #' When \code{developer} is FALSE, \code{run()} will use the definitive
 #' version of all repositories checked out to the latest version tag on 
-#' the 'main' branch (or the tip of main if no version tags are set).
+#' the 'main' branch (or the tip of main if no version tags are set),
+#' unless version overrides are provided via the \code{checkout} option.
 #' 
 #' When \code{developer} is TRUE, \code{run()} will use a developer-forks
 #' repository for each framework or suite when it exists, otherwise, it
@@ -24,12 +25,7 @@
 #' on whatever branch they were already on, whereas definitive repos
 #' will be checked out to the tip of the 'main' branch.
 #' 
-#' When \code{developer} is TRUE, you must have git properly installed on
-#' your computer. To pull or push code via the GUI, you must also have 
-#' enabled non-prompted authorized access to the remote repositories 
-#' (e.g., via the command line).
-#' 
-#' #' If access to private repositories or developer forks is needed, you must
+#' If access to private repositories or developer forks is needed, you must
 #' create script 'gitCredentials.R' in \code{mdiDir} or your home directory, 
 #' to be sourced by \code{mdi::run()}, with the following contents:
 #' gitCredentials <- list(
@@ -51,7 +47,7 @@
 #' previously been installed. Defaults to your home directory, such that 
 #' the MDI will run from '~/mdi' by default.
 #' 
-#' @param dataDir character. Path to the directory where your MDI data
+#' @param dataDir character. Path to the directory where your MDI apps data
 #' can be found. Defaults to '\code{mdiDir}/data'. You might wish to change
 #' this to a directory that holds shared data, e.g., for your laboratory.
 #' 
@@ -95,8 +91,8 @@
 #' url of 'https://mymdi.org:5000/'.
 #' 
 #' @param browser logical. Whether or not to attempt to launch a web browser 
-#' after starting the MDI server. Defaults to FALSE unless \code{mode} is 'local'
-#' or 'ondemand'.
+#' after starting the MDI server. Defaults to FALSE unless \code{mode} is 
+#' 'local' or 'ondemand'.
 #'
 #' @param debug logical. When \code{debug} is TRUE, verbose activity logs 
 #' will be printed to the R console where \code{mdi::run()} was called. 
@@ -105,6 +101,15 @@
 #' @param developer logical. When \code{developer} is TRUE, additional
 #' development utilities are added to the web page and forked repositories
 #' will be used if they exist. Ignored if \code{mode} is set to 'server'.
+#' 
+#' @param checkout list.  When not NULL (the default), a list of version tags, 
+#' branch names, or git commit identifiers to check out prior to installing 
+#' Stage 2 R packages and launching the apps server, of form 
+#' \code{list(framework = "v0.0.0", suites = list(<suiteName> = "v0.0.0", ...))}
+#' where framework refers to the mdi-apps-framework. If \code{checkout} or the 
+#' list entry for a git repository is NULL or NA, the latest release tag will 
+#' be checked out prior to installation (ignored for developer-forks of git repos). 
+#' Finally, if \code{checkout} is FALSE, no git checkout actions will be taken.
 #' 
 #' @return These functions never return. They launch a blocking web server 
 #' that runs perpeptually in the parent R process in the global environment.
@@ -129,7 +134,7 @@ run <- function(
     browser = mode %in% c('local', 'ondemand'),
     debug = FALSE,
     developer = FALSE,
-    frameworkVersion = "latest"        
+    checkout = NULL
 ){
     # NB: the rough order of operations for run() is deliberately parallel to install()
     # generally, run() works to help ensure a proper installation prior to launching the server
@@ -164,7 +169,7 @@ run <- function(
     # get the latest tagged versions of all existing repos
     repos$exists <- repoExists(repos$dir)
     repos <- repos[repos$exists, ]
-    repos$version <- do.call(getLatestVersions, repos)
+    repos$latest <- do.call(getLatestVersions, repos)
 
     # establish the list of repos to use by the rules identified in comments above
     # NB: code repos are _not_ public/shared assets to allow version selection by each user
@@ -176,7 +181,7 @@ run <- function(
         })
         repos <- repos[is, ]
     } else {
-        repos <- repos[repos$fork == Forks$definitive, ]
+        repos <- repos[repos$fork == Forks$definitive, ] # thus, all existing definitive repos when not developing
     }
     appsFrameworkDir <- repos[repos$name == "mdi-apps-framework", 'dir']
 
@@ -187,36 +192,18 @@ run <- function(
     }
 
     # checkout the appropriate repository versions
-    #   definitive repositories use the most recent tagged version, 
-    #       or the tip of main if no versions are declared or we are in developer mode
-    #   developer-forks stay where the developer had them
-
-    # TODO: definitive apps-framework should be set to frameworkVersion if not 'latest'
-    # in contrast, tools suite versions probably don't need to be set here at all - set and working-copy them as apps load
-    # thus, framework versons are set at server launch, suite versions are set within the running server, per session
-    # actually, even the working copy is probably superfluous - remember that apps code is SOURCED all at once!
-    # so, in fact, as app loads, determine the version, lock the repo, checkout as needed, source code, release the lock
-    # all this is likely coordinated by observeLoadRequest and the file loading functions that call it
-    # a careful look at observeLoadRequest might also reveal that the _session_ code in framework could also be versioned? 
-    # but that is potentially dangerous, since the framework could be mixing code from different versions...
-    # last thought for now: one a single-user server (e.g. local), could also restart the server with a new framework version
-    # everything but run_server.R could probably be reset
-
-    mapply(function(dir, fork, version){
-        if(fork == Forks$definitive){
-            branch <- if(developer || is.null(version) || is.na(version)) 'main' else paste0('v', version)
-            checkoutGitBranch(dir, branch) # git checkout <tag> is fine but results in a detached head
-        }     
-    }, repos$dir, repos$fork, repos$version)
+    setMdiGitLock(repos$dir)
+    checkoutRepoTargets(repos, checkout, developer)
 
     # install any missing R packages if not hosted (hosts are expected to keep their installations up to date)
     if(install && !isHosted){
-        collectAndInstallPackages(
+        collectAndInstallPackages( 
             cranRepo = 'https://repo.miserver.it.umich.edu/cran/', 
             force = FALSE, 
             versions = versions, 
             dirs = dirs$user, 
-            repos = repos
+            repos = repos,
+            releaseLocks = FALSE
         )
     }
 
@@ -247,6 +234,9 @@ run <- function(
     Sys.setenv(IS_DEVELOPER = developer)
     Sys.setenv(APPS_FRAMEWORK_DIR = appsFrameworkDir)
     Sys.setenv(LIBRARY_DIR = dirs$versionLibrary)
+
+    # release repo locks immediately prior to launching server
+    releaseMdiGitLock(repos$dir)
 
     # source the script that runs the server in the global environment
     # the web server never returns as it handles client requests via https
