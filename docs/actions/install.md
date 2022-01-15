@@ -31,7 +31,8 @@ install(
   clone = TRUE,
   cranRepo = "https://repo.miserver.it.umich.edu/cran/",
   packages = NULL,
-  force = FALSE
+  force = FALSE,
+  checkout = NULL
 )
 ```
 
@@ -49,6 +50,7 @@ Argument      |Description
 `cranRepo`     |     character. The base URL of the R repository to use, e.g., the URL of a CRAN mirror. Defaults to the University of Michigan CRAN mirror.
 `packages`     |     character vector. If not NULL (the default), only install these specific R packages (for developers to quickly update selected packages). No other actions will be taken and the library's installation.rds file will not be updated.
 `force`     |     logical.  When FALSE (the default), `mdi::install()`  does not attempt to update R packages that have previously been installed, regardless of version. When TRUE, all packages are installed without further prompting.
+`checkout`     |     list.  When not NULL (the default), a list of version tags, branch names, or git commit identifiers to check out prior to installing Stage 2 R packages, of form `list(framework = "v0.0.0", suites = list(<suiteName> = "v0.0.0", ...))`  where framework refers to the mdi-apps-framework. If `checkout` or the list entry for a git repository is NULL or NA, the latest release tag will be checked out prior to installation (ignored for developer-forks of git repos). Finally, if `checkout` is FALSE, no git checkout actions will be taken.
 
 
 ## Details
@@ -68,6 +70,8 @@ No action will be taken unless approved by the user when prompted.
    
 
 *  config = configuration data for the MDI installation  
+
+*  containers = Singularity container images for pipelines that use them  
 
 *  data = project-specific input and output files  
 

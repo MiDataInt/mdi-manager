@@ -167,8 +167,8 @@ install <- function(
 
     # checkout the appropriate repository versions to continue with the installation
     # for install, both definitive and developer forks are scanned for R packages
-    message('checking out most recent versions')
-    setMdiGitLock(repos$dir[repos$exists, ])
+    message('locking repositories')
+    setMdiGitLock(repos$dir[repos$exists & repos$fork == Forks$definitive])
     checkoutRepoTargets(repos, checkout)
 
     # initialize MDI root batch execution files
@@ -189,7 +189,8 @@ install <- function(
     # install Stage 2 apps packages
     # all paths must release repo locks
     if(!installPackages){
-        releaseMdiGitLock(repos$dir[repos$exists, ])
+        message('releasing repository locks')
+        releaseMdiGitLock(repos$dir[repos$exists])
         return( getInstallationData(versions, dirs) ) 
     }
     collectAndInstallPackages(cranRepo, force, versions, dirs, repos)
@@ -228,7 +229,10 @@ collectAndInstallPackages <- function(cranRepo, force,
     saveRDS(installationData, installationFile)
 
     # install or update all required apps R packages
-    if(releaseLocks) releaseMdiGitLock(repos$dir[repos$exists, ])
+    if(releaseLocks) {
+        message('releasing repository locks')
+        releaseMdiGitLock(repos$dir[repos$exists])
+    }
     installPackages(versions, dirs, packages, force)
 
     # return installation data

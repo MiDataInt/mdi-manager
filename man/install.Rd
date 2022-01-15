@@ -13,7 +13,8 @@ install(
   clone = TRUE,
   cranRepo = "https://repo.miserver.it.umich.edu/cran/",
   packages = NULL,
-  force = FALSE
+  force = FALSE,
+  checkout = NULL
 )
 }
 \arguments{
@@ -62,6 +63,15 @@ file will not be updated.}
 does not attempt to update R packages that have previously been installed,
 regardless of version. When TRUE, all packages are installed without further
 prompting.}
+
+\item{checkout}{list.  When not NULL (the default), a list of version tags, 
+branch names, or git commit identifiers to check out prior to installing 
+Stage 2 R packages, of form 
+\code{list(framework = "v0.0.0", suites = list(<suiteName> = "v0.0.0", ...))}
+where framework refers to the mdi-apps-framework. If \code{checkout} or the 
+list entry for a git repository is NULL or NA, the latest release tag will 
+be checked out prior to installation (ignored for developer-forks of git repos). 
+Finally, if \code{checkout} is FALSE, no git checkout actions will be taken.}
 }
 \value{
 A list of installation data with names components 'versions', dirs', 
@@ -90,6 +100,7 @@ If they do not already exist, \code{mdi::install()} will create a series
 of subdirectories in \code{mdiDir}, as follows:
 \itemize{
   \item config = configuration data for the MDI installation
+  \item containers = Singularity container images for pipelines that use them
   \item data = project-specific input and output files
   \item environments = conda environments used by data analysis pipelines
   \item frameworks = git repositories with common code for all pipelines and apps

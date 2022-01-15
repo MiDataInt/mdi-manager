@@ -192,6 +192,7 @@ run <- function(
     }
 
     # checkout the appropriate repository versions
+    message('locking repositories')
     setMdiGitLock(repos$dir)
     checkoutRepoTargets(repos, checkout, developer)
 
@@ -236,6 +237,7 @@ run <- function(
     Sys.setenv(LIBRARY_DIR = dirs$versionLibrary)
 
     # release repo locks immediately prior to launching server
+    message('releasing repository locks')
     releaseMdiGitLock(repos$dir)
 
     # source the script that runs the server in the global environment

@@ -9,6 +9,9 @@
 #     GITHUB_PAT = "xxx"
 # )
 #---------------------------------------------------------------------------
+# MANAGER_PATH <- 'manager/developer-forks/mdi-manager'
+MANAGER_PATH <- '_manager/definitive/mdi-manager'
+#---------------------------------------------------------------------------
 debugInstall <- function(
     mdiDir = 'C:/mdi',
     debugDir = NA, # 'test-installation', # path relative to mdiDir where mdi will be installed
@@ -72,22 +75,21 @@ initializeDebug <- function(mdiDir, debugDir){
     # rebuild the manager package
     message()
     message('UPDATING MDI MANAGER PACKAGE')
-    managerDir <- 'manager/developer-forks/mdi-manager'
     remotes::install_local(
-        path = managerDir,
+        path = MANAGER_PATH,
         force = TRUE
     )
-    devtools::document(managerDir)
-    docsToMarkdown(managerDir)
+    devtools::document(MANAGER_PATH)
+    docsToMarkdown()
 }
 
 # convert R documentation files to markdown for Jekyll GitHub Pages
-docsToMarkdown <- function(managerDir){
+docsToMarkdown <- function(){
     i <- 1
     # enumerate function targets manually (forces the order, and may not want all in documentation site)
     for(action in c("install", "run", "password_store")){
-        rdfile <- paste(file.path(managerDir, "man", action), 'Rd', sep = ".")
-        mdFile <- paste(file.path(managerDir, "docs", "actions", action), 'md', sep = ".")
+        rdfile <- paste(file.path(MANAGER_PATH, "man", action), 'Rd', sep = ".")
+        mdFile <- paste(file.path(MANAGER_PATH, "docs", "actions", action), 'md', sep = ".")
         message( paste("converting", rdfile, "to", mdFile) )
         frontMatter <- paste(
             "---",

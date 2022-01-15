@@ -35,7 +35,8 @@ run(
   port = 3838,
   browser = mode %in% c("local", "ondemand"),
   debug = FALSE,
-  developer = FALSE
+  developer = FALSE,
+  checkout = NULL
 )
 develop(mdiDir = "~", dataDir = NULL, url = "http://localhost", port = 3838)
 ondemand(hostDir, mdiDir = "~", dataDir = NULL, port = 3838, debug = FALSE)
@@ -47,10 +48,12 @@ ondemand(hostDir, mdiDir = "~", dataDir = NULL, port = 3838, debug = FALSE)
 Argument      |Description
 ------------- |----------------
 `mdiDir`     |     character. Path to the directory where the MDI has previously been installed. Defaults to your home directory, such that the MDI will run from '~/mdi' by default.
-`dataDir`     |     character. Path to the directory where your MDI data can be found. Defaults to ' `mdiDir` /data'. You might wish to change this to a directory that holds shared data, e.g., for your laboratory.
+`dataDir`     |     character. Path to the directory where your MDI apps data can be found. Defaults to ' `mdiDir` /data'. You might wish to change this to a directory that holds shared data, e.g., for your laboratory.
 `hostDir`     |     character. Path to the directory where a hosted, i.e., a shared public, installation of the MDI can be found. The following folders from that installation will be used instead of from the user installation executing the `mdi::run()` command:   
 
 *  config  
+
+*  containers  
 
 *  environments  
 
@@ -74,6 +77,7 @@ Argument      |Description
 `browser`     |     logical. Whether or not to attempt to launch a web browser after starting the MDI server. Defaults to FALSE unless `mode` is 'local' or 'ondemand'.
 `debug`     |     logical. When `debug` is TRUE, verbose activity logs will be printed to the R console where `mdi::run()` was called. Defaults to FALSE.
 `developer`     |     logical. When `developer` is TRUE, additional development utilities are added to the web page and forked repositories will be used if they exist. Ignored if `mode` is set to 'server'.
+`checkout`     |     list.  When not NULL (the default), a list of version tags, branch names, or git commit identifiers to check out prior to installing Stage 2 R packages and launching the apps server, of form `list(framework = "v0.0.0", suites = list(<suiteName> = "v0.0.0", ...))`  where framework refers to the mdi-apps-framework. If `checkout` or the list entry for a git repository is NULL or NA, the latest release tag will be checked out prior to installation (ignored for developer-forks of git repos). Finally, if `checkout` is FALSE, no git checkout actions will be taken.
 
 
 ## Details
@@ -86,7 +90,8 @@ All default settings are consistent with an end user running the MDI in
  
  When `developer` is FALSE, `run()` will use the definitive
  version of all repositories checked out to the latest version tag on
- the 'main' branch (or the tip of main if no version tags are set).
+ the 'main' branch (or the tip of main if no version tags are set),
+ unless version overrides are provided via the `checkout` option.
  
  When `developer` is TRUE, `run()` will use a developer-forks
  repository for each framework or suite when it exists, otherwise, it
@@ -94,12 +99,7 @@ All default settings are consistent with an end user running the MDI in
  on whatever branch they were already on, whereas definitive repos
  will be checked out to the tip of the 'main' branch.
  
- When `developer` is TRUE, you must have git properly installed on
- your computer. To pull or push code via the GUI, you must also have
- enabled non-prompted authorized access to the remote repositories
- (e.g., via the command line).
- 
- #' If access to private repositories or developer forks is needed, you must
+ If access to private repositories or developer forks is needed, you must
  create script 'gitCredentials.R' in `mdiDir` or your home directory,
  to be sourced by `mdi::run()` , with the following contents:
  gitCredentials <- list(

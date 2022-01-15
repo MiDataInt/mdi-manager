@@ -280,12 +280,13 @@ getMdiLockFile <- function(repoDir){
     fork <- parts[2] # definitive or developer-forks
     type <- parts[3] # suites or frameworks
     lockFile <- paste(repo, 'lock', sep = ".")
+    mdiDir <- paste(rev(parts[4:length(parts)]), collapse = "/")
     file.path(mdiDir, type, lockFile)
 }
 waitForRepoLock <- function(lockFile = NULL, repoDir = NULL){
     if(is.null(lockFile)) lockFile <- getMdiLockFile(repoDir)
     if(!file.exists(lockFile)) return()  
-    message(paste("waiting for lock to clear:", lockfile))  
+    message(paste("waiting for lock to clear:", lockFile))  
     maxLockWaitSec <- 30
     cumLockWaitSec <- 0
     while(file.exists(lockFile) && cumLockWaitSec <= maxLockWaitSec){ # wait for others to release their lock
@@ -325,6 +326,7 @@ releaseMdiGitLock <- Vectorize(function(repoDir){
 #---------------------------------------------------------------------------
 checkoutRepoTargets <- function(repos, checkout, developer = FALSE){
     if(is.logical(checkout) && checkout == FALSE) return()
+    message('checking out most recent or requested repository versions')
     areOverrides <- is.list(checkout)
     if(areOverrides && is.null(checkout$suites)) checkout$suites <- list()     
     mapply(function(name, dir, exists, fork, stage, type, latest){
