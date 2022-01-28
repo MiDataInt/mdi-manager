@@ -19,7 +19,7 @@
 #' of subdirectories in \code{mdiDir}, as follows:
 #' \itemize{
 #'   \item config = configuration data for the MDI installation
-#'   \item containers = Singularity container images for pipelines that use them
+#'   \item containers = Singularity container images for suites that use them
 #'   \item data = project-specific input and output files
 #'   \item environments = conda environments used by data analysis pipelines
 #'   \item frameworks = git repositories with common code for all pipelines and apps
@@ -209,7 +209,8 @@ getInstallationData <- function(versions, dirs, repos = NULL, rRepos = NULL, pac
 # use BiocManager to install all apps R packages (whether CRAN or Bioconductor)
 #---------------------------------------------------------------------------
 collectAndInstallPackages <- function(cranRepo, force, 
-                                      versions, dirs, repos, releaseLocks = TRUE){
+                                      versions, dirs, repos, releaseLocks = TRUE,
+                                      staticLib = NULL){
 
     # set the public R package repositories
     message('collecting R repository information')
@@ -233,25 +234,27 @@ collectAndInstallPackages <- function(cranRepo, force,
         message('releasing repository locks')
         releaseMdiGitLock(repos$dir[repos$exists])
     }
-    installPackages(versions, dirs, packages, force)
+    installPackages(versions, dirs, packages, force, staticLib)
 
     # return installation data
     installationData
 }
-installPackages <- function(versions, dirs, packages, force){
-    dir <- dirs$versionLibrary
+installPackages <- function(versions, dirs, packages, force, staticLib = NULL){
+    activeLib <- dirs$versionLibrary
     newPackages <- if(force) packages else {
-        existingPackages <- list.dirs(dir, full.names = FALSE, recursive = FALSE)
+        activePackages <- list.dirs(activeLib, full.names = FALSE, recursive = FALSE)
+        staticPackages <- if(is.null(staticLib)) character() else list.dirs(staticLib, full.names = FALSE, recursive = FALSE)
+        existingPackages <- unique(activePackages, staticPackages)
         packages[!(packages %in% existingPackages)]
     }    
     if(length(newPackages) > 0 || # missing packages
        length(packages) == 0) {   # user just requested an update of current packages
         message('installing/updating R packages in private library')
-        message(dir)        
+        message(activeLib)        
         BiocManager::install(
             newPackages,
-            lib.loc = dir,
-            lib     = dir,
+            lib.loc = c(activeLib, staticLib),
+            lib     = activeLib,
             #update = TRUE,
             update = FALSE,
             ask = FALSE,
@@ -263,7 +266,7 @@ installPackages <- function(versions, dirs, packages, force){
         )         
     } else {
         message('private library has all required packages')
-        message(dir)   
+        message(activeLib)   
     }
 }
 #Old packages: 'htmltools', 'rtracklayer', 'stringi', 'survival', 'tibble'
