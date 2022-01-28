@@ -100,7 +100,7 @@ If they do not already exist, \code{mdi::install()} will create a series
 of subdirectories in \code{mdiDir}, as follows:
 \itemize{
   \item config = configuration data for the MDI installation
-  \item containers = Singularity container images for pipelines that use them
+  \item containers = Singularity container images for suites that use them
   \item data = project-specific input and output files
   \item environments = conda environments used by data analysis pipelines
   \item frameworks = git repositories with common code for all pipelines and apps

@@ -71,7 +71,7 @@ No action will be taken unless approved by the user when prompted.
 
 *  config = configuration data for the MDI installation  
 
-*  containers = Singularity container images for pipelines that use them  
+*  containers = Singularity container images for suites that use them  
 
 *  data = project-specific input and output files  
 
