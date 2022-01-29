@@ -243,23 +243,26 @@ installPackages <- function(versions, dirs, packages, force, staticLib = NULL){
     activeLib <- dirs$versionLibrary
     systemLib <- Sys.getenv("MDI_SYSTEM_R_LIBRARY")
     if(systemLib == "" || !dir.exists(systemLib)) systemLib <- NULL
-    getRPackages <- function(x) {
-        if(is.null(x)) character() 
-        else list.dirs(x, full.names = FALSE, recursive = FALSE)
+    getRPackages <- function(lib) {
+        if(is.null(lib)) character() 
+        else list.dirs(lib, full.names = FALSE, recursive = FALSE)
     }
     newPackages <- if(force) packages else {
         activePackages <- getRPackages(activeLib)
         staticPackages <- getRPackages(staticLib)
         systemPackages <- getRPackages(systemLib)
-        existingPackages <- unique(activePackages, staticPackages, systemPackages)
+        existingPackages <- unique(c(activePackages, staticPackages, systemPackages))
         packages[!(packages %in% existingPackages)]
-    }    
+    } 
     if(length(newPackages) > 0 || # missing packages
        length(packages) == 0) {   # user just requested an update of current packages
-        message('installing/updating R packages in private library')
-        message(activeLib)     
         Ncpus <- Sys.getenv("N_CPU")
-        if(Ncpus == "") Ncpus <- 1
+        if(Ncpus == "") Ncpus <- 1       
+        message('installing/updating R packages in private library')
+        message(paste('installing into:', activeLib))
+        if(!is.null(staticLib)) message(paste('honoring:', staticLib))
+        if(!is.null(systemLib)) message(paste('honoring:', systemLib))
+        message(paste("Ncpus =", Ncpus))
         BiocManager::install(
             newPackages,
             lib.loc = c(activeLib, staticLib, systemLib),
