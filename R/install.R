@@ -241,26 +241,36 @@ collectAndInstallPackages <- function(cranRepo, force,
 }
 installPackages <- function(versions, dirs, packages, force, staticLib = NULL){
     activeLib <- dirs$versionLibrary
+    systemLib <- Sys.getenv("MDI_SYSTEM_R_LIBRARY")
+    if(systemLib == "" || !dir.exists(systemLib)) systemLib <- NULL
+    getRPackages <- function(x) {
+        if(is.null(x)) character() 
+        else list.dirs(x, full.names = FALSE, recursive = FALSE)
+    }
     newPackages <- if(force) packages else {
-        activePackages <- list.dirs(activeLib, full.names = FALSE, recursive = FALSE)
-        staticPackages <- if(is.null(staticLib)) character() else list.dirs(staticLib, full.names = FALSE, recursive = FALSE)
-        existingPackages <- unique(activePackages, staticPackages)
+        activePackages <- getRPackages(activeLib)
+        staticPackages <- getRPackages(staticLib)
+        systemPackages <- getRPackages(systemLib)
+        existingPackages <- unique(activePackages, staticPackages, systemPackages)
         packages[!(packages %in% existingPackages)]
     }    
     if(length(newPackages) > 0 || # missing packages
        length(packages) == 0) {   # user just requested an update of current packages
         message('installing/updating R packages in private library')
-        message(activeLib)        
+        message(activeLib)     
+        Ncpus <- Sys.getenv("N_CPU")
+        if(Ncpus == "") Ncpus <- 1
         BiocManager::install(
             newPackages,
-            lib.loc = c(activeLib, staticLib),
+            lib.loc = c(activeLib, staticLib, systemLib),
             lib     = activeLib,
             #update = TRUE,
             update = FALSE,
             ask = FALSE,
             checkBuilt = FALSE,
             force = TRUE,
-            version = versions$BioconductorRelease
+            version = versions$BioconductorRelease,
+            Ncpus = Ncpus
             #,
             #type = .Platform$pkgType
         )         
