@@ -219,7 +219,6 @@ checkoutGitBranch <- function(dir, branch = 'main', create = FALSE, silent = FAL
 
 #---------------------------------------------------------------------------
 # check for all required git configuration elements in developer forks
-# prompt user as needed for missing information
 #---------------------------------------------------------------------------
 nullGitUserId <- list(
     name  = "NA",
@@ -231,23 +230,6 @@ assign(gitUserId, nullGitUserId, envir = gitEnv)
 getRepoUserId <- function(dir){
     git2r::config(git2r::repository(dir))$local
 }
-promptGitUserId <- function(){
-    userId <- list(
-        name  = Sys.getenv('USER_NAME'), 
-        email = Sys.getenv('USER_EMAIL')
-    )
-    # message()
-    # message('------------------------------------------------------------------')
-    # message('Please enter the information needed to identify your git commits.')
-    # message('------------------------------------------------------------------')
-    # message()
-    abortMessage <- 'Complete user information in ~/gitCredentials.R is required for developer forks of MDI repositories.' # nolint
-    # userId$name  <- trimws(readline(prompt = "Your full name (e.g., Jane Doe): "))
-    if(userId$name  == '')  stop(abortMessage)
-    # userId$email <- trimws(readline(prompt = "Email address (e.g. janedoe@umich.edu): "))
-    if(userId$email == '') stop(abortMessage) 
-    userId
-}
 setGitConfigUser <- function(dir, nullUser = FALSE){ 
     userId <- nullGitUserId # don't need user info for definitive repo clones
     if(!nullUser){
@@ -258,7 +240,11 @@ setGitConfigUser <- function(dir, nullUser = FALSE){
         }
         userId <- get(gitUserId, envir = gitEnv)
         if(is.null(userId$email) || userId$email == 'NA'){
-            userId <- promptGitUserId()
+            userId <- list(
+                name  = Sys.getenv('USER_NAME'), 
+                email = Sys.getenv('USER_EMAIL')
+            )
+            if(userId$name == "" || userId$email == "") return(NULL)
             assign(gitUserId, userId, envir = gitEnv)
         } 
     } 
