@@ -1,21 +1,17 @@
 ---
 #--------------------------------------------------------------
-# optional:  customize the Stage 2 Apps web page appearance
-#--------------------------------------------------------------
+# Customize the Stage 2 Apps web page appearance:
 #   site_name   replaces 'MDI' as the name of the page, keep it short
-#--------------------------------------------------------------
-# additionally, include these files in mdi/config to override the framework
+# Additionally, include these files in mdi/config to override the framework
 #   launch-page-header.md (replaces shiny/shared/static/launch-page-header.md)
 #-------------------------------------------------------------
 site_name: null
 
 #--------------------------------------------------------------
-# Stage 2 Apps web server access control
-#--------------------------------------------------------------
-# Access control types:
+# Stage 2 Apps web server access control types:
 #   null    grants access to anyone who can load the URL (e.g., local/remote modes)
 #   oauth2  provides the most robust security via 3rd party login
-#   keys    uses simple typed keys to add modest security to public URLs
+#   keys    uses typed keys to add moderate security to public URLs
 #-------------------------------------------------------------
 access_control: null
 
@@ -25,11 +21,17 @@ access_control: null
 paths:
   demo1: /path/to/demo1
   demo2: /path/to/demo2
-job_default: demo1 # the path used as a default by Pipeline Runner
+
+#--------------------------------------------------------------
+# Configure the Pipeline Runner app:
+#   pipeline_runner  set to false to disable the Pipeline Runner 
+#   job_default      the path name above used as a default by Pipeline Runner
+#--------------------------------------------------------------
+pipeline_runner: true
+job_default: demo1
 
 #--------------------------------------------------------------
 # Client information when access_control = oauth2
-#--------------------------------------------------------------
 # Recognized authentication hosts:
 #   google  see https://developers.google.com/identity/protocols/oauth2
 #   globus  see https://docs.globus.org/api/auth/ and https://developers.globus.org/
