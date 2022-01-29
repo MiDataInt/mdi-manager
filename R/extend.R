@@ -16,8 +16,10 @@ extend <- function(staticMdiDir){
 
     # parse needed versions and file paths
     versions <- getRBioconductorVersions()
-    staticDirs <- parseDirectories(staticMdiDir, versions, create = FALSE, message = FALSE)
-    activeDirs <- parseDirectories(activeMdiDir, versions, create = FALSE, message = FALSE)
+    staticDirs <- parseDirectories(staticMdiDir, versions, 
+                                   create = FALSE, message = FALSE, check = FALSE)
+    activeDirs <- parseDirectories(activeMdiDir, versions, 
+                                   create = FALSE, message = FALSE, check = FALSE)
     dir.create(activeDirs$containersVersionLibrary, showWarnings = FALSE)
     activeDirs$versionLibrary <- activeDirs$containersVersionLibrary
 

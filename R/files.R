@@ -20,7 +20,8 @@
 #---------------------------------------------------------------------------
 parseDirectories <- function(mdiDir, versions,
                              create = TRUE, message = FALSE,
-                             dataDir = NULL, hostDir = NULL){
+                             dataDir = NULL, hostDir = NULL,
+                             check = TRUE){
     if(message) message('parsing target directories')
     isHosted <- !is.null(hostDir)
     
@@ -53,7 +54,7 @@ parseDirectories <- function(mdiDir, versions,
     }
 
     # on run, make sure everything exists as expected
-    if(!create) for(dir in dirs){
+    if(!create && check) for(dir in dirs){
         if(!dir.exists(dir)) stop(paste('missing directory:', dir))
     }
     
