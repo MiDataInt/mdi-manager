@@ -4,12 +4,13 @@
 #' This function is only intended to be called by a Singularity instance.
 #' It is not for general use and should be ignored by most people.
 #'
-#' Packages not present in the container are installed into an active, 
-#' bind-mounted MDI installation.  
+#' Packages not present in the container are installed by the container into 
+#' an active bind-mounted MDI installation.  
 #'
 #' @export
 #---------------------------------------------------------------------------
 extend <- function(staticMdiDir){
+    message("extending MDI installation using 'mdi-singularity-base' container")
     activeMdiDir <- '/srv/active/mdi' # this path is fixed by build-suite-common.def
     cranRepo <- 'https://repo.miserver.it.umich.edu/cran/'
     force <- FALSE
@@ -24,9 +25,11 @@ extend <- function(staticMdiDir){
     activeDirs$versionLibrary <- activeDirs$containersVersionLibrary
 
     # collect the list of all framework and suite repositories for this installation
+    # remember, the base container itself has an empty installation
     activeRepos <- parseGitRepos(activeDirs, file.path(activeDirs$config, 'suites.yml'))
 
-    # install packages not present in the container's static library
+    # install packages not found in the container's static library
+    # i.e., those packages already present to support the empty apps framework
     collectAndInstallPackages(cranRepo, force, versions, activeDirs, activeRepos,
                               releaseLocks = FALSE, staticLib = staticDirs$versionLibrary)
 }

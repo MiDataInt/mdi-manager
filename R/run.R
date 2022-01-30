@@ -71,7 +71,6 @@
 #'   \item local = your desktop or laptop
 #'   \item remote = a server you have direct access to via SSH
 #'   \item node = a worker node in a Slurm cluster, accessed via SSH to a login node
-#'   \item ondemand = a worker node in a Slurm cluster, accessed via Open OnDemand
 #'   \item server = a mdi-cloud-server container on a publicly addressable cloud instance
 #' }
 #' Most users manually calling \code{mdi::run()} want 'local' (the default). 
@@ -92,7 +91,7 @@
 #' 
 #' @param browser logical. Whether or not to attempt to launch a web browser 
 #' after starting the MDI server. Defaults to FALSE unless \code{mode} is 
-#' 'local' or 'ondemand'.
+#' 'local'.
 #'
 #' @param debug logical. When \code{debug} is TRUE, verbose activity logs 
 #' will be printed to the R console where \code{mdi::run()} was called. 
@@ -131,7 +130,7 @@ run <- function(
     install = TRUE, 
     url = 'http://localhost',
     port = 3838,
-    browser = mode %in% c('local', 'ondemand'),
+    browser = mode %in% c('local'),
     debug = FALSE,
     developer = FALSE,
     checkout = NULL
@@ -145,25 +144,34 @@ run <- function(
     if(mode == 'server') developer <- FALSE # never show developer tools on public servers
     if(mode == 'node') install <- FALSE
 
+    # determine whether we are running in a container, and if so, what type
+    isContainer <- Sys.getenv('MDI_IS_CONTAINER') != ""
+    containerType <- Sys.getenv('MDI_CONTAINER_TYPE')
+    isSuiteContainer <- isContainer && containerType == "suite"
+    isBaseContainer  <- isContainer && containerType == "base"
+    staticMdiDir <- Sys.getenv('STATIC_MDI_DIR')
+
     # establish whether the MDI has been previously installed into mdiDir
     # combined with call to run(), take as permission to continue modifying user files
     confirmPriorInstallation(mdiDir)
 
-    # collect directories for the user (i.e, calling) installation, and, if applicable, the host installation
+    # collect directories for the user (i.e., calling) installation and any host and container installations
     isHosted <- !is.null(hostDir)
     versions <- getRBioconductorVersions(mode == 'node')
-    dirs <-       list(user = parseDirectories(mdiDir,  versions, create = FALSE))
+    dirs <- list(user = parseDirectories(mdiDir, versions, create = FALSE))
     dirs$host <- if(isHosted) parseDirectories(hostDir, versions, create = FALSE) else dirs$user
+    dirs$static <- if(isSuiteContainer) parseDirectories(staticMdiDir, versions, create = FALSE) else NULL
+    dirs$repoSource <- if(isSuiteContainer) dirs$static else dirs$user
     setGitCredentials(dirs$user)
 
     # collect the list of all framework and suite repositories declared by the host installation
     # and parse the paths where they will be cloned or pulled into the user's installation
     suitesFilePath <- file.path(dirs$host$config, 'suites.yml')
-    repos <- parseGitRepos(dirs$user, suitesFilePath)
+    repos <- parseGitRepos(dirs$repoSource, suitesFilePath)
 
     # for most users, download (clone or pull) the most current version of the git repositories
-    if(install) do.call(downloadGitRepo, repos)  
-    if(!install) for(dir in filterRepoDirs(repos, fork = Forks$definitive)){
+    if(install && !isSuiteContainer) do.call(downloadGitRepo, repos)  
+    if(!install && !isSuiteContainer) for(dir in filterRepoDirs(repos, fork = Forks$definitive)){
         if(!dir.exists(dir)) stop(paste('missing repository:', dir))
         isGitRepo(dir, require = TRUE)
     }
@@ -173,9 +181,9 @@ run <- function(
     repos <- repos[repos$exists, ]
     repos$latest <- do.call(getLatestVersions, repos)
 
-    # establish the list of repos to use by the rules identified in comments above
+    # establish the list of repos to use by the rules identified above
     # NB: code repos are _not_ public/shared assets to allow version selection by each user
-    if(developer){
+    if(developer && !isSuiteContainer){
         getRepoI <- function(name, fork) which(repos$name == name & repos$fork == fork)
         is <- sapply(unique(repos$name), function(name){
             devI <- getRepoI(name, Forks$developer) # use developer fork if found, otherwise fall back to definitive
@@ -194,12 +202,14 @@ run <- function(
     }
 
     # checkout the appropriate repository versions
-    message('locking repositories')
-    setMdiGitLock(repos$dir)
-    checkoutRepoTargets(repos, checkout, developer)
+    if(!isSuiteContainer){
+        message('locking repositories')
+        setMdiGitLock(repos$dir)
+        checkoutRepoTargets(repos, checkout, developer)
+    }
 
     # install any missing R packages if not hosted (hosts are expected to keep their installations up to date)
-    if(install && !isHosted){
+    if(install && !isHosted && !isContainer){
         collectAndInstallPackages( 
             cranRepo = 'https://repo.miserver.it.umich.edu/cran/', 
             force = FALSE, 
@@ -216,7 +226,16 @@ run <- function(
     Sys.setenv(USER_CONFIG_DIR = dirs$user$config) # downstream might need portions of each config
     Sys.setenv(HOST_CONFIG_DIR = dirs$host$config)
     Sys.setenv(USER_RESOURCES_DIR = dirs$user$resources) # similarly, may use shared or personal resources
-    Sys.setenv(HOST_RESOURCES_DIR = dirs$host$resources)    
+    Sys.setenv(HOST_RESOURCES_DIR = dirs$host$resources)  
+
+
+#   suite-level containers use:
+#     static, versioned framework and suites code provided by the container (and thus don't support live version switching)
+#     active, bind-mounted data and sessions files
+#   extended base containers:
+#     provide R package libraries only, via .libPaths()
+#     otherwise, all code, data, and sessions file are active via bind-mount, like any server
+
 
     # update the primary directories to use, with overrides for data and hosted directories
     dirs <- parseDirectories(mdiDir, versions, create = FALSE, 
@@ -269,31 +288,5 @@ develop <- function(
         browser = FALSE,
         debug = TRUE,
         developer = TRUE
-    )
-}
-
-#---------------------------------------------------------------------------
-# shortcut to run within a batch process in a production Open OnDemand HPC environment
-#' @rdname run
-#' @export
-#---------------------------------------------------------------------------
-ondemand <- function(
-    hostDir, 
-    mdiDir = '~', 
-    dataDir = NULL, 
-    port = 3838,
-    debug = FALSE
-){
-    run(
-        mdiDir,
-        dataDir = dataDir,
-        hostDir = hostDir, # the path where the public installation lives 
-        mode = 'ondemand',  
-        install = TRUE,               
-        url = 'http://localhost:',
-        port = port,
-        browser = TRUE,
-        debug = debug,
-        developer = FALSE
     )
 }
