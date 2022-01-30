@@ -3,6 +3,7 @@
 #   mdi
 #       config
 #       containers
+#           library
 #       data
 #       environments
 #       frameworks
@@ -20,8 +21,7 @@
 #---------------------------------------------------------------------------
 parseDirectories <- function(mdiDir, versions,
                              create = TRUE, message = FALSE,
-                             dataDir = NULL, hostDir = NULL,
-                             check = TRUE){
+                             dataDir = NULL, hostDir = NULL){
     if(message) message('parsing target directories')
     isHosted <- !is.null(hostDir)
     
@@ -34,7 +34,6 @@ parseDirectories <- function(mdiDir, versions,
     dirs <- as.list( file.path(mdiDir, bareDirNames) )
     names(dirs) <- bareDirNames
     dirs$mdi <- mdiDir
-    dirs$containersLibrary <- file.path(dirs$containers, 'library') # used by 'extend'
     
     # override the data directory in run mode, if override is requested
     if(!is.null(dataDir)) dirs$data <- dataDir
@@ -46,11 +45,14 @@ parseDirectories <- function(mdiDir, versions,
     }
 
     # initialize the file structure
+    dirs$containersLibrary <- file.path(dirs$containers, 'library') # used by 'extend'    
     dirs$versionLibrary <- file.path(dirs$library, versions$BioconductorRelease) 
     dirs$containersVersionLibrary <- file.path(dirs$containersLibrary, versions$BioconductorRelease) 
     if(create && !isHosted){
         for(dir in bareDirNames) dir.create(dirs[[dir]], showWarnings = FALSE)
-        dir.create(dirs$versionLibrary, showWarnings = FALSE)    
+        dir.create(dirs$containersLibrary, showWarnings = FALSE) 
+        dir.create(dirs$versionLibrary, showWarnings = FALSE) 
+        dir.create(dirs$containersVersionLibrary, showWarnings = FALSE)   
     }
 
     # on run, make sure everything exists as expected

@@ -140,6 +140,8 @@ run <- function(
     # generally, run() works to help ensure a proper installation prior to launching the server
 
     # enforce option overrides
+    if(dataDir == "NULL") dataDir <- NULL
+    if(hostDir == "NULL") hostDir <- NULL    
     if(mode == 'server') developer <- FALSE # never show developer tools on public servers
     if(mode == 'node') install <- FALSE
 
