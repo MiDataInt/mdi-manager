@@ -248,8 +248,6 @@ installPackages <- function(versions, dirs, packages, force, staticLib = NULL){
         else list.dirs(lib, full.names = FALSE, recursive = FALSE)
     }
     
-    staticLib <- getwd()
-    
     str(activeLib)
     str(staticLib)
     str(systemLib)
@@ -260,10 +258,9 @@ installPackages <- function(versions, dirs, packages, force, staticLib = NULL){
         systemPackages <- getRPackages(systemLib)
         
         str(activePackages)
+        str(staticPackages)        
         str(systemPackages)        
-        str(staticPackages)
 
-        
         existingPackages <- unique(c(activePackages, staticPackages, systemPackages))
         
         str(existingPackages)
@@ -272,6 +269,9 @@ installPackages <- function(versions, dirs, packages, force, staticLib = NULL){
     } 
     
     str(newPackages)
+    str(c(activeLib, staticLib, systemLib))
+    message(length(newPackages))
+    message(length(packages))
     return()
     
     
