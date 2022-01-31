@@ -248,6 +248,8 @@ installPackages <- function(versions, dirs, packages, force, staticLib = NULL){
         else list.dirs(lib, full.names = FALSE, recursive = FALSE)
     }
     
+    staticLib <- getwd()
+    
     str(activeLib)
     str(staticLib)
     str(systemLib)
