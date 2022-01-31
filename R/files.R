@@ -62,7 +62,7 @@ parseDirectories <- function(mdiDir, versions,
     }
 
     # on run, make sure everything exists as expected
-    if(!create && check) for(dir in dirs){
+    if(!create) for(dir in dirs){
         if(!dir.exists(dir)) stop(paste('missing directory:', dir))
     }
     
