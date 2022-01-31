@@ -144,31 +144,26 @@ run <- function(
     if(mode == 'server') developer <- FALSE # never show developer tools on public servers
     if(mode == 'node') install <- FALSE
 
-    # determine whether we are running in a container, and if so, what type
-    staticMdiDir  <- Sys.getenv('STATIC_MDI_DIR')
-    containerType <- Sys.getenv('MDI_CONTAINER_TYPE')
-    isContainer   <- Sys.getenv('MDI_IS_CONTAINER') != ""
-    isSuiteContainer <- isContainer && containerType == "suite"
-    isBaseContainer  <- isContainer && containerType == "base"
-    if(isSuiteContainer) install <- FALSE
+    # determine whether we are running in a container
+    staticMdiDir <- Sys.getenv('STATIC_MDI_DIR')
+    isContainer  <- Sys.getenv('MDI_IS_CONTAINER') != ""
 
     # establish whether the MDI has been previously installed into mdiDir
     # combined with call to run(), take as permission to continue modifying user files
     confirmPriorInstallation(mdiDir)
 
-    # collect directories for the user (i.e., calling) installation and any host and container installations
+    # collect directories for the user (i.e., calling) and host installations
     isHosted <- !is.null(hostDir)
     versions <- getRBioconductorVersions(mode == 'node')
     dirs <- list(user = parseDirectories(mdiDir, versions, create = FALSE))
     dirs$host <- if(isHosted) parseDirectories(hostDir, versions, create = FALSE) else dirs$user
-    dirs$static <- if(isSuiteContainer) parseDirectories(staticMdiDir, versions, create = FALSE) else NULL
-    dirs$repoSource <- if(isSuiteContainer) dirs$static else dirs$user
+    dirs$static <- if(isContainer) parseDirectories(staticMdiDir, versions, create = FALSE) else NULL
     setGitCredentials(dirs$user)
 
     # collect the list of all framework and suite repositories declared by the host installation
     # and parse the paths where they will be cloned or pulled into the user's installation
     suitesFilePath <- file.path(dirs$host$config, 'suites.yml')
-    repos <- parseGitRepos(dirs$repoSource, suitesFilePath)
+    repos <- parseGitRepos(dirs$user, suitesFilePath)
 
     # for most users, download (clone or pull) the most current version of the git repositories
     if(install) do.call(downloadGitRepo, repos)  
@@ -184,7 +179,7 @@ run <- function(
 
     # establish the list of repos to use by the rules identified above
     # NB: code repos are _not_ public/shared assets to allow version selection by each user
-    if(developer && !isSuiteContainer){
+    if(developer){
         getRepoI <- function(name, fork) which(repos$name == name & repos$fork == fork)
         is <- sapply(unique(repos$name), function(name){
             devI <- getRepoI(name, Forks$developer) # use developer fork if found, otherwise fall back to definitive
@@ -203,22 +198,21 @@ run <- function(
     }
 
     # checkout the appropriate repository versions
-    if(!isSuiteContainer){
-        message('locking repositories')
-        setMdiGitLock(repos$dir)
-        checkoutRepoTargets(repos, checkout, developer)
-    }
+    message('locking repositories')
+    setMdiGitLock(repos$dir)
+    checkoutRepoTargets(repos, checkout, developer)
 
     # install any missing R packages if not hosted (hosts are expected to keep their installations up to date)
-    if(install && !isHosted && !isContainer){
+    if(install && !isHosted){
         collectAndInstallPackages( 
             cranRepo = 'https://repo.miserver.it.umich.edu/cran/', 
             force = FALSE, 
             versions = versions, 
             dirs = dirs$user, 
             repos = repos,
-            releaseLocks = FALSE
-        )
+            releaseLocks = FALSE,
+            staticLib = if(isContainer) dirs$static$versionLibrary else NULL
+        )    
     }
 
     # set environment variables with two values, one for user, one for host installation
@@ -229,9 +223,9 @@ run <- function(
     Sys.setenv(USER_RESOURCES_DIR = dirs$user$resources) # similarly, may use shared or personal resources
     Sys.setenv(HOST_RESOURCES_DIR = dirs$host$resources)  
 
-    # update the primary directories to use, with overrides for data, hosted, and container directories
+    # update the primary directories to use, with overrides for data and hosted directories
     dirs <- parseDirectories(mdiDir, versions, create = FALSE, 
-                             dataDir = dataDir, hostDir = hostDir, staticMdiDir = staticMdiDir)
+                             dataDir = dataDir, hostDir = hostDir)
 
     # set environment variables required by run_server.R
     dirsOut <- list()
@@ -250,10 +244,8 @@ run <- function(
     Sys.setenv(LIBRARY_DIR = if(isContainer) dirs$containersVersionLibrary else dirs$versionLibrary)
 
     # release repo locks immediately prior to launching server
-    if(!isSuiteContainer){
-        message('releasing repository locks')
-        releaseMdiGitLock(repos$dir)
-    }
+    message('releasing repository locks')
+    releaseMdiGitLock(repos$dir)
 
     # source the script that runs the server in the global environment
     # the web server never returns as it handles client requests via https
