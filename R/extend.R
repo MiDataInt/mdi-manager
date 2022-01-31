@@ -29,9 +29,6 @@ extend <- function(staticMdiDir){
     activeRepos <- parseGitRepos(activeDirs, file.path(activeDirs$config, 'suites.yml'))
     activeRepos$exists <- repoExists(activeRepos$dir)
     activeRepos$latest <- do.call(getLatestVersions, activeRepos)
-    
-    str(activeDirs)
-    str(activeRepos)
 
     # install packages not found in the container's static library
     # i.e., those packages already present to support the empty apps framework
