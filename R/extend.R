@@ -18,7 +18,7 @@ extend <- function(staticMdiDir){
     # parse needed versions and file paths
     versions <- getRBioconductorVersions()
     staticDirs <- parseDirectories(staticMdiDir, versions, create = FALSE, message = FALSE)
-    activeDirs <- parseDirectories(activeMdiDir, versions, create = FALSE, message = FALSE)
+    activeDirs <- parseDirectories(activeMdiDir, versions, create = TRUE,  message = FALSE)
 
     # override the container-extension R library to live under the containers folder
     # these files are compiled in the container, not on the host OS
