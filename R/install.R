@@ -254,12 +254,13 @@ installPackages <- function(versions, dirs, packages, force, staticLib = NULL){
         existingPackages <- unique(c(activePackages, staticPackages, systemPackages))
         packages[!(packages %in% existingPackages)]
     } 
+    packageMessage <- paste(length(newPackages), "of a total of", length(packages), "required packages")
     if(length(newPackages) > 0 || # missing packages
        length(packages) == 0) {   # user just requested an update of current packages
         Ncpus <- Sys.getenv("N_CPU")
         if(Ncpus == "") Ncpus <- 1       
         message('installing/updating R packages in private library')
-        message(paste("installing", length(newPackages), "from a total of", length(packages), "required packages"))        
+        message(paste("installing", packageMessage))        
         message(paste('installing into:', activeLib))
         if(!is.null(staticLib)) message(paste('honoring:', staticLib))
         if(!is.null(systemLib)) message(paste('honoring:', systemLib))
@@ -279,7 +280,7 @@ installPackages <- function(versions, dirs, packages, force, staticLib = NULL){
             #type = .Platform$pkgType
         )         
     } else {
-        message('private library has all required packages')
+        message(paste('private library already has', packageMessage))
         message(activeLib)   
     }
 }
