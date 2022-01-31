@@ -247,13 +247,32 @@ installPackages <- function(versions, dirs, packages, force, staticLib = NULL){
         if(is.null(lib)) character() 
         else list.dirs(lib, full.names = FALSE, recursive = FALSE)
     }
+    
+    str(activeLib)
+    str(staticLib)
+    str(systemLib)
+    
     newPackages <- if(force) packages else {
         activePackages <- getRPackages(activeLib)
         staticPackages <- getRPackages(staticLib)
         systemPackages <- getRPackages(systemLib)
+        
+        str(activePackages)
+        str(systemPackages)        
+        str(staticPackages)
+
+        
         existingPackages <- unique(c(activePackages, staticPackages, systemPackages))
+        
+        str(existingPackages)
+        
         packages[!(packages %in% existingPackages)]
     } 
+    
+    str(newPackages)
+    return()
+    
+    
     if(length(newPackages) > 0 || # missing packages
        length(packages) == 0) {   # user just requested an update of current packages
         Ncpus <- Sys.getenv("N_CPU")
