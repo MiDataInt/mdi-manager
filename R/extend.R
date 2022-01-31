@@ -27,6 +27,9 @@ extend <- function(staticMdiDir){
     # collect the list of all framework and suite repositories for this installation
     # remember, the base container itself has an empty installation
     activeRepos <- parseGitRepos(activeDirs, file.path(activeDirs$config, 'suites.yml'))
+    
+    str(activeDirs)
+    str(activeRepos)
 
     # install packages not found in the container's static library
     # i.e., those packages already present to support the empty apps framework
