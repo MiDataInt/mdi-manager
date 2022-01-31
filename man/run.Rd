@@ -3,7 +3,6 @@
 \name{run}
 \alias{run}
 \alias{develop}
-\alias{ondemand}
 \title{Run the Michigan Data Interface (MDI) in a web server}
 \usage{
 run(
@@ -14,15 +13,13 @@ run(
   install = TRUE,
   url = "http://localhost",
   port = 3838,
-  browser = mode \%in\% c("local", "ondemand"),
+  browser = mode \%in\% c("local"),
   debug = FALSE,
   developer = FALSE,
   checkout = NULL
 )
 
 develop(mdiDir = "~", dataDir = NULL, url = "http://localhost", port = 3838)
-
-ondemand(hostDir, mdiDir = "~", dataDir = NULL, port = 3838, debug = FALSE)
 }
 \arguments{
 \item{mdiDir}{character. Path to the directory where the MDI has 
@@ -53,7 +50,6 @@ valid values will help you properly run the MDI web server on/in:
   \item local = your desktop or laptop
   \item remote = a server you have direct access to via SSH
   \item node = a worker node in a Slurm cluster, accessed via SSH to a login node
-  \item ondemand = a worker node in a Slurm cluster, accessed via Open OnDemand
   \item server = a mdi-cloud-server container on a publicly addressable cloud instance
 }
 Most users manually calling \code{mdi::run()} want 'local' (the default).}
@@ -74,7 +70,7 @@ url of 'https://mymdi.org:5000/'.}
 
 \item{browser}{logical. Whether or not to attempt to launch a web browser 
 after starting the MDI server. Defaults to FALSE unless \code{mode} is 
-'local' or 'ondemand'.}
+'local'.}
 
 \item{debug}{logical. When \code{debug} is TRUE, verbose activity logs 
 will be printed to the R console where \code{mdi::run()} was called. 

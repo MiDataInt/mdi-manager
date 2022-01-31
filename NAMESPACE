@@ -3,6 +3,5 @@
 export(develop)
 export(extend)
 export(install)
-export(ondemand)
 export(password_store)
 export(run)

@@ -11,6 +11,6 @@ This function is only intended to be called by a Singularity instance.
 It is not for general use and should be ignored by most people.
 }
 \details{
-Packages not present in container are installed into an active, bind-mounted
-MDI installation.
+Packages not present in the container are installed by the container into 
+an active bind-mounted MDI installation.
 }

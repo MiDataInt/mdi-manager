@@ -33,13 +33,12 @@ run(
   install = TRUE,
   url = "http://localhost",
   port = 3838,
-  browser = mode %in% c("local", "ondemand"),
+  browser = mode %in% c("local"),
   debug = FALSE,
   developer = FALSE,
   checkout = NULL
 )
 develop(mdiDir = "~", dataDir = NULL, url = "http://localhost", port = 3838)
-ondemand(hostDir, mdiDir = "~", dataDir = NULL, port = 3838, debug = FALSE)
 ```
 
 
@@ -68,13 +67,11 @@ Argument      |Description
 
 *  node = a worker node in a Slurm cluster, accessed via SSH to a login node  
 
-*  ondemand = a worker node in a Slurm cluster, accessed via Open OnDemand  
-
 *  server = a mdi-cloud-server container on a publicly addressable cloud instance  Most users manually calling `mdi::run()` want 'local' (the default).
 `install`     |     logical. When TRUE (the default), `mdi::run()` will clone or pull all repositories and install any missing R packages. Setting `install` to FALSE will allow the server to start a bit more quickly. Ignored when `mode` is 'node', since cluster nodes are not expected to have internet access to download software.
 `url`     |     character. The complete browser URL to load the web page. Examples: 'http://localhost' (the default) or 'https://mymdi.org'.
 `port`     |     integer. The port to use on the host specified in `url` . Defaults to the canonical Shiny port, 3838. Example: setting `url`  to 'https://mymdi.org' and `port` to 5000 will yield a final access url of 'https://mymdi.org:5000/'.
-`browser`     |     logical. Whether or not to attempt to launch a web browser after starting the MDI server. Defaults to FALSE unless `mode` is 'local' or 'ondemand'.
+`browser`     |     logical. Whether or not to attempt to launch a web browser after starting the MDI server. Defaults to FALSE unless `mode` is 'local'.
 `debug`     |     logical. When `debug` is TRUE, verbose activity logs will be printed to the R console where `mdi::run()` was called. Defaults to FALSE.
 `developer`     |     logical. When `developer` is TRUE, additional development utilities are added to the web page and forked repositories will be used if they exist. Ignored if `mode` is set to 'server'.
 `checkout`     |     list.  When not NULL (the default), a list of version tags, branch names, or git commit identifiers to check out prior to installing Stage 2 R packages and launching the apps server, of form `list(framework = "v0.0.0", suites = list(<suiteName> = "v0.0.0", ...))`  where framework refers to the mdi-apps-framework. If `checkout` or the list entry for a git repository is NULL or NA, the latest release tag will be checked out prior to installation (ignored for developer-forks of git repos). Finally, if `checkout` is FALSE, no git checkout actions will be taken.
