@@ -21,7 +21,7 @@
 #---------------------------------------------------------------------------
 parseDirectories <- function(mdiDir, versions,
                              create = TRUE, message = FALSE,
-                             dataDir = NULL, hostDir = NULL){
+                             dataDir = NULL, hostDir = NULL, staticMdiDir = ""){
     if(message) message('parsing target directories')
     isHosted <- !is.null(hostDir)
     
@@ -42,6 +42,12 @@ parseDirectories <- function(mdiDir, versions,
     if(isHosted){
         publicDirNames <- c('config', 'containers', 'environments', 'library', 'resources')
         for(dirName in publicDirNames) dirs[[dirName]] <- file.path(hostDir, dirName)
+    }
+
+    # override to static framework and suite directories in a suite-level container
+    if(staticMdiDir != ""){
+        codeDirNames <- c('frameworks', 'suites')
+        for(dirName in codeDirNames) dirs[[dirName]] <- file.path(staticMdiDir, dirName)
     }
 
     # initialize the file structure
