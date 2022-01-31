@@ -27,6 +27,8 @@ extend <- function(staticMdiDir){
     # collect the list of all framework and suite repositories for this installation
     # remember, the base container itself has an empty installation
     activeRepos <- parseGitRepos(activeDirs, file.path(activeDirs$config, 'suites.yml'))
+    activeRepos$exists <- repoExists(activeRepos$dir)
+    activeRepos$latest <- do.call(getLatestVersions, activeRepos)
     
     str(activeDirs)
     str(activeRepos)
