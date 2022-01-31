@@ -247,39 +247,19 @@ installPackages <- function(versions, dirs, packages, force, staticLib = NULL){
         if(is.null(lib)) character() 
         else list.dirs(lib, full.names = FALSE, recursive = FALSE)
     }
-    
-    str(activeLib)
-    str(staticLib)
-    str(systemLib)
-    
     newPackages <- if(force) packages else {
         activePackages <- getRPackages(activeLib)
         staticPackages <- getRPackages(staticLib)
         systemPackages <- getRPackages(systemLib)
-        
-        str(activePackages)
-        str(staticPackages)        
-        str(systemPackages)        
-
         existingPackages <- unique(c(activePackages, staticPackages, systemPackages))
-        
-        str(existingPackages)
-        
         packages[!(packages %in% existingPackages)]
     } 
-    
-    str(newPackages)
-    str(c(activeLib, staticLib, systemLib))
-    message(length(newPackages))
-    message(length(packages))
-    return()
-    
-    
     if(length(newPackages) > 0 || # missing packages
        length(packages) == 0) {   # user just requested an update of current packages
         Ncpus <- Sys.getenv("N_CPU")
         if(Ncpus == "") Ncpus <- 1       
         message('installing/updating R packages in private library')
+        message(paste("installing", length(newPackages), "from a total of", length(packages), "required packages"))        
         message(paste('installing into:', activeLib))
         if(!is.null(staticLib)) message(paste('honoring:', staticLib))
         if(!is.null(systemLib)) message(paste('honoring:', systemLib))
