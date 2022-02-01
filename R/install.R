@@ -214,6 +214,7 @@ collectAndInstallPackages <- function(cranRepo, force,
 
     # set the public R package repositories
     message('collecting R repository information')
+    options(BiocManager.check_repositories = FALSE)
     rRepos <- list(R = cranRepo)
     rRepos$Bioconductor <- unname(BiocManager::repositories()['BioCsoft']) 
 
