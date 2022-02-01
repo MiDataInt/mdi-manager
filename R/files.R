@@ -10,7 +10,7 @@
 #           definitive
 #           developer-forks
 #       library
-#           <BioconductorRelease>
+#           <R-0.0_BC-0.0>
 #       remote
 #       resources
 #       sessions
@@ -45,9 +45,11 @@ parseDirectories <- function(mdiDir, versions,
     }
 
     # initialize the file structure
-    dirs$containersLibrary <- file.path(dirs$containers, 'library') # used by 'extend'    
-    dirs$versionLibrary <- file.path(dirs$library, versions$BioconductorRelease) 
-    dirs$containersVersionLibrary <- file.path(dirs$containersLibrary, versions$BioconductorRelease) 
+    suiteName <- Sys.getenv('SUITE_NAME')
+    if(suiteName == "") suiteName <- "unspecified"
+    dirs$containersLibrary <- file.path(dirs$containers, suiteName, 'library') # used by 'extend'    
+    dirs$versionLibrary <- file.path(dirs$library, versions$complete) 
+    dirs$containersVersionLibrary <- file.path(dirs$containersLibrary, versions$complete) 
     if(create && !isHosted){
         for(dir in bareDirNames) dir.create(dirs[[dir]], showWarnings = FALSE)
         dir.create(dirs$containersLibrary, showWarnings = FALSE) 

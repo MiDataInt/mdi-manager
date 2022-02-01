@@ -260,7 +260,8 @@ installPackages <- function(versions, dirs, packages, force, staticLib = NULL){
         Ncpus <- Sys.getenv("N_CPU")
         if(Ncpus == "") Ncpus <- 1       
         message('installing/updating R packages in private library')
-        message(paste("installing", length(newPackages), "of a total of", length(packages), "required packages"))        
+        message(paste("installing", length(newPackages), "of a total of", 
+                                    length(packages),    "required packages"))
         message(paste('installing into:', activeLib))
         if(!is.null(staticLib)) message(paste('honoring:', staticLib))
         if(!is.null(systemLib)) message(paste('honoring:', systemLib))
