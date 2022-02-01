@@ -279,7 +279,7 @@ installPackages <- function(versions, dirs, packages, force, staticLib = NULL){
             #type = .Platform$pkgType
         )         
     } else {
-        message(paste('private library already has all', length(packages), "required packages"))
+        message(paste('available library(s) already have all', length(packages), "required packages"))
         message(activeLib)   
     }
 }
