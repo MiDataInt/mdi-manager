@@ -28,7 +28,7 @@ if [ "$EXISTS" = "" ]; then
     echo "Please wait $WAIT_SECONDS seconds for the web server to start"
     echo $SEPARATOR
     $R_LOAD_COMMAND
-    Rscript $MDI_DIRECTORY/remote/mdi-remote.R &
+    bash $MDI_DIRECTORY/remote/mdi-remote.sh &
     MDI_PID=$!
     echo "$MDI_PID" > $PID_FILE
     sleep $WAIT_SECONDS # give Shiny time to start up before showing further prompts   

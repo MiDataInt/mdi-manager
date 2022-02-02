@@ -34,7 +34,7 @@ if [[ "$NODE" = "" || "$NODE" = "(None)" ]]; then
     echo "please wait for the web server job to start"
     echo $SEPARATOR 
     $R_LOAD_COMMAND
-    export BIOCONDUCTOR_RELEASE=` Rscript -e "cat( paste(BiocManager::version(), collapse='.') )"`
+    export BIOCONDUCTOR_RELEASE=` Rscript -e "options(BiocManager.check_repositories = FALSE); cat( paste(BiocManager::version(), collapse='.') )"`
     sbatch \
         --account $CLUSTER_ACCOUNT \
         --time $JOB_TIME_MINUTES \

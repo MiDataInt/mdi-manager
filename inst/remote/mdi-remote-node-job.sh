@@ -8,4 +8,4 @@
 
 # run web server
 export MDI_REMOTE_MODE=node
-Rscript $MDI_DIRECTORY/remote/mdi-remote.R
+exec bash $MDI_DIRECTORY/remote/mdi-remote.sh

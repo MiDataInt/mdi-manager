@@ -260,9 +260,10 @@ run <- function(
 #---------------------------------------------------------------------------
 develop <- function(
     mdiDir = '~', 
-    dataDir = NULL,            
+    dataDir = NULL,         
     url = 'http://localhost', 
-    port = 3838
+    port = 3838,
+    ... # all other arguments are ignored
 ){
     run(
         mdiDir,
@@ -275,5 +276,56 @@ develop <- function(
         browser = FALSE,
         debug = TRUE,
         developer = TRUE
+    )
+}
+
+#---------------------------------------------------------------------------
+# shortcut to run on HPC server in 'remote' mode; used by server.pl 
+#' @rdname run
+#' @export
+#---------------------------------------------------------------------------
+remote <- function(
+    mdiDir = '~', 
+    dataDir = NULL,
+    hostDir = NULL,         
+    port = 3838,
+    ... # all other arguments are ignored
+){
+    launchRemote('remote', mdiDir, dataDir, hostDir, port)
+}
+
+#---------------------------------------------------------------------------
+# shortcut to run on HPC server in 'node' mode; used by server.pl 
+#' @rdname run
+#' @export
+#---------------------------------------------------------------------------
+node <- function(
+    mdiDir = '~', 
+    dataDir = NULL,
+    hostDir = NULL,         
+    port = 3838,
+    ... # all other arguments are ignored
+){
+    launchRemote('node', mdiDir, dataDir, hostDir, port)
+}
+launchRemote <- function(
+    mode,
+    mdiDir, 
+    dataDir,
+    hostDir,         
+    port
+){
+    developer <- Sys.getenv('DEVELOPER')
+    run(
+        mdiDir,
+        dataDir = dataDir,
+        hostDir = hostDir,  
+        mode = mode,   
+        install = TRUE, 
+        url = 'http://127.0.0.1',
+        port = port,
+        browser = FALSE,
+        debug = FALSE,
+        developer = developer != "" && as.logical(developer)
     )
 }
