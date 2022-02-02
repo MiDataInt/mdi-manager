@@ -193,9 +193,6 @@ install <- function(
         releaseMdiGitLock(repos$dir[repos$exists])
         return( getInstallationData(versions, dirs) ) 
     }
-    
-    print("INSTALL - CURRENT VERSION")
-    
     collectAndInstallPackages(cranRepo, force, versions, dirs, repos)
 }
 getInstallationData <- function(versions, dirs, repos = NULL, rRepos = NULL, packages = NULL){
