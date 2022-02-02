@@ -46,7 +46,8 @@ parseDirectories <- function(mdiDir, versions,
 
     # initialize the file structure
     suiteName <- Sys.getenv('SUITE_NAME')
-    if(suiteName == "") suiteName <- "unspecified"
+    noSuite <- "__no_suite__"
+    if(suiteName == "") suiteName <- noSuite
     dirs$containersLibrary <- file.path(dirs$containers, suiteName, 'library') # used by 'extend'    
     dirs$versionLibrary <- file.path(dirs$library, versions$complete) 
     dirs$containersVersionLibrary <- file.path(dirs$containersLibrary, versions$complete) 
@@ -59,7 +60,7 @@ parseDirectories <- function(mdiDir, versions,
 
     # on run, make sure everything exists as expected
     if(!create) for(dir in dirs){
-        if(!dir.exists(dir) && !grepl('unspecified', dir)) stop(paste('missing directory:', dir))
+        if(!dir.exists(dir) && !grepl(noSuite, dir)) stop(paste('missing directory:', dir))
     }
     
     dirs  
