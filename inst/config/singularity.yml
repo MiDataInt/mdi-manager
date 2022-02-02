@@ -1,3 +1,4 @@
 # optional command to load singularity if not already available in PATH
 # omit or use null if singularity is already in PATH or not available on server
-load-command: "module load singularity"
+# quotes, if present, are included as part of the command
+load-command: module load singularity
