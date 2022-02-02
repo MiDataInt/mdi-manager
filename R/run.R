@@ -154,11 +154,7 @@ run <- function(
 
     # collect directories for the user (i.e., calling) and host installations
     isHosted <- !is.null(hostDir)
-    versions <- getRBioconductorVersions(mode == 'node')
-    
-    sapply(.libPaths(), function(x){ message(x); list.files(x)})
-    stop('THIS IS CURRENT VERSION OF MDI')
-    
+    versions <- getRBioconductorVersions(mode == 'node')    
     dirs <- list(user = parseDirectories(mdiDir, versions, create = FALSE))
     if(isContainer) dirs$user$versionLibrary <- dirs$user$containersVersionLibrary
     dirs$host <- if(isHosted) parseDirectories(hostDir, versions, create = FALSE) else dirs$user
