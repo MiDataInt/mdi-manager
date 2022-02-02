@@ -3,5 +3,7 @@
 export(develop)
 export(extend)
 export(install)
+export(node)
 export(password_store)
+export(remote)
 export(run)

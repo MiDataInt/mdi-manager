@@ -3,6 +3,8 @@
 \name{run}
 \alias{run}
 \alias{develop}
+\alias{remote}
+\alias{node}
 \title{Run the Michigan Data Interface (MDI) in a web server}
 \usage{
 run(
@@ -19,7 +21,17 @@ run(
   checkout = NULL
 )
 
-develop(mdiDir = "~", dataDir = NULL, url = "http://localhost", port = 3838)
+develop(
+  mdiDir = "~",
+  dataDir = NULL,
+  url = "http://localhost",
+  port = 3838,
+  ...
+)
+
+remote(mdiDir = "~", dataDir = NULL, hostDir = NULL, port = 3838, ...)
+
+node(mdiDir = "~", dataDir = NULL, hostDir = NULL, port = 3838, ...)
 }
 \arguments{
 \item{mdiDir}{character. Path to the directory where the MDI has 

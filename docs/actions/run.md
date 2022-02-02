@@ -38,7 +38,15 @@ run(
   developer = FALSE,
   checkout = NULL
 )
-develop(mdiDir = "~", dataDir = NULL, url = "http://localhost", port = 3838)
+develop(
+  mdiDir = "~",
+  dataDir = NULL,
+  url = "http://localhost",
+  port = 3838,
+  ...
+)
+remote(mdiDir = "~", dataDir = NULL, hostDir = NULL, port = 3838, ...)
+node(mdiDir = "~", dataDir = NULL, hostDir = NULL, port = 3838, ...)
 ```
 
 
