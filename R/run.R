@@ -227,6 +227,7 @@ run <- function(
     # update the primary directories to use, with overrides for data and hosted directories
     dirs <- parseDirectories(mdiDir, versions, create = FALSE, 
                              dataDir = dataDir, hostDir = hostDir)
+    if(isContainer) dirs$versionLibrary <- dirs$containersVersionLibrary
 
     # set environment variables required by run_server.R
     dirsOut <- list()
