@@ -27,7 +27,6 @@ install(
   hostDir = NULL,
   installPackages = TRUE,
   confirm = TRUE,
-  addToPATH = TRUE,
   clone = TRUE,
   cranRepo = "https://repo.miserver.it.umich.edu/cran/",
   packages = NULL,
@@ -45,7 +44,6 @@ Argument      |Description
 `hostDir`     |     character. Path to the directory where a hosted, i.e., a shared public, installation of the MDI can be found. If not NULL (the default), the only action taken will be to clone or update copies of the pipelines and apps suites specified in `hostDir` /config/suites.yml, which also forces `installPackages` to FALSE. The purpose of setting hostDir for `mdi::install()` is mainly to prepare to execute hosted Stage 1 pipelines.
 `installPackages`     |     logical. If TRUE (the default), `mdi::install()`  will fully install both Stage 1 Pipelines and Stage 2 Apps. If you know you will only want to use Stage 1 Pipelines from your installation, or if you will always use `mdi::run()` option `hostDir` to run the Stage 2 Apps server with code sourced from a shared MDI installation, then setting `installPackages` to FALSE will skip the much slower installation of the Stage 2 R packages library.
 `confirm`     |     logical. If TRUE (the default) and in interactive mode, `mdi::install()` will list all actions to be taken and prompt for permission before creating or modifying any system files.
-`addToPATH`     |     logical. If TRUE (the default) and installing on a Linux platform computer, `mdi::install()` will modify ~/.bashrc to add the 'mdi' executable to your PATH variable at each shell login, so that you may call MDI pipelines from any directory as 'mdi ...'.
 `clone`     |     logical. If TRUE (the default), the apps and pipelines code repositories will be cloned anew from GitHub if they do not already exist, or they will be pulled from the server to update a repository if they have been cloned previously. Developers might want to set this option to FALSE.
 `cranRepo`     |     character. The base URL of the R repository to use, e.g., the URL of a CRAN mirror. Defaults to the University of Michigan CRAN mirror.
 `packages`     |     character vector. If not NULL (the default), only install these specific R packages (for developers to quickly update selected packages). No other actions will be taken and the library's installation.rds file will not be updated.

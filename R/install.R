@@ -70,11 +70,6 @@
 #' @param confirm logical. If TRUE (the default) and in interactive mode,
 #' \code{mdi::install()} will list all actions to be taken and prompt for 
 #' permission before creating or modifying any system files.
-#' 
-#' @param addToPATH logical. If TRUE (the default) and installing on a Linux
-#' platform computer, \code{mdi::install()} will modify ~/.bashrc to add
-#' the 'mdi' executable to your PATH variable at each shell login, so that 
-#' you may call MDI pipelines from any directory as 'mdi ...'.
 #'
 #' @param clone logical. If TRUE (the default), the apps and pipelines code 
 #' repositories will be cloned anew from GitHub if they do not already exist, 
@@ -115,8 +110,7 @@ install <- function(
     mdiDir = '~',
     hostDir = NULL, 
     installPackages = TRUE,
-    confirm = TRUE,
-    addToPATH = TRUE,                 
+    confirm = TRUE,                
     clone = TRUE,
     cranRepo = 'https://repo.miserver.it.umich.edu/cran/',                    
     packages = NULL,
@@ -130,7 +124,7 @@ install <- function(
 
     # collate actions to be take and prompt for confirmation
     if(confirm && interactive()) 
-        getInstallationPermission(mdiDir, installPackages, addToPATH, clone)
+        getInstallationPermission(mdiDir, installPackages, clone)
 
     # parse needed versions and file paths
     versions <- getRBioconductorVersions()
@@ -183,7 +177,6 @@ install <- function(
         initializeJobManager(mdiPath)
         dir <- file.path(mdiDir, "frameworks/developer-forks/mdi-pipelines-framework")
         if(dir.exists(dir)) initializeJobManager(mdiPath, developer = TRUE)
-        addMdiDirToPATH(mdiDir = mdiDir, addToPATH = addToPATH)
     }
 
     # install Stage 2 apps packages

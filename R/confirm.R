@@ -1,7 +1,7 @@
 #---------------------------------------------------------------------------
 # establish a list of installation actions to be taken and get permission to proceed
 #---------------------------------------------------------------------------
-getInstallationPermission <- function(mdiDir, installPackages, addToPATH, clone){
+getInstallationPermission <- function(mdiDir, installPackages, clone){
 
     # initialize the actions list
     actions <- character()
@@ -23,10 +23,6 @@ getInstallationPermission <- function(mdiDir, installPackages, addToPATH, clone)
     # will we install apps R package dependencies?
     if(installPackages)
         addAction(paste0("install or update R packages into '", file.path(mdiDir, "library"), "'"))
-
-    # will we attempt to update .bashrc on a Linux server?
-    if(addToPATH && .Platform$OS.type == "unix") 
-        addAction("modify '~/.bashrc' to add the mdi executable to PATH")
 
     # display the composite user prompt
     message('------------------------------------------------------------------')

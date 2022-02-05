@@ -9,7 +9,6 @@ install(
   hostDir = NULL,
   installPackages = TRUE,
   confirm = TRUE,
-  addToPATH = TRUE,
   clone = TRUE,
   cranRepo = "https://repo.miserver.it.umich.edu/cran/",
   packages = NULL,
@@ -40,11 +39,6 @@ the Stage 2 R packages library.}
 \item{confirm}{logical. If TRUE (the default) and in interactive mode,
 \code{mdi::install()} will list all actions to be taken and prompt for 
 permission before creating or modifying any system files.}
-
-\item{addToPATH}{logical. If TRUE (the default) and installing on a Linux
-platform computer, \code{mdi::install()} will modify ~/.bashrc to add
-the 'mdi' executable to your PATH variable at each shell login, so that 
-you may call MDI pipelines from any directory as 'mdi ...'.}
 
 \item{clone}{logical. If TRUE (the default), the apps and pipelines code 
 repositories will be cloned anew from GitHub if they do not already exist, 
