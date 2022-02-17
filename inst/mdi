@@ -21,6 +21,7 @@ if [[ "$TARGET" = "-d" || "$TARGET" = "--develop" ]]; then
     export DEVELOPER_MODE="TRUE"
     shift    
     TARGET=$1
+    DEVELOPER_FLAG="-d"
 fi
 if [[ "$TARGET" = "-h" ||  "$TARGET" = "--help" ]]; then 
     TARGET=""
@@ -44,6 +45,21 @@ JOB_MANAGER_COMMANDS=$(cd $JOB_MANAGER_DIR/lib/commands && ls -1 *.pl |  cut -d 
 
 # set known pipelines
 export PIPELINE_DIRS=`ls -d $MDI_DIR/suites/*/*/pipelines/*/`
+
+#----------------------------------------------------------------------
+# support inverted call format, i.e., 'mdi data.yml COMMAND'
+#----------------------------------------------------------------------
+if [[ "$TARGET" = *.yml && -e $TARGET ]]; then
+    shift
+    if [ "$1" = "" ]; then
+        echo -e "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+        echo "missing command"
+        echo -e "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+        exec $JOB_MANAGER_TARGET
+    else 
+        exec $MDI_DIR/mdi $DEVELOPER_FLAG $@ $TARGET    
+    fi
+fi
 
 #----------------------------------------------------------------------
 # handle a direct call to initialize the job manager
