@@ -44,7 +44,7 @@ Q_TYPE_FILE=$JOB_MANAGER_DIR/qType
 JOB_MANAGER_COMMANDS=$(cd $JOB_MANAGER_DIR/lib/commands && ls -1 *.pl |  cut -d '.' -f 1 | tr '\n' ' ') 
 
 # set known pipelines
-export PIPELINE_DIRS=`ls -d $MDI_DIR/suites/*/*/pipelines/*/`
+export PIPELINE_DIRS=`ls -d $MDI_DIR/suites/*/*/pipelines/*/ 2>/dev/null`
 
 #----------------------------------------------------------------------
 # support inverted call format, i.e., 'mdi data.yml COMMAND'
