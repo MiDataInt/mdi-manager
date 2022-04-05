@@ -19,8 +19,6 @@ export CLUSTER_ACCOUNT=$8
 export JOB_TIME_MINUTES=$9
 export CPUS_PER_TASK=${10}
 export MEM_PER_CPU=${11}
-export MDI_R_VERSION=${12}
-if [ "$MDI_R_VERSION" = "NULL" ]; then export MDI_R_VERSION="" ; fi
 
 # set a function to discover any currently running MDI web server job
 function set_server_node {
