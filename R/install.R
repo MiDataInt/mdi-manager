@@ -278,11 +278,3 @@ installPackages <- function(versions, dirs, packages, force, staticLib = NULL){
         message(activeLib)   
     }
 }
-#Old packages: 'htmltools', 'rtracklayer', 'stringi', 'survival', 'tibble'
-#Error in update.packages(...) :
-#  specifying 'contriburl' or 'available' requires a single type, not type = "both"
-#Calls: <Anonymous> ... tryCatchList -> tryCatchOne -> <Anonymous> -> .inet_error
-#In addition: Warning message:
-#In miniCRAN::pkgDep(unique(pkgLists[[x]]), repos = rRepos[[x]],  :
-#  Package not recognized: rtracklayer, Biostrings, SummarizedExperiment, GenomicRanges, GenomicFeatures, GenomeInfoDb
-#Execution halted

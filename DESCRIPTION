@@ -1,13 +1,12 @@
 Package: mdi
 Type: Package
 Title: Michigan Data Interface
-Version: 0.0.0
+Version: 1.0.0
 Authors@R: c(
     person("Thomas", "Wilson", email = "wilsonte@umich.edu", role = c("aut", "cre")))
-Description: The Michigan Data Interface is a framework for developing,
-    installing and running a variety of HPC data analysis pipelines
-    and interactive R Shiny data visualization applications
-    within a standardized design and implementation interface.
+Description: The Michigan Data Interface is a framework for developing, 
+    installing and running HPC data analysis pipelines and interactive 
+    visualization applications within a standardized design interface.
 Imports:
     git2r,
     BiocManager,

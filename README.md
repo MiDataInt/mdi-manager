@@ -1,14 +1,14 @@
 # Michigan Data Interface
 
 The [Michigan Data Interface](https://midataint.github.io/) (MDI) 
-is a framework for developing, installing and running a variety of 
-HPC data analysis pipelines and interactive R Shiny data visualization 
-applications within a standardized design and implementation interface.
+is a framework for developing, installing and running 
+HPC data analysis pipelines and interactive visualization 
+applications within a standardized design interface.
 
-Data analysis in the MDI is separated into 
+The MDI is separated into 
 [two stages of code execution](https://midataint.github.io/docs/analysis-flow/) 
 called Stage 1 HPC **pipelines** and Stage 2 web applications (i.e., **apps**).
-Collectively, pipelines and apps are referred to as **tools**.
+Collectively, pipelines and apps are known as **tools**.
 
 ## Repository contents
 
@@ -19,7 +19,7 @@ Functions initialize Stage 1 pipeline execution and launch Stage 2 web apps.
 ## System requirements
 
 The MDI manager and Stage 2 web apps are R programs.
-Accordingly, R must be installed on the host machine. 
+Accordingly, R must be installed. 
 
 - R: <https://www.r-project.org/>
 
@@ -31,9 +31,9 @@ Most users should not manually install the mdi-manager package as it is
 installed for you by other wrapper utilities. Please use the 
 following links to learn how to:
 
-- install the MDI on an HPC resource: <https://github.com/MiDataInt/mdi.git>
+- install the MDI on a Linux server: <https://github.com/MiDataInt/mdi.git>
 - install the MDI on a cloud web server: <https://github.com/MiDataInt/mdi-web-server.git>
-- generate an MDI batch script for your PC: <https://wilsonte-umich.shinyapps.io/mdi-script-generator>
+- generate a batch script for your PC: <https://wilsonte-umich.shinyapps.io/mdi-script-generator>
 
 ### Manual installation in R
 
@@ -63,8 +63,8 @@ tools. To install tools from any provider, first edit the file
 ```yml
 # mdi/config/suites.yml
 suites:
-    - https://github.com/GIT_USER/SUITE_NAME-mdi-tools.git
     - GIT_USER/SUITE_NAME-mdi-tools # either format works
+    - https://github.com/GIT_USER/SUITE_NAME-mdi-tools.git
 ```
 
 Then call <code>mdi::install()</code> again to clone the listed
@@ -76,8 +76,8 @@ the Stage 2 web server, or run the following from the command line:
 
 ```bash
 mdi add --help
-mdi add -s https://github.com/GIT_USER/SUITE_NAME-mdi-tools.git
 mdi add -s GIT_USER/SUITE_NAME-mdi-tools # either format works
+mdi add -s https://github.com/GIT_USER/SUITE_NAME-mdi-tools.git
 ```
 
 ## Run the MDI web server
@@ -89,7 +89,7 @@ Once installed, run the MDI web server from within R as follows (see
 mdi::run()
 ```
 
-The wrapper utilities linked above can again also call <code>mdi::run()</code> 
+The wrapper utilities linked above can also call <code>mdi::run()</code> 
 on your behalf. In a few seconds a web browser will open and you will be ready to 
 load your data and run an associated app.
 
@@ -127,3 +127,10 @@ A high speed local disk drive can be much faster and is recommended.
 **Solution**: You were already running the web server (or another Shiny app)
 from your R session. Please start from a freshly opened R console when
 starting the web server.
+<br>
+<br>
+**Problem**: "createTcpServer: address already in use".
+
+**Solution**: You were already running the web server, or possibly a zombie
+process was still attached to the Shiny port. Please restart R and/or restart your 
+computer.
