@@ -54,25 +54,16 @@
 #' @param hostDir character. Path to the directory where a hosted, i.e., a 
 #' shared public, installation of the MDI can be found. The following folders 
 #' from that installation will be used instead of from the user installation 
-#' executing the \code{mdi::run()} command:
-#' \itemize{
-#'   \item config
-#'   \item containers
-#'   \item environments
-#'   \item library
-#'   \item resources
-#' }
-#' Option \code{hostDir} must be set if you ran \code{mdi::install()}
-#' with option \code{installPackages} set to FALSE.
+#' executing the \code{mdi::run()} command: config, containers, environments, 
+#' library, and resources. Option \code{hostDir} must be set if you ran 
+#' \code{mdi::install()} with option \code{installPackages} set to FALSE.
 #' 
 #' @param mode character. Controls aspects of server behavior. The following
 #' valid values will help you properly run the MDI web server on/in:
-#' \itemize{
-#'   \item local = your desktop or laptop
-#'   \item remote = a server you have direct access to via SSH
-#'   \item node = a worker node in a Slurm cluster, accessed via SSH to a login node
-#'   \item server = a mdi-cloud-server container on a publicly addressable cloud instance
-#' }
+#'      local = your desktop or laptop; 
+#'      remote = a server you have direct access to via SSH;
+#'      node = a worker node in a Slurm cluster, accessed via SSH to a login node;
+#'      server = a server container on a publicly addressable cloud instance.
 #' Most users manually calling \code{mdi::run()} want 'local' (the default). 
 #' 
 #' @param install logical. When TRUE (the default), \code{mdi::run()} will

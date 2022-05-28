@@ -1,7 +1,7 @@
 # this is the Jekyll configuration file for the GitHub Pages documentation site
 
 # edit the following title and description to match your repository
-title: "MDI Manager Utility"
+title: "MDI R Package"
 description: "R package that defines the manager utility for the Michigan Data Interface (MDI)"
 
 # edit the following link used for the upper right navigation

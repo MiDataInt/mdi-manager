@@ -56,26 +56,8 @@ Argument      |Description
 ------------- |----------------
 `mdiDir`     |     character. Path to the directory where the MDI has previously been installed. Defaults to your home directory, such that the MDI will run from '~/mdi' by default.
 `dataDir`     |     character. Path to the directory where your MDI apps data can be found. Defaults to ' `mdiDir` /data'. You might wish to change this to a directory that holds shared data, e.g., for your laboratory.
-`hostDir`     |     character. Path to the directory where a hosted, i.e., a shared public, installation of the MDI can be found. The following folders from that installation will be used instead of from the user installation executing the `mdi::run()` command:   
-
-*  config  
-
-*  containers  
-
-*  environments  
-
-*  library  
-
-*  resources  Option `hostDir` must be set if you ran `mdi::install()`  with option `installPackages` set to FALSE.
-`mode`     |     character. Controls aspects of server behavior. The following valid values will help you properly run the MDI web server on/in:   
-
-*  local = your desktop or laptop  
-
-*  remote = a server you have direct access to via SSH  
-
-*  node = a worker node in a Slurm cluster, accessed via SSH to a login node  
-
-*  server = a mdi-cloud-server container on a publicly addressable cloud instance  Most users manually calling `mdi::run()` want 'local' (the default).
+`hostDir`     |     character. Path to the directory where a hosted, i.e., a shared public, installation of the MDI can be found. The following folders from that installation will be used instead of from the user installation executing the `mdi::run()` command: config, containers, environments, library, and resources. Option `hostDir` must be set if you ran `mdi::install()` with option `installPackages` set to FALSE.
+`mode`     |     character. Controls aspects of server behavior. The following valid values will help you properly run the MDI web server on/in: local = your desktop or laptop; remote = a server you have direct access to via SSH; node = a worker node in a Slurm cluster, accessed via SSH to a login node; server = a server container on a publicly addressable cloud instance. Most users manually calling `mdi::run()` want 'local' (the default).
 `install`     |     logical. When TRUE (the default), `mdi::run()` will clone or pull all repositories and install any missing R packages. Setting `install` to FALSE will allow the server to start a bit more quickly. Ignored when `mode` is 'node', since cluster nodes are not expected to have internet access to download software.
 `url`     |     character. The complete browser URL to load the web page. Examples: 'http://localhost' (the default) or 'https://mymdi.org'.
 `port`     |     integer. The port to use on the host specified in `url` . Defaults to the canonical Shiny port, 3838. Example: setting `url`  to 'https://mymdi.org' and `port` to 5000 will yield a final access url of 'https://mymdi.org:5000/'.
