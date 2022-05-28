@@ -9,8 +9,8 @@
 #     GITHUB_PAT = "xxx"
 # )
 #---------------------------------------------------------------------------
-# MANAGER_PATH <- 'manager/developer-forks/mdi-manager'
-MANAGER_PATH <- '_manager/definitive/mdi-manager'
+MANAGER_PATH <- '_manager/developer-forks/mdi-manager'
+# MANAGER_PATH <- '_manager/definitive/mdi-manager'
 #---------------------------------------------------------------------------
 debugInstall <- function(
     mdiDir = 'C:/mdi',

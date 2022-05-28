@@ -90,12 +90,14 @@ No action will be taken unless approved by the user when prompted.
  If access to private repositories or developer forks is needed, you must
  create script 'gitCredentials.R' in `mdiDir` or your home directory,
  to be sourced by `mdi::install()` , with the following contents:
+ 
  gitCredentials <- list(
  USER_NAME  = "First Last",
  USER_EMAIL = "lastf@example.com",
  GIT_USER   = "xxx",
  GITHUB_PAT = "xxx"
  )
+ 
  where GIT_USER and GITHUB_PAT are the username and Personal Access
  Token of a GitHub account that holds any developer forks and/or grants
  permissions for accessing any tool suites that have restricted access.
