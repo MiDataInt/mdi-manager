@@ -16,7 +16,7 @@ variables:
 # defaults for options in data.yml templates
 shared:
   resources:
-    tmp-dir: /tmpssd  
+    tmp-dir: /tmp
     tmp-dir-large: /tmp
 
 # configure a shared conda implementation
