@@ -166,9 +166,7 @@ run <- function(
 
     # get the latest tagged versions of all existing repos
     repos$exists <- repoExists(repos$dir)
-print(repos)
     repos <- repos[repos$exists, ]
-print(repos)
     repos$latest <- do.call(getLatestVersions, repos)
 
     # establish the list of repos to use by the rules identified above
