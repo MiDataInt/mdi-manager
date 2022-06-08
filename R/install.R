@@ -231,6 +231,7 @@ collectAndInstallPackages <- function(cranRepo, force,
         releaseMdiGitLock(repos$dir[repos$exists])
     }
     installPackages(versions, dirs, packages, force, staticLib)
+    warnings()
 
     # return installation data
     installationData
