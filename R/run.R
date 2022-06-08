@@ -171,12 +171,14 @@ run <- function(
 
     # establish the list of repos to use by the rules identified above
     # NB: code repos are _not_ public/shared assets to allow version selection by each user
-    message(paste('developer', developer))
     if(developer){
+        print(repos)
         getRepoI <- function(name, fork) which(repos$name == name & repos$fork == fork)
         is <- sapply(unique(repos$name), function(name){
             devI <- getRepoI(name, Forks$developer) # use developer fork if found, otherwise fall back to definitive
             message(paste(name, devI, Forks$developer))
+            print(devI)
+            if(length(devI)) message("YES") else  message("NO")
             if(length(devI)) devI else getRepoI(name, Forks$definitive)
         })
         repos <- repos[is, ]
