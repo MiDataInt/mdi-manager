@@ -231,7 +231,6 @@ collectAndInstallPackages <- function(cranRepo, force,
         releaseMdiGitLock(repos$dir[repos$exists])
     }
     installPackages(versions, dirs, packages, force, staticLib)
-    print(warnings())
 
     # return installation data
     installationData
@@ -272,9 +271,8 @@ installPackages <- function(versions, dirs, packages, force, staticLib = NULL){
             checkBuilt = FALSE,
             force = TRUE,
             version = versions$BioconductorRelease,
-            Ncpus = Ncpus
-            #,
-            #type = .Platform$pkgType
+            Ncpus = Ncpus,
+            type = .Platform$pkgType # force binary on Windows
         )         
     } else {
         message(paste('available library(s) already have all', length(packages), "required packages"))
