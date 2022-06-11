@@ -3,41 +3,8 @@ title: "MDI R Package"
 has_children: false
 nav_order: 0
 ---
-{% assign site_order = 999999 %}
-{% for page in site.pages %}
-    {% if page.grand_parent %}
-        {% for parent in site.pages %}
-            {% if parent.title == page.parent %}
-                {% assign parent_order = parent.nav_order | times: 100 %}
-                {% for grandparent in site.pages %}
-                    {% if grandparent.title == parent.parent %}
-                        {% assign site_order = grandparent.nav_order | times: 10000 | plus: parent_order | plus: page.nav_order %}
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
-        {% endfor %}
-    {% elsif page.parent %}
-        {% for parent in site.pages %}
-            {% if parent.title == page.parent %}
-                {% assign page_order = page.nav_order | times: 100 %}
-                {% assign site_order = parent.nav_order | times: 10000 | plus: page_order %}
-            {% endif %}
-        {% endfor %}
-    {% else %}
-        {% assign site_order = page.nav_order | times: 10000 %}
-    {% endif %}
 
---------------------------------------
-title = {{ page.title }}  
-parent = {{ page.parent }}  
-grand_parent = {{ page.grand_parent }}  
-nav_order = {{ page.nav_order }}  
-site_order = {{ site_order }}  
-absolute_url = {{ page.url | absolute_url }}  
-relative_url = {{ page.url | relative_url }}  
-
-{% endfor %}
-
+{%- include prev_next/set_prev_next.md -%}
 
 
 {% include mdi-project-overview.md %}
