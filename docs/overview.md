@@ -4,6 +4,19 @@ has_children: false
 nav_order: 0
 ---
 
+{% for x in site.pages %}
+
+--------------------------------------
+title = {{ x.title }}  
+parent = {{ x.parent }}  
+grand_parent = {{ x.grand_parent }}  
+nav_order = {{ x.nav_order }}  
+url = {{ x.url }}  
+
+{% endfor %}
+
+
+
 {% include mdi-project-overview.md %}
 
 This is the documentation for the **MDI manager** utility,
