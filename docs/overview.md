@@ -4,14 +4,37 @@ has_children: false
 nav_order: 0
 ---
 
-{% for x in site.pages %}
+{% for page in site.pages %}
+    {% if page.grand_parent %}
+        {% for parent in site.pages %}
+            {% if parent.title == page.parent %}
+                {% assign parent_order = parent.nav_order | times: 100 %}
+                {% for grandparent in site.pages %}
+                    {% if grandparent.title == parent.parent %}
+                        {% assign site_order = grandparent.nav_order | times: 10000 | plus: parent_order | plus: page.nav_order %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    {% elsif page.parent %}
+        {% for parent in site.pages %}
+            {% if parent.title == page.parent %}
+                {% assign page_order = page.nav_order | times: 100 %}
+                {% assign site_order = parent.nav_order | times: 10000 | plus: page_order %}
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        {% assign site_order = page.nav_order | times: 10000 %}
+    {% endif %}
 
 --------------------------------------
 title = {{ x.title }}  
 parent = {{ x.parent }}  
 grand_parent = {{ x.grand_parent }}  
 nav_order = {{ x.nav_order }}  
-url = {{ x.url }}  
+site_order = {{ site_order }}  
+absolute_url = {{ x.url | absolute_url }}  
+relative_url = {{ x.url | relative_url }}  
 
 {% endfor %}
 
