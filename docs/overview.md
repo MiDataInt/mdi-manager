@@ -4,10 +4,6 @@ has_children: false
 nav_order: 0
 ---
 
-DEBUG 1  
-{%- include prev_next/set_prev_next.md -%}
-
-
 {% include mdi-project-overview.md %}
 
 This is the documentation for the **MDI manager** utility,
