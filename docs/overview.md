@@ -28,13 +28,13 @@ nav_order: 0
     {% endif %}
 
 --------------------------------------
-title = {{ x.title }}  
-parent = {{ x.parent }}  
-grand_parent = {{ x.grand_parent }}  
-nav_order = {{ x.nav_order }}  
+title = {{ page.title }}  
+parent = {{ page.parent }}  
+grand_parent = {{ page.grand_parent }}  
+nav_order = {{ page.nav_order }}  
 site_order = {{ site_order }}  
-absolute_url = {{ x.url | absolute_url }}  
-relative_url = {{ x.url | relative_url }}  
+absolute_url = {{ page.url | absolute_url }}  
+relative_url = {{ page.url | relative_url }}  
 
 {% endfor %}
 
