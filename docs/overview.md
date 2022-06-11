@@ -4,7 +4,7 @@ has_children: false
 nav_order: 0
 ---
 
-{% include mdi-project-overview.md %} 
+{% include mdi-project-overview.md %}
 
 This is the documentation for the **MDI manager** utility,
 delivered in the form of an **R package**.
