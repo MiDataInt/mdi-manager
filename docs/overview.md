@@ -3,7 +3,7 @@ title: "MDI R Package"
 has_children: false
 nav_order: 0
 ---
-
+{% assign site_order = 999999 %}
 {% for page in site.pages %}
     {% if page.grand_parent %}
         {% for parent in site.pages %}
