@@ -33,6 +33,7 @@ if [ "$EXISTS" = "" ]; then
     echo "$MDI_PID" > $PID_FILE
     sleep $WAIT_SECONDS # give Shiny time to start up before showing further prompts   
 fi
+trap "kill -9 $MDI_PID; exit" SIGINT SIGQUIT SIGHUP
 
 # report the PID to the user
 echo $SEPARATOR

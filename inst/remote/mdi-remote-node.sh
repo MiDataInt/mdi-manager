@@ -47,6 +47,7 @@ if [[ "$NODE" = "" || "$NODE" = "(None)" ]]; then
         set_server_node
     done
 fi
+trap "scancel $JOBID; exit" SIGINT SIGQUIT SIGHUP
 
 # report the NODE and JOBID to the user
 echo $SEPARATOR 
