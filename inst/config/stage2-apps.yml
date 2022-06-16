@@ -24,10 +24,12 @@ paths:
 
 #--------------------------------------------------------------
 # Configure the Pipeline Runner app:
-#   pipeline_runner  set to false to disable the Pipeline Runner 
+#   pipeline_runner  auto  = enable Pipeline Runner in remote modes only
+#                    true  = enable Pipeline Runner whenever possible
+#                    false = disable the Pipeline Runner
 #   job_default      the path name above used as a default by Pipeline Runner
 #--------------------------------------------------------------
-pipeline_runner: true
+pipeline_runner: auto
 job_default: demo1
 
 #--------------------------------------------------------------
