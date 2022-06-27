@@ -11,6 +11,7 @@ export DATA_DIRECTORY=$3
 export HOST_DIRECTORY=$4
 export DEVELOPER=$5
 export R_LOAD_COMMAND=`echo $6 | sed 's/~~/ /g'`
+export MDI_REMOTE_DOMAIN=$7
 export MDI_REMOTE_MODE=remote
 
 # check for server currently running on SHINY_PORT
