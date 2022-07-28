@@ -76,7 +76,7 @@
 #' Examples: 'http://localhost' (the default) or 'https://mymdi.org'.
 #'
 #' @param port integer. The port to use on the host specified in \code{url}.
-#' Defaults to the canonical Shiny port, 3838. Example: setting \code{url} 
+#' Defaults to letting R Shiny select a random port. Example: setting \code{url} 
 #' to 'https://mymdi.org' and \code{port} to 5000 will yield a final access 
 #' url of 'https://mymdi.org:5000/'.
 #' 
@@ -120,7 +120,7 @@ run <- function(
     mode = 'local',   
     install = TRUE, 
     url = 'http://localhost',
-    port = 3838,
+    port = NULL, # if NULL, Shiny picks the port
     browser = mode %in% c('local'),
     debug = FALSE,
     developer = FALSE,
@@ -229,7 +229,7 @@ run <- function(
     do.call(Sys.setenv, dirsOut)
     Sys.setenv(SERVER_MODE = mode)
     Sys.setenv(SERVER_URL = url)
-    Sys.setenv(SERVER_PORT = port)
+    if(!is.null(port)) Sys.setenv(SERVER_PORT = port)
     Sys.setenv(LAUNCH_BROWSER = browser)
     Sys.setenv(DEBUG = debug)
     Sys.setenv(IS_DEVELOPER = developer)
@@ -254,7 +254,7 @@ develop <- function(
     mdiDir = '~', 
     dataDir = NULL,         
     url = 'http://localhost', 
-    port = 3838,
+    port = NULL,
     ... # all other arguments are ignored
 ){
     run(
@@ -280,7 +280,7 @@ remote <- function(
     mdiDir = '~', 
     dataDir = NULL,
     hostDir = NULL,         
-    port = 3838,
+    port = NULL,
     ... # all other arguments are ignored
 ){
     launchRemote('remote', mdiDir, dataDir, hostDir, port)
@@ -295,7 +295,7 @@ node <- function(
     mdiDir = '~', 
     dataDir = NULL,
     hostDir = NULL,         
-    port = 3838,
+    port = NULL,
     ... # all other arguments are ignored
 ){
     launchRemote('node', mdiDir, dataDir, hostDir, port)
