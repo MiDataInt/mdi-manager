@@ -4,15 +4,20 @@ has_children: true
 nav_order: 10
 ---
 
-The MDI job manager actions are called from within an R console 
+The MDI manager functions are called from within an R console 
 or script using commands similar to:
 
-```
+```r
+# R console
 mdi::install()
+```
+
+```sh
+# bash prompt or script
 Rscript -e "mdi::run()"
 ```
 
 Click on each command to view a complete description 
-of its actions and options. Please note that there are
-many more options than will typically needed by most end users - 
-they are used by utilities that wrap these functions.
+of its actions and options. There are
+more options than will typically needed by most users - 
+they are used by the utilities that wrap these functions.
