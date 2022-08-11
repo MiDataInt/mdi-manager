@@ -48,13 +48,17 @@ parseDirectories <- function(mdiDir, versions,
     suiteName <- Sys.getenv('SUITE_NAME')
     noSuite <- "__no_suite__"
     if(suiteName == "") suiteName <- noSuite
-    dirs$containersLibrary <- file.path(dirs$containers, suiteName, 'library') # used by 'extend'    
-    dirs$versionLibrary <- file.path(dirs$library, versions$complete) 
-    dirs$containersVersionLibrary <- file.path(dirs$containersLibrary, versions$complete) 
+    dirs$containersLibrary <- file.path(dirs$containers, suiteName, 'library') # used by 'extend'
+    dirs$versionLibraryShort      <- file.path(dirs$library, versions$RVersionLong) # just library/R-4.2
+    dirs$versionLibrary           <- file.path(dirs$library, versions$complete) # library/R-4.2_BC-3.15
+    dirs$containersVersionLibraryShort <- file.path(dirs$containersLibrary, versions$RVersionLong) 
+    dirs$containersVersionLibrary      <- file.path(dirs$containersLibrary, versions$complete) 
     if(create && !isHosted){
         for(dir in bareDirNames) dir.create(dirs[[dir]], showWarnings = FALSE)
         dir.create(dirs$containersLibrary, showWarnings = FALSE) 
-        dir.create(dirs$versionLibrary, showWarnings = FALSE) 
+        dir.create(dirs$versionLibraryShort, showWarnings = FALSE) 
+        dir.create(dirs$versionLibrary, showWarnings = FALSE)
+        dir.create(dirs$containersVersionLibraryShort, showWarnings = FALSE)   
         dir.create(dirs$containersVersionLibrary, showWarnings = FALSE)   
     }
 

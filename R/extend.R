@@ -22,6 +22,7 @@ extend <- function(staticMdiDir){
 
     # override the container-extension R library to live under the containers folder
     # these files are compiled in the container, not on the host OS
+    activeDirs$versionLibraryShort <- activeDirs$containersVersionLibraryShort
     activeDirs$versionLibrary <- activeDirs$containersVersionLibrary
 
     # collect the list of all framework and suite repositories for this installation
