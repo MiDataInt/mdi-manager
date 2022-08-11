@@ -9,13 +9,17 @@ getRBioconductorVersions <- function(isNode = FALSE){
     RVersion <- getRVersion()
     RRelease <- getRRelease()
     BioconductorRelease <- if(isNode) Sys.getenv('BIOCONDUCTOR_RELEASE') else BiocManager::version()
+    RVersionLong <- paste("R", RVersion, sep = "-")
+    BioconductorReleaseLong <- paste("BC", BioconductorRelease, sep = "-")
     list(
         RVersion = RVersion,
         RRelease = RRelease,
         BioconductorRelease = BioconductorRelease,
+        RVersionLong = RVersionLong,
+        BioconductorReleaseLong = BioconductorReleaseLong,
         complete = paste(
-            paste("R", RVersion, sep = "-"),
-            paste("BC", BioconductorRelease, sep = "-"),
+            RVersionLong,
+            BioconductorReleaseLong,
             sep = "_"
         )
     )

@@ -147,7 +147,10 @@ run <- function(
     isHosted <- !is.null(hostDir)
     versions <- getRBioconductorVersions(mode == 'node')    
     dirs <- list(user = parseDirectories(mdiDir, versions, create = FALSE))
-    if(isContainer) dirs$user$versionLibrary <- dirs$user$containersVersionLibrary
+    if(isContainer) {
+        dirs$user$versionLibraryShort <- dirs$user$containersVersionLibraryShort
+        dirs$user$versionLibrary <- dirs$user$containersVersionLibrary
+    }
     dirs$host <- if(isHosted) parseDirectories(hostDir, versions, create = FALSE) else dirs$user
     dirs$static <- if(isContainer) parseDirectories(staticMdiDir, versions, create = FALSE) else NULL
     setGitCredentials(dirs$user)
@@ -218,7 +221,10 @@ run <- function(
     # update the primary directories to use, with overrides for data and hosted directories
     dirs <- parseDirectories(mdiDir, versions, create = FALSE, 
                              dataDir = dataDir, hostDir = hostDir)
-    if(isContainer) dirs$versionLibrary <- dirs$containersVersionLibrary
+    if(isContainer) {
+        dirs$versionLibraryShort <- dirs$containersVersionLibraryShort
+        dirs$versionLibrary <- dirs$containersVersionLibrary
+    }
 
     # set environment variables required by run_server.R
     dirsOut <- list()
@@ -234,6 +240,7 @@ run <- function(
     Sys.setenv(DEBUG = debug)
     Sys.setenv(IS_DEVELOPER = developer)
     Sys.setenv(APPS_FRAMEWORK_DIR = appsFrameworkDir)
+    Sys.setenv(LIBRARY_DIR_SHORT = dirs$versionLibraryShort)
     Sys.setenv(LIBRARY_DIR = dirs$versionLibrary)
 
     # release repo locks immediately prior to launching server

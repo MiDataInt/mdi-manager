@@ -1,18 +1,11 @@
-# Michigan Data Interface
+# MDI R Manager Package
 
 The [Michigan Data Interface](https://midataint.github.io/) (MDI) 
 is a framework for developing, installing and running 
-HPC data analysis pipelines and interactive visualization 
-applications within a standardized design interface.
+Stage 1 HPC **pipelines** and Stage 2 interactive web applications 
+(i.e., **apps**) in a standardized design interface.
 
-The MDI is separated into 
-[two stages of code execution](https://midataint.github.io/docs/analysis-flow/) 
-called Stage 1 HPC **pipelines** and Stage 2 web applications (i.e., **apps**).
-Collectively, pipelines and apps are known as **tools**.
-
-## Repository contents
-
-This is the repository for the **MDI manager** R package, a utility that
+This is the repository for the **MDI manager**, an R package that
 can install and run the MDI on your server, desktop, or laptop computer. 
 Functions initialize Stage 1 pipeline execution and launch Stage 2 web apps.
 
@@ -31,13 +24,13 @@ Most users should not manually install the mdi-manager package as it is
 installed for you by other wrapper utilities. Please use the 
 following links to learn how to:
 
-- install the MDI on a Linux server: <https://github.com/MiDataInt/mdi.git>
-- install the MDI on a cloud web server: <https://github.com/MiDataInt/mdi-web-server.git>
-- generate a batch script for your PC: <https://wilsonte-umich.shinyapps.io/mdi-script-generator>
+- [run the MDI Desktop app on your PC](https://midataint.github.io/mdi-desktop-app) (recommended)
+- [install the MDI on a Linux server](https://midataint.github.io/mdi)
+- [install the MDI on a cloud web server](https://github.com/MiDataInt/mdi-web-server.git)
 
 ### Manual installation in R
 
-Some may prefer to execute the following commands from within an R console.
+Uncommonly, developers may prefer to execute the following commands from within an R console.
 They install 'remotes', which is used to install this 'mdi-manager' R package, 
 which in turn installs the data analysis frameworks.
 

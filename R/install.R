@@ -236,6 +236,7 @@ collectAndInstallPackages <- function(cranRepo, force,
     installationData
 }
 installPackages <- function(versions, dirs, packages, force, staticLib = NULL){
+    activeLibShort <- dirs$versionLibraryShort # honor packages in the R-version-only library
     activeLib <- dirs$versionLibrary
     systemLib <- Sys.getenv("MDI_SYSTEM_R_LIBRARY")
     if(systemLib == "" || !dir.exists(systemLib)) systemLib <- NULL
@@ -244,10 +245,11 @@ installPackages <- function(versions, dirs, packages, force, staticLib = NULL){
         else list.dirs(lib, full.names = FALSE, recursive = FALSE)
     }
     newPackages <- if(force) packages else {
+        activePackagesShort <- getRPackages(activeLibShort)
         activePackages <- getRPackages(activeLib)
         staticPackages <- getRPackages(staticLib)
         systemPackages <- getRPackages(systemLib)
-        existingPackages <- unique(c(activePackages, staticPackages, systemPackages))
+        existingPackages <- unique(c(activePackagesShort, activePackages, staticPackages, systemPackages))
         packages[!(packages %in% existingPackages)]
     } 
     if(length(newPackages) > 0 || # missing packages
@@ -263,7 +265,7 @@ installPackages <- function(versions, dirs, packages, force, staticLib = NULL){
         message(paste("Ncpus =", Ncpus))
         BiocManager::install(
             newPackages,
-            lib.loc = c(activeLib, staticLib, systemLib),
+            lib.loc = c(activeLibShort, activeLib, staticLib, systemLib),
             lib     = activeLib,
             #update = TRUE,
             update = FALSE,
