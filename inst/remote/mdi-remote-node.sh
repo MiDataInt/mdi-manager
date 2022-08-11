@@ -25,7 +25,9 @@ export MDI_REMOTE_MODE=node
 # launch MDI Shiny server as background process on a worker node
 export SEPARATOR="---------------------------------------------------------------------"
 $R_LOAD_COMMAND
-export BIOCONDUCTOR_RELEASE=` Rscript -e "options(BiocManager.check_repositories = FALSE); cat( paste(BiocManager::version(), collapse='.') )"`
+R_VERSION=`Rscript --version | perl -ne '$_ =~ m/version\s+(\d+\.\d+)/ and print $1'`
+LIB_PATH=$MDI_DIRECTORY/library/R-$R_VERSION
+export BIOCONDUCTOR_RELEASE=`Rscript -e ".libPaths('$LIB_PATH'); options(BiocManager.check_repositories = FALSE); cat( paste(BiocManager::version(), collapse='.') )"`
 srun \
     --account $CLUSTER_ACCOUNT \
     --time $JOB_TIME_MINUTES \
