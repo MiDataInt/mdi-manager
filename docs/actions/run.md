@@ -32,7 +32,7 @@ run(
   mode = "local",
   install = TRUE,
   url = "http://localhost",
-  port = 3838,
+  port = NULL,
   browser = mode %in% c("local"),
   debug = FALSE,
   developer = FALSE,
@@ -42,11 +42,11 @@ develop(
   mdiDir = "~",
   dataDir = NULL,
   url = "http://localhost",
-  port = 3838,
+  port = NULL,
   ...
 )
-remote(mdiDir = "~", dataDir = NULL, hostDir = NULL, port = 3838, ...)
-node(mdiDir = "~", dataDir = NULL, hostDir = NULL, port = 3838, ...)
+remote(mdiDir = "~", dataDir = NULL, hostDir = NULL, port = NULL, ...)
+node(mdiDir = "~", dataDir = NULL, hostDir = NULL, port = NULL, ...)
 ```
 
 
@@ -60,7 +60,7 @@ Argument      |Description
 `mode`     |     character. Controls aspects of server behavior. The following valid values will help you properly run the MDI web server on/in: local = your desktop or laptop; remote = a server you have direct access to via SSH; node = a worker node in a Slurm cluster, accessed via SSH to a login node; server = a server container on a publicly addressable cloud instance. Most users manually calling `mdi::run()` want 'local' (the default).
 `install`     |     logical. When TRUE (the default), `mdi::run()` will clone or pull all repositories and install any missing R packages. Setting `install` to FALSE will allow the server to start a bit more quickly. Ignored when `mode` is 'node', since cluster nodes are not expected to have internet access to download software.
 `url`     |     character. The complete browser URL to load the web page. Examples: 'http://localhost' (the default) or 'https://mymdi.org'.
-`port`     |     integer. The port to use on the host specified in `url` . Defaults to the canonical Shiny port, 3838. Example: setting `url`  to 'https://mymdi.org' and `port` to 5000 will yield a final access url of 'https://mymdi.org:5000/'.
+`port`     |     integer. The port to use on the host specified in `url` . Defaults to letting R Shiny select a random port. Example: setting `url`  to 'https://mymdi.org' and `port` to 5000 will yield a final access url of 'https://mymdi.org:5000/'.
 `browser`     |     logical. Whether or not to attempt to launch a web browser after starting the MDI server. Defaults to FALSE unless `mode` is 'local'.
 `debug`     |     logical. When `debug` is TRUE, verbose activity logs will be printed to the R console where `mdi::run()` was called. Defaults to FALSE.
 `developer`     |     logical. When `developer` is TRUE, additional development utilities are added to the web page and forked repositories will be used if they exist. Ignored if `mode` is set to 'server'.

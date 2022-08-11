@@ -14,7 +14,7 @@ run(
   mode = "local",
   install = TRUE,
   url = "http://localhost",
-  port = 3838,
+  port = NULL,
   browser = mode \%in\% c("local"),
   debug = FALSE,
   developer = FALSE,
@@ -25,13 +25,13 @@ develop(
   mdiDir = "~",
   dataDir = NULL,
   url = "http://localhost",
-  port = 3838,
+  port = NULL,
   ...
 )
 
-remote(mdiDir = "~", dataDir = NULL, hostDir = NULL, port = 3838, ...)
+remote(mdiDir = "~", dataDir = NULL, hostDir = NULL, port = NULL, ...)
 
-node(mdiDir = "~", dataDir = NULL, hostDir = NULL, port = 3838, ...)
+node(mdiDir = "~", dataDir = NULL, hostDir = NULL, port = NULL, ...)
 }
 \arguments{
 \item{mdiDir}{character. Path to the directory where the MDI has 
@@ -67,7 +67,7 @@ to have internet access to download software.}
 Examples: 'http://localhost' (the default) or 'https://mymdi.org'.}
 
 \item{port}{integer. The port to use on the host specified in \code{url}.
-Defaults to the canonical Shiny port, 3838. Example: setting \code{url} 
+Defaults to letting R Shiny select a random port. Example: setting \code{url} 
 to 'https://mymdi.org' and \code{port} to 5000 will yield a final access 
 url of 'https://mymdi.org:5000/'.}
 
