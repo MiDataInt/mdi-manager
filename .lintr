@@ -5,10 +5,14 @@ linters: with_defaults(
   single_quotes_linter = NULL,
   object_name_linter = NULL,
   object_usage_linter = NULL,
+  object_length_linter = NULL,
   open_curly_linter = NULL,
+  paren_body_linter = NULL,
   paren_brace_linter = NULL,
+  brace_linter = NULL,
   spaces_inside_linter = NULL,
   spaces_left_parentheses_linter = NULL,
+  function_left_parentheses_linter = NULL,
   trailing_whitespace_linter = NULL,
   trailing_blank_lines_linter = NULL
   )
