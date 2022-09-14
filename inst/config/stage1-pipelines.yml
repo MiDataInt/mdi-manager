@@ -11,7 +11,7 @@
 #--------------------------------------------------------------
 variables:
   # conda module (for creating runtime environments)
-  ANACONDA: python3.8-anaconda/2020.07
+  ANACONDA: python3.9-anaconda/2021.11
 
 # defaults for options in data.yml templates
 shared:
@@ -28,4 +28,4 @@ conda:
     
   # path to conda.sh initialization script
   # if null, tries $(conda info --base)/etc/profile.d/conda.sh
-  profile-script: /sw/arcts/centos7/$ANACONDA/etc/profile.d/conda.sh
+  profile-script: null # /sw/pkgs/arc/$ANACONDA
