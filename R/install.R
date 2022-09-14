@@ -196,7 +196,7 @@ getInstallationData <- function(versions, dirs, repos = NULL, rRepos = NULL, pac
         dirs = dirs,
         repos = repos, 
         rRepos = rRepos,
-        packages = packages
+        packages = sort(packages)
     )
 }
 
