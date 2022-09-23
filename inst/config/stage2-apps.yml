@@ -8,6 +8,13 @@
 site_name: null
 
 #--------------------------------------------------------------
+# Limit file uploads
+#   integer value in Mb, or
+#   auto = 5 Mb on a public server, 200 Mb in local and remote modes
+#--------------------------------------------------------------
+max_upload_mb: auto
+
+#--------------------------------------------------------------
 # Stage 2 Apps web server access control types:
 #   null    grants access to anyone who can load the URL (e.g., local/remote modes)
 #   oauth2  provides the most robust security via 3rd party login
