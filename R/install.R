@@ -174,7 +174,7 @@ install <- function(
         repos <- mergeGitRepoLists(priorRepos, newRepos)    
 
         # find external suite dependencies not already in repos
-        message("check for new dependencies")
+        message("check for additional dependencies")
         newDirs <- newRepos[newRepos$exists, 'dir']
         urls <- unique(unlist(sapply(newDirs, function(dir){
             configFile <- file.path(dir, "_config.yml")
@@ -187,7 +187,7 @@ install <- function(
         if(length(urls) == 0) break
 
         # append new dependencies to the repos list and iterate
-        message("installing new dependencies")
+        message("installing additional dependencies")
         dependencies <- assembleReposList(dirs, Types$suite, Stages$tools, urls)
         repos <- mergeGitRepoLists(repos, dependencies)
     }
