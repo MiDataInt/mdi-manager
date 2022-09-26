@@ -146,26 +146,55 @@ install <- function(
     copyConfigFile(dirs, 'stage2-apps.yml')
     copyRemoteFiles(dirs) 
 
-    # collect the list of all framework and suite repositories for this installation
+    # collect the list of all framework and suite repositories requested for this installation
     if(isHosted) suitesFilePath <- file.path(hostDir, 'config', 'suites.yml')
     repos <- parseGitRepos(dirs, suitesFilePath)
 
-    # for most users, download (clone or pull) the most current version of the git repositories
-    if(clone) do.call(downloadGitRepo, repos)  
-    if(!clone) for(dir in filterRepoDirs(repos, fork = Forks$definitive)){
-        if(!dir.exists(dir)) stop(paste('missing repository:', dir))
-        isGitRepo(dir, require = TRUE)
+    # process the requested repos, plus any chained suite dependencies
+    while(TRUE){
+        priorRepos <- repos[!is.na(repos$exists), ]
+        newRepos   <- repos[ is.na(repos$exists), ]
+
+        # for most users, download (clone or pull) the most current version of the git repositories
+        if(clone) do.call(downloadGitRepo, newRepos)  
+        if(!clone) for(dir in filterRepoDirs(newRepos, fork = Forks$definitive)){
+            if(!dir.exists(dir)) stop(paste('missing repository:', dir))
+            isGitRepo(dir, require = TRUE)
+        }
+
+        # get the latest tagged versions of all repos
+        newRepos$exists <- repoExists(newRepos$dir)
+        newRepos$latest <- do.call(getLatestVersions, newRepos)
+
+        # checkout the appropriate repository versions to continue with the installation
+        # for install, both definitive and developer forks are scanned for suite dependencies and R packages
+        message('locking repositories')
+        setMdiGitLock(newRepos$dir[newRepos$exists & newRepos$fork == Forks$definitive])
+        checkoutRepoTargets(newRepos, checkout)
+        repos <- mergeGitRepoLists(priorRepos, newRepos)    
+
+        # find external suite dependencies not already in repos
+        message("check for new dependencies")
+        newDirs <- newRepos[newRepos$exists, 'dir']
+        urls <- unique(unlist(sapply(newDirs, function(dir){
+            configFile <- file.path(dir, "_config.yml")
+            if(!file.exists(configFile)) return(character())
+            suiteConfig <- yaml::read_yaml(configFile)
+            if(is.null(suiteConfig$suite_dependencies)) return(character())
+            expandGitUrls(suiteConfig$suite_dependencies)         
+        })))
+        urls <- urls[!(urls %in% repos[, 'url'])] # NOT just newRepos
+        if(length(urls) == 0) break
+
+        # append new dependencies to the repos list and iterate
+        message("installing new dependencies")
+        dependencies <- assembleReposList(dirs, Types$suite, Stages$tools, urls)
+        repos <- mergeGitRepoLists(repos, dependencies)
     }
 
-    # get the latest tagged versions of all repos
-    repos$exists <- repoExists(repos$dir)
-    repos$latest <- do.call(getLatestVersions, repos)
-
-    # checkout the appropriate repository versions to continue with the installation
-    # for install, both definitive and developer forks are scanned for R packages
-    message('locking repositories')
-    setMdiGitLock(repos$dir[repos$exists & repos$fork == Forks$definitive])
-    checkoutRepoTargets(repos, checkout)
+    # write repos.rds for use by mdi::run(), with information on all officially installed repos
+    reposRdsFile <- file.path(dirs$library, "repos.rds")
+    saveRDS(repos, reposRdsFile)
 
     # initialize MDI root batch execution files
     mdiPath <- updateRootFile(

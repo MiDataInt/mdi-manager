@@ -157,8 +157,10 @@ run <- function(
 
     # collect the list of all framework and suite repositories declared by the host installation
     # and parse the paths where they will be cloned or pulled into the user's installation
-    suitesFilePath <- file.path(dirs$host$config, 'suites.yml')
-    repos <- parseGitRepos(dirs$user, suitesFilePath)
+    # suitesFilePath <- file.path(dirs$host$config, 'suites.yml')
+    # repos <- parseGitRepos(dirs$user, suitesFilePath)
+    reposRdsFile <- file.path(dirs$user$library, "repos.rds")
+    repos <- readRDS(reposRdsFile)
 
     # for most users, download (clone or pull) the most current version of the git repositories
     if(install) do.call(downloadGitRepo, repos)  

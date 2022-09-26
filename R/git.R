@@ -59,31 +59,9 @@ parseGitRepos <- function(dirs, suitesFilePath){
         Stages$apps, 
         rep(Stages$tools, length(config$suites))
     )
-    order <- seq_along(types)
 
     # assemble and return an ordered table of all repos known to this MDI instance
-    x <- rbind(   
-        data.frame( # repos with remote==upstream are the definitive public source code
-            order   = order,
-            type    = types,
-            stage   = stages,
-            remote  = Remotes$upstream,
-            fork    = Forks$definitive,
-            url     = upstreamUrls,
-            stringsAsFactors = FALSE
-        ),
-        data.frame( # repos with remote==origin are a developer's forks, if any
-            order   = order,
-            type    = types,
-            stage   = stages,
-            remote  = Remotes$origin,
-            fork    = Forks$developer,
-            url     = switchGitUser(upstreamUrls, Sys.getenv('GIT_USER')) # NB: some forked repos might not exist
-        )
-    )
-    x$dir <- getRepoDir(dirs$mdi, x$type, x$fork, x$url) # this is the user's target directory, not a host's
-    x$name <- sapply(strsplit(x$dir, '/'), function(y) rev(y)[1])
-    x
+    assembleReposList(dirs, types, stages, upstreamUrls)
 }
 assembleGitUrl <- function(repoName, gitUser) {
     repo <- paste(repoName, 'git', sep = ".")
@@ -126,6 +104,41 @@ filterRepoDirs <- function(repos, type = NULL, stage = NULL, fork = NULL, paste 
 filterRepos <- function(repos, type = NULL, stage = NULL, fork = NULL){
     repoFilter <- repoFilter(repos, type, stage, fork)
     repos[repoFilter, ]
+}
+assembleReposList <- function(dirs, types, stages, upstreamUrls){
+    x <- rbind(   
+        data.frame( # repos with remote==upstream are the definitive public source code
+            type    = types,
+            stage   = stages,
+            remote  = Remotes$upstream,
+            fork    = Forks$definitive,
+            url     = upstreamUrls,
+            exists  = NA,
+            latest  = NA,
+            stringsAsFactors = FALSE
+        ),
+        data.frame( # repos with remote==origin are a developer's forks, if any
+            type    = types,
+            stage   = stages,
+            remote  = Remotes$origin,
+            fork    = Forks$developer,
+            url     = switchGitUser(upstreamUrls, Sys.getenv('GIT_USER')), # NB: some forked repos might not exist
+            exists  = NA,
+            latest  = NA,
+            stringsAsFactors = FALSE 
+        )
+    )
+    x$dir <- getRepoDir(dirs$mdi, x$type, x$fork, x$url) # this is the user's target directory, not a host's
+    x$name <- sapply(strsplit(x$dir, '/'), function(y) rev(y)[1])
+    x
+}
+mergeGitRepoLists <- function(repos1, repos2){ # rbind repo lists, preserving the proper search order
+    rbind(
+        repos1[repos1$remote == Remotes$upstream, ],
+        repos2[repos2$remote == Remotes$upstream, ],        
+        repos1[repos1$remote == Remotes$origin, ],
+        repos2[repos2$remote == Remotes$origin, ]
+    )
 }
 
 #---------------------------------------------------------------------------
