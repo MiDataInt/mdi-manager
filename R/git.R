@@ -172,7 +172,10 @@ pullGit <- function(dir){
             repo = dir,
             credentials = git2r::cred_token()
         ) 
-    }, error = function(e) NULL) 
+    }, error = function(e) {
+        print(e)
+        NULL
+    }) 
 }
 cloneGit  <- function(dir, url){
     tryCatch( { 
@@ -183,7 +186,10 @@ cloneGit  <- function(dir, url){
             progress = TRUE
         )
         TRUE
-    }, error = function(e) FALSE)
+    }, error = function(e) {
+        print(e)
+        FALSE
+    })
 }
 initializeRepo <- function(dir, url, fork){
     # set the "upstream" remote to the definitive repository
