@@ -188,7 +188,8 @@ cloneGit  <- function(dir, url){
         )
         TRUE
     }, error = function(e) {
-        print(e)
+        if(grepl("404", e$message)) print("  repository does not exist")
+        else print(e)
         FALSE
     })
 }
