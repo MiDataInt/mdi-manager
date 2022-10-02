@@ -174,7 +174,7 @@ pullGit <- function(dir){
             credentials = git2r::cred_token()
         ) 
     }, error = function(e) {
-        print(e)
+        message(e$message)
         NULL
     }) 
 }
@@ -188,8 +188,8 @@ cloneGit  <- function(dir, url){
         )
         TRUE
     }, error = function(e) {
-        if(grepl("404", e$message)) print("  repository does not exist")
-        else print(e)
+        if(grepl("404", e$message)) message("  repository does not exist")
+        else message(e$message)
         FALSE
     })
 }
