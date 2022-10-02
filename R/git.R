@@ -167,6 +167,7 @@ downloadGitRepo <- Vectorize(function(dir, url, fork, ...) {
     }
 })
 pullGit <- function(dir){
+    checkGitConfigUser(dir)
     tryCatch( { 
         git2r::pull(                                  
             repo = dir,
@@ -240,8 +241,8 @@ checkoutGitBranch <- function(dir, branch = 'main', create = FALSE, silent = FAL
 # check for all required git configuration elements in developer forks
 #---------------------------------------------------------------------------
 nullGitUserId <- list(
-    name  = "NA",
-    email = "NA"
+    user.name  = "NA",
+    user.email = "NA"
 )
 gitEnv <- new.env()
 gitUserId <- "gitUserId"
@@ -249,28 +250,51 @@ assign(gitUserId, nullGitUserId, envir = gitEnv)
 getRepoUserId <- function(dir){
     git2r::config(git2r::repository(dir))$local
 }
+getGlobalUserId <- function(dir){
+    git2r::config(git2r::repository(dir))$global
+}
 setGitConfigUser <- function(dir, nullUser = FALSE){ 
     userId <- nullGitUserId # don't need user info for definitive repo clones
     if(!nullUser){
         userId <- getRepoUserId(dir) # use the existing user info if already present; nothing to do
-        if(!is.null(userId$email) && userId$email != 'NA'){
+        if(!is.null(userId$user.email) && userId$user.email != 'NA'){
             assign(gitUserId, userId, envir = gitEnv)
             return()
         }
         userId <- get(gitUserId, envir = gitEnv)
-        if(is.null(userId$email) || userId$email == 'NA'){
+        if(is.null(userId$user.email) || userId$user.email == 'NA'){
             userId <- list(
                 name  = Sys.getenv('USER_NAME'), 
                 email = Sys.getenv('USER_EMAIL')
             )
-            if(userId$name == "" || userId$email == "") return(NULL)
+            if(userId$user.name == "" || userId$user.email == "") return(NULL)
             assign(gitUserId, userId, envir = gitEnv)
         } 
     } 
     git2r::config(
         git2r::repository(dir),
-        user.name  = userId$name,
-        user.email = userId$email
+        user.name  = userId$user.name,
+        user.email = userId$user.email
+    )
+}
+checkGitConfigUser <- function(dir){ # ensure presence of user.name/email prior to pull
+    userId <- getRepoUserId(dir)
+    if(!is.null(userId$user.name) && !is.null(userId$user.email)) return()
+    global <- getGlobalUserId(dir)
+    toEnv <- list(
+        "user.name"  = "USER_NAME",
+        "user.email" = "USER_EMAIL"
+    )
+    for(key in names(toEnv)){
+        if(!is.null(userId[[key]])) next # use repo value first
+        userId[[key]] <- Sys.getenv(toEnv[[key]]) # then gitCredentials.R
+        if(userId[[key]] == "") userId[[key]] <- global[[key]] # then git config global
+        if(is.null(userId[[key]])) userId[[key]] <- nullGitUserId[[key]] # then NA as last resort
+    }
+    git2r::config(
+        git2r::repository(dir),
+        user.name  = userId$user.name,
+        user.email = userId$user.email
     )
 }
 
