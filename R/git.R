@@ -35,9 +35,6 @@ setGitCredentials <- function(dirs){
         x <- gitCredentials[[name]]
         if(is.na(x) || x == "") gitCredentials[[name]] <- NULL
     }
-        
-        print(gitCredentials)
-    
     do.call(Sys.setenv, gitCredentials) # set specific values into environment
 }
 
@@ -268,12 +265,9 @@ setGitConfigUser <- function(dir, nullUser = FALSE){
         userId <- get(gitUserId, envir = gitEnv)
         if(is.null(userId$user.email) || userId$user.email == 'NA'){
             userId <- list(
-                name  = Sys.getenv('USER_NAME'), 
-                email = Sys.getenv('USER_EMAIL')
+                user.name  = Sys.getenv('USER_NAME'), 
+                user.email = Sys.getenv('USER_EMAIL')
             )
-            
-            print(userId)
-            
             if(userId$user.name == "" || userId$user.email == "") return(NULL)
             assign(gitUserId, userId, envir = gitEnv)
         } 
