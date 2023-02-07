@@ -15,6 +15,13 @@ site_name: null
 max_upload_mb: auto
 
 #--------------------------------------------------------------
+# Limit server-level cache
+#--------------------------------------------------------------
+default_ttl: 60 * 60 * 24 # ttl = time-to-live, e.g., 1 day
+max_ttl:     30 * 60 * 24
+max_cache_bytes: 1e9      # i.e., 1 GB
+
+#--------------------------------------------------------------
 # Stage 2 Apps web server access control types:
 #   null    grants access to anyone who can load the URL (e.g., local/remote modes)
 #   oauth2  provides the most robust security via 3rd party login
@@ -97,7 +104,9 @@ user_groups:
       load_default: demo1
       bookmark_default: demo2
     apps: all
-
+    priorPackages: true
+    serverCleanup: true
+    
 #--------------------------------------------------------------
 # Named access keys recognized when access_control = keys
 #--------------------------------------------------------------
@@ -113,3 +122,5 @@ keys:
       read: all
       write: demo2
     apps: all
+    priorPackages: false
+    serverCleanup: false
