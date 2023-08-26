@@ -302,8 +302,9 @@ installPackages <- function(versions, dirs, packages, force, staticLib = NULL){
             checkBuilt = FALSE,
             force = TRUE,
             version = versions$BioconductorRelease,
-            Ncpus = Ncpus,
-            type = .Platform$pkgType # force binary on Windows
+            Ncpus = Ncpus
+            # ,
+            # type = .Platform$pkgType # force binary on Windows
         )         
     } else {
         message(paste('available library(s) already have all', length(packages), "required packages"))
