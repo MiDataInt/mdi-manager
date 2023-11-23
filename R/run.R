@@ -132,7 +132,6 @@ run <- function(
     # enforce option overrides
     if(!is.null(dataDir) && dataDir == "NULL") dataDir <- NULL
     if(!is.null(hostDir) && hostDir == "NULL") hostDir <- NULL    
-    if(mode == 'server') developer <- FALSE # never show developer tools on public servers
     if(mode == 'node') install <- FALSE
 
     # determine whether we are running in a container
@@ -240,6 +239,7 @@ run <- function(
     if(!is.null(port)) Sys.setenv(SERVER_PORT = port)
     Sys.setenv(LAUNCH_BROWSER = browser)
     Sys.setenv(DEBUG = debug)
+    if(mode == 'server') developer <- FALSE # never show developer tools on public servers, even if editing developer repos   
     Sys.setenv(IS_DEVELOPER = developer)
     Sys.setenv(APPS_FRAMEWORK_DIR = appsFrameworkDir)
     Sys.setenv(LIBRARY_DIR_SHORT = dirs$versionLibraryShort)
