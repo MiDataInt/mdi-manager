@@ -239,8 +239,7 @@ run <- function(
     if(!is.null(port)) Sys.setenv(SERVER_PORT = port)
     Sys.setenv(LAUNCH_BROWSER = browser)
     Sys.setenv(DEBUG = debug)
-    if(mode == 'server') developer <- FALSE # never show developer tools on public servers, even if editing developer repos   
-    Sys.setenv(IS_DEVELOPER = developer)
+    Sys.setenv(IS_DEVELOPER = developer) # can run as developer on public server; framework must use IS_SERVER to prevent showing dangerous elements
     Sys.setenv(APPS_FRAMEWORK_DIR = appsFrameworkDir)
     Sys.setenv(LIBRARY_DIR_SHORT = dirs$versionLibraryShort)
     Sys.setenv(LIBRARY_DIR = dirs$versionLibrary)
