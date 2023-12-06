@@ -213,7 +213,14 @@ isGitRepo <- function(dir, require = FALSE) {
     isGitRepo
 }    
 gitRepoMatches <- function(dir, url){
-    git2r::remote_url(dir, Remotes$origin) == url
+    tryCatch({
+        git2r::remote_url(dir, Remotes$origin) == url
+    }, error = function(e){
+        print("gitRepoMatches failed on repo:", dir)
+        print("Is this a valid repository path?")
+        print("Do you have permissions on this repository?")
+        stop(e)
+    })
 }
 repoExists <- Vectorize(function(dir){
     !is.na(dir) &&
