@@ -216,9 +216,9 @@ gitRepoMatches <- function(dir, url){
     tryCatch({
         git2r::remote_url(dir, Remotes$origin) == url
     }, error = function(e){
-        print("gitRepoMatches failed on repo:", dir)
-        print("Is this a valid repository path?")
-        print("Do you have permissions on this repository?")
+        message(paste("gitRepoMatches failed on repo:", dir))
+        message("Is this a valid repository path?")
+        message("Do you have permissions on this repository and path?")
         stop(e)
     })
 }
