@@ -10,7 +10,6 @@ Description: The Michigan Data Interface is a framework for developing,
 Imports:
     git2r,
     BiocManager,
-    miniCRAN,
     yaml,
     future,
     digest

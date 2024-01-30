@@ -48,18 +48,13 @@ getAppsPackages <- function(repos, rRepos) {
 
     # expand the package list to required dependencies
     message('recursively expanding package dependencies ...')
+    installed <- installed.packages()
+    base <- installed[which(installed[, "Priority"] == "base"), "Package"]
     # suppressWarnings( for(x in names(pkgLists)) {
     suppressWarnings( for(x in 'R') {
-        pkgLists[[x]] <- if(length(pkgLists[[x]]) > 0) miniCRAN::pkgDep(
-            unique(pkgLists[[x]]), # the packages named by the MDI framework and apps
-            repos = rRepos[[x]],
-            type = "source",
-            depends = TRUE,
-            suggests = FALSE,
-            enhances = FALSE,
-            includeBasePkgs = FALSE, # these always come from a server's R installation
-            quiet = TRUE
-        ) else NULL
+        pkgLists[[x]] <- if(length(pkgLists[[x]]) > 0) {
+            getPackageDependencies(unique(pkgLists[[x]]), rRepos[[x]], skip = base)
+        } else NULL
     } )
     
     # having problems expanding Bioconductor packages above, BiocManager::install should do this downstream
@@ -67,4 +62,15 @@ getAppsPackages <- function(repos, rRepos) {
     
     # return our results
     pkgLists
+}
+getPackageDependencies <- function(packages, repo, skip = character()){
+    dependencies <- tools::package_dependencies(
+        packages = packages, 
+        db = available.packages(type = "source", filters = list(), repos = repo), 
+        which = c("Depends", "Imports", "LinkingTo"), # not Suggests or Enhances
+        recursive = TRUE,
+        verbose = FALSE
+    )
+    packages <- sort(unique(c(packages, unlist(dependencies))))
+    packages[!(packages %in% skip)]
 }
