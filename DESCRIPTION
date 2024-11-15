@@ -8,7 +8,7 @@ Description: The Michigan Data Interface is a framework for developing,
     installing and running HPC data analysis pipelines and interactive 
     visualization applications within a standardized design interface.
 Imports:
-    git2r (<= 0.33.0),
+    git2r,
     BiocManager,
     yaml,
     future,
