@@ -150,6 +150,11 @@ downloadGitRepo <- Vectorize(function(dir, url, fork, ...) {
     # get up-to-date repo from the server
     #   definitive repos set to tip of 'main' prior to pulling
     #   don't change branches on developer-forks, attempt to pull on the current branch
+    message(dir)
+    message(url)
+    message(dir.exists(dir))
+    message(isGitRepo(dir))
+    message(isGitRepo("/nfs/turbo/radonc-ljungman-turbo/KLIPP/mdi/frameworks/developer-forks/mdi-apps-framework"))
     if(isGitRepo(dir)){
         if(!gitRepoMatches(dir, url)) stop(paste(dir, 'is not a clone of', url))
         message(paste('pulling', url))
