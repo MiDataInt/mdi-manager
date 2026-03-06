@@ -150,16 +150,14 @@ downloadGitRepo <- Vectorize(function(dir, url, fork, ...) {
     # get up-to-date repo from the server
     #   definitive repos set to tip of 'main' prior to pulling
     #   don't change branches on developer-forks, attempt to pull on the current branch
-    message(dir)
-    message(url)
-    message(dir.exists(dir))
-    message(isGitRepo(dir))
-    message(isGitRepo("/nfs/turbo/radonc-ljungman-turbo/KLIPP/mdi/frameworks/developer-forks/mdi-apps-framework"))
     if(isGitRepo(dir)){
-        if(!gitRepoMatches(dir, url)) stop(paste(dir, 'is not a clone of', url))
-        message(paste('pulling', url))
-        if(fork == Forks$definitive) checkoutGitBranch(dir, silent = TRUE)
-        pullGit(dir)
+        if(gitRepoMatches(dir, url)) {
+            message(paste('pulling', url))
+            if(fork == Forks$definitive) checkoutGitBranch(dir, silent = TRUE)
+            pullGit(dir)
+        } else {
+            message(paste('skipping pull:', dir, 'is not a usable clone of', url))
+        }
 
     # or clone it on first encounter
     #   all repos set to tip of 'main' on first installation
@@ -213,8 +211,16 @@ initializeRepo <- function(dir, url, fork){
 # check for a valid repository
 #---------------------------------------------------------------------------
 isGitRepo <- function(dir, require = FALSE) {
-    isGitRepo <- dir.exists(dir) && dir.exists(file.path(dir, '.git'))
-    if(require && !isGitRepo) stop(paste(dir, 'is not a git repository'))
+    dotGitDir  <- file.path(dir, ".git")
+    headFile   <- file.path(dotGitDir, "HEAD")
+    configFile <- file.path(dotGitDir, "config")
+    dirExists <- dir.exists(dir)
+    isGitRepo <- dirExists && 
+                 dir.exists(dotGitDir) && 
+                 file.exists(headFile) &&
+                 file.exists(configFile)
+    if(dirExists && !isGitRepo) unlink(dir, recursive = TRUE, force = TRUE) 
+    if(require && !isGitRepo) stop(paste(dir, 'is not a valid git repository'))
     isGitRepo
 }    
 gitRepoMatches <- function(dir, url){
@@ -224,7 +230,7 @@ gitRepoMatches <- function(dir, url){
         message(paste("gitRepoMatches failed on repo:", dir))
         message("Is this a valid repository path?")
         message("Do you have permissions on this repository and path?")
-        stop(e)
+        FALSE
     })
 }
 repoExists <- Vectorize(function(dir){
