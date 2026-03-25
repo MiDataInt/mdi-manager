@@ -75,12 +75,14 @@ elif [[ "$TARGET" = "" || " $JOB_MANAGER_COMMANDS " =~ " $TARGET " ]]; then
     
     # ensure that the job manager target script has been initialized
     Q_TYPE=""
-    if [ -e "$Q_TYPE_FILE" ]; then
-        Q_TYPE=`cat $Q_TYPE_FILE` # recovers cases when job scheduler wasn't discovered in prior initialize
+    if [ "$MDI_IS_CONTAINER" != "TRUE" ]; then
+        if [ -e "$Q_TYPE_FILE" ]; then
+            Q_TYPE=`cat $Q_TYPE_FILE` # recovers cases when job scheduler wasn't discovered in prior initialize
+        fi
+        if [[ ! -e "$JOB_MANAGER_TARGET" || "$Q_TYPE" = "" ]]; then
+            perl $JOB_MANAGER_DIR/initialize.pl $MDI_DIR suppressLog
+        fi
     fi
-    if [[ ! -e "$JOB_MANAGER_TARGET" || "$Q_TYPE" = "" ]]; then
-        perl $JOB_MANAGER_DIR/initialize.pl $MDI_DIR suppressLog
-    fi    
 
     # fork the call to the job manager utility (a close relative of 'q')
     if [ -e "$JOB_MANAGER_TARGET" ]; then
