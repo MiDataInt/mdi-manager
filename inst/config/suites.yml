@@ -2,12 +2,13 @@
 #----------------------------------------------------------------------
 # Tool suites to install
 #----------------------------------------------------------------------
-#   - entries should point to GitHub repositories
+#   - entries must point to GitHub repositories
 #   - developers should _not_ list their repo forks here
-#   - when a pipeline/app name is in multiple suites, the first match is used
+#   - when a pipeline/app name is found in multiple suites, the first match is used
 #----------------------------------------------------------------------
-# !! Re-run 'mdi::install()' or 'mdi install' after updating this list !!
+# !! Re-run `mdi install` after manually updating this list !!
+# A better alternative is to run `mdi add --suite GIT_USER/SUITE_NAME`.
 #----------------------------------------------------------------------
 suites:
-  # - https://github.com/GIT_USER/SUITE_NAME-mdi-tools.git
-  # - GIT_USER/SUITE_NAME-mdi-tools # either format works
+  # - https://github.com/GIT_USER/SUITE_NAME.git
+  # - GIT_USER/SUITE_NAME # either format works

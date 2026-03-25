@@ -3,29 +3,16 @@
 # Stage 1 Pipeline global variables and default options
 #--------------------------------------------------------------
 #   - typically constant for all Stage 1 jobs on a given server
-#   - can be overridden in lower level config files
+#   - can be overridden in lower level config files, e.g., <data.yml>
 #   - variables are available for use in <data.yml> by an end user
 #   - options are available as variables in the environment of running jobs
-#   - initial values for an installation are appropriate for UM Great Lakes
 #   - by convention variable names are ALL_UPPER_CASE
 #--------------------------------------------------------------
 variables:
-  # conda module (for creating runtime environments)
-  ANACONDA: python3.9-anaconda/2021.11
+  # EXAMPLE_VAR: 123 # uncomment and edit to declare a variable that can be used later as $EXAMPLE_VAR
 
-# defaults for options in data.yml templates
+# defaults options
 shared:
   resources:
     tmp-dir: /tmp
     tmp-dir-large: /tmp
-
-# configure a shared conda implementation
-conda:
-    
-  # optional command to load conda for use (e.g. 'module load conda')
-  # use null if conda is always available on the server where mdi is run
-  load-command: module load $ANACONDA
-    
-  # path to conda.sh initialization script
-  # if null, tries $(conda info --base)/etc/profile.d/conda.sh
-  profile-script: null # /sw/pkgs/arc/$ANACONDA
