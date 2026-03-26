@@ -135,8 +135,9 @@ run <- function(
     if(mode == 'node') install <- FALSE
 
     # determine whether we are running in a container
-    staticMdiDir <- Sys.getenv('STATIC_MDI_DIR')
+    activeMdiDir <- Sys.getenv('ACTIVE_MDI_DIR')
     isContainer  <- Sys.getenv('MDI_IS_CONTAINER') != ""
+    if(isContainer) install <- FALSE
 
     # establish whether the MDI has been previously installed into mdiDir
     # combined with call to run(), take as permission to continue modifying user files
@@ -146,12 +147,12 @@ run <- function(
     isHosted <- !is.null(hostDir)
     versions <- getRBioconductorVersions(mode == 'node')    
     dirs <- list(user = parseDirectories(mdiDir, versions, create = FALSE))
-    if(isContainer) {
-        dirs$user$versionLibraryShort <- dirs$user$containersVersionLibraryShort
-        dirs$user$versionLibrary <- dirs$user$containersVersionLibrary
-    }
+    # if(isContainer) {
+    #     dirs$user$versionLibraryShort <- dirs$user$containersVersionLibraryShort
+    #     dirs$user$versionLibrary <- dirs$user$containersVersionLibrary
+    # }
     dirs$host <- if(isHosted) parseDirectories(hostDir, versions, create = FALSE) else dirs$user
-    dirs$static <- if(isContainer) parseDirectories(staticMdiDir, versions, create = FALSE) else NULL
+    dirs$active <- if(isContainer) parseDirectories(activeMdiDir, versions, create = FALSE) else NULL
     setGitCredentials(dirs$user)
 
     # collect the list of all framework and suite repositories declared by the host installation
@@ -193,10 +194,12 @@ run <- function(
         if(!file.exists(gitConfig)) stop(paste(dir, 'is not a valid git repository'))
     }
 
-    # checkout the appropriate repository versions
-    message('locking repositories')
-    setMdiGitLock(repos$dir)
-    checkoutRepoTargets(repos, checkout, developer)
+    # checkout the appropriate repository versions if not using a static container installation
+    if(!isContainer){
+        message('locking repositories')
+        setMdiGitLock(repos$dir)
+        checkoutRepoTargets(repos, checkout, developer)
+    }
 
     # install any missing R packages if not hosted (hosts are expected to keep their installations up to date)
     if(install && !isHosted){
@@ -207,7 +210,8 @@ run <- function(
             dirs = dirs$user, 
             repos = repos,
             releaseLocks = FALSE,
-            staticLib = if(isContainer) dirs$static$versionLibrary else NULL
+            # staticLib = if(isContainer) dirs$static$versionLibrary else NULL
+            NULL
         )    
     }
 
@@ -222,14 +226,14 @@ run <- function(
     # update the primary directories to use, with overrides for data and hosted directories
     dirs <- parseDirectories(mdiDir, versions, create = FALSE, 
                              dataDir = dataDir, hostDir = hostDir)
-    if(isContainer) {
-        dirs$versionLibraryShort <- dirs$containersVersionLibraryShort
-        dirs$versionLibrary <- dirs$containersVersionLibrary
-    }
+    # if(isContainer) {
+    #     dirs$versionLibraryShort <- dirs$containersVersionLibraryShort
+    #     dirs$versionLibrary <- dirs$containersVersionLibrary
+    # }
 
     # set environment variables required by run_server.R
     dirsOut <- list()
-    for(dirLabel in names(dirs)){    
+    for(dirLabel in names(dirs)){
         dirLabelOut <- paste(toupper(gsub('-', '_', dirLabel)), 'DIR', sep = '_') # e.g., yields DATA_DIR
         dirsOut[[dirLabelOut]] <- dirs[[dirLabel]]
     }
@@ -245,8 +249,10 @@ run <- function(
     Sys.setenv(LIBRARY_DIR = dirs$versionLibrary)
 
     # release repo locks immediately prior to launching server
-    message('releasing repository locks')
-    releaseMdiGitLock(repos$dir)
+    if(!isContainer){
+        message('releasing repository locks')
+        releaseMdiGitLock(repos$dir)
+    }
 
     # source the script that runs the server in the global environment
     # the web server never returns as it handles client requests via https
@@ -260,7 +266,7 @@ run <- function(
 #---------------------------------------------------------------------------
 develop <- function(
     mdiDir = '~', 
-    dataDir = NULL,         
+    dataDir = NULL,
     url = 'http://localhost', 
     port = NULL,
     ... # all other arguments are ignored
@@ -310,9 +316,9 @@ node <- function(
 }
 launchRemote <- function(
     mode,
-    mdiDir, 
+    mdiDir,
     dataDir,
-    hostDir,         
+    hostDir,
     port
 ){
     developer <- Sys.getenv('DEVELOPER')
