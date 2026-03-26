@@ -135,7 +135,7 @@ run <- function(
     if(mode == 'node') install <- FALSE
 
     # determine whether we are running in a container
-    activeMdiDir <- Sys.getenv('ACTIVE_MDI_DIR')
+    # activeMdiDir <- Sys.getenv('ACTIVE_MDI_DIR')
     isContainer  <- Sys.getenv('MDI_IS_CONTAINER') != ""
     if(isContainer) install <- FALSE
 
@@ -152,7 +152,7 @@ run <- function(
     #     dirs$user$versionLibrary <- dirs$user$containersVersionLibrary
     # }
     dirs$host <- if(isHosted) parseDirectories(hostDir, versions, create = FALSE) else dirs$user
-    dirs$active <- if(isContainer) parseDirectories(activeMdiDir, versions, create = FALSE) else NULL
+    # dirs$active <- if(isContainer) parseDirectories(activeMdiDir, versions, create = FALSE) else NULL
     setGitCredentials(dirs$user)
 
     # collect the list of all framework and suite repositories declared by the host installation
