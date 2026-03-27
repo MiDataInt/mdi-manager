@@ -219,7 +219,9 @@ isGitRepo <- function(dir, require = FALSE) {
                  dir.exists(dotGitDir) && 
                  file.exists(headFile) &&
                  file.exists(configFile)
-    if(dirExists && !isGitRepo) unlink(dir, recursive = TRUE, force = TRUE) 
+    if(dirExists && !isGitRepo) tryCatch({
+        unlink(dir, recursive = TRUE, force = TRUE)
+    }, error = function(e) NULL) 
     if(require && !isGitRepo) stop(paste(dir, 'is not a valid git repository'))
     isGitRepo
 }    

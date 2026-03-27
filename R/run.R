@@ -172,7 +172,7 @@ run <- function(
     # get the latest tagged versions of all existing repos
     repos$exists <- repoExists(repos$dir)
     repos <- repos[repos$exists, ]
-    repos$latest <- do.call(getLatestVersions, repos)
+    repos$latest <- if(isContainer) NA_character_ else do.call(getLatestVersions, repos)
 
     # establish the list of repos to use by the rules identified above
     # NB: code repos are _not_ public/shared assets to allow version selection by each user
