@@ -5,10 +5,11 @@
 #    https://github.com/r-hub/rversions
 #    https://bioconductor.org/about/release-announcements/
 #---------------------------------------------------------------------------
-getRBioconductorVersions <- function(isNode = FALSE){
+getRBioconductorVersions <- function(){
     RVersion <- getRVersion()
     RRelease <- getRRelease()
-    BioconductorRelease <- if(isNode) Sys.getenv('BIOCONDUCTOR_RELEASE') else BiocManager::version()
+    BC_release <- Sys.getenv('BIOCONDUCTOR_RELEASE')
+    BioconductorRelease <- if(BC_release != "") BC_release else BiocManager::version()
     RVersionLong <- paste("R", RVersion, sep = "-")
     BioconductorReleaseLong <- paste("BC", BioconductorRelease, sep = "-")
     list(

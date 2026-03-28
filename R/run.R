@@ -145,7 +145,7 @@ run <- function(
 
     # collect directories for the user (i.e., calling) and host installations
     isHosted <- !is.null(hostDir)
-    versions <- getRBioconductorVersions(mode == 'node')    
+    versions <- getRBioconductorVersions()
     dirs <- list(user = parseDirectories(mdiDir, versions, create = FALSE))
     # if(isContainer) {
     #     dirs$user$versionLibraryShort <- dirs$user$containersVersionLibraryShort

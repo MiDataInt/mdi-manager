@@ -16,7 +16,6 @@ export MDI_REMOTE_MODE=remote
 
 # launch MDI Shiny server as background process on the login node
 export SEPARATOR="---------------------------------------------------------------------"
-$R_LOAD_COMMAND
 bash $MDI_DIRECTORY/remote/mdi-remote.sh & # server runs in background
 MDI_PID=$! # the pid of the server process (after a series of execs)
 trap "kill -9 $MDI_PID; exit" SIGINT SIGQUIT SIGHUP # make sure we always kill the server on exit
