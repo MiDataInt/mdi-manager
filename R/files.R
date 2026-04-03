@@ -1,9 +1,9 @@
 #---------------------------------------------------------------------------
 # create and return the ordered folder structure of a MDI installation
 #   mdi
+#       bin
 #       config
 #       containers
-#           library
 #       data
 #       environments
 #       frameworks
@@ -29,7 +29,7 @@ parseDirectories <- function(mdiDir, versions,
     mdiDir <- parseMdiDir(mdiDir, check = TRUE, create = create)
 
     # parse top-level directory names
-    bareDirNames <- c('config', 'containers', 'data', 'environments', 'frameworks', 'library', 
+    bareDirNames <- c('bin', 'config', 'containers', 'data', 'environments', 'frameworks', 'library', 
                       'remote', 'resources', 'sessions', 'suites') 
     dirs <- as.list( file.path(mdiDir, bareDirNames) )
     names(dirs) <- bareDirNames

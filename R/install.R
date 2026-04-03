@@ -18,6 +18,7 @@
 #' If they do not already exist, \code{mdi::install()} will create a series 
 #' of subdirectories in \code{mdiDir}, as follows:
 #' \itemize{
+#'   \item bin = compiled binary executables for pipelines that use them
 #'   \item config = configuration data for the MDI installation
 #'   \item containers = Singularity container images for suites that use them
 #'   \item data = project-specific input and output files
