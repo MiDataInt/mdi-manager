@@ -174,10 +174,14 @@ pullGit <- function(dir){
 
     #######################
     message()
-    message("git2r::libgit2_features")
-    print(git2r::libgit2_features())
+    print(git2r::config())
+
+    git2r::config(
+        global     = FALSE, 
+        http.proxy = "http://proxy1.arc-ts.umich.edu:3128/"
+    )
+
     message()
-    message("git2r::config")
     print(git2r::config())
     message()
 
