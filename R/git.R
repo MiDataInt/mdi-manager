@@ -171,6 +171,16 @@ downloadGitRepo <- Vectorize(function(dir, url, fork, ...) {
 })
 pullGit <- function(dir){
     checkGitConfigUser(dir)
+
+    #######################
+    message()
+    message("git2r::libgit2_features")
+    print(git2r::libgit2_features())
+    message()
+    message("git2r::config")
+    print(git2r::config())
+    message()
+
     tryCatch( { 
         git2r::pull(                                  
             repo = dir,
