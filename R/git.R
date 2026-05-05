@@ -171,20 +171,6 @@ downloadGitRepo <- Vectorize(function(dir, url, fork, ...) {
 })
 pullGit <- function(dir){
     checkGitConfigUser(dir)
-
-    #######################
-    message()
-    print(git2r::config())
-
-    git2r::config(
-        global     = FALSE, 
-        http.proxy = "http://proxy1.arc-ts.umich.edu:3128/"
-    )
-
-    message()
-    print(git2r::config())
-    message()
-
     tryCatch( { 
         git2r::pull(                                  
             repo = dir,
