@@ -178,11 +178,11 @@ print(Sys.getenv(proxy_vars))
 message()
 print(git2r::libgit2_features())
 message()
-try(print(curl::curl_fetch_memory("https://github.com")))
+try(str(curl::curl_fetch_memory("https://github.com")))
 message()
 print(dir)
 message()
-print(git2r::cred_token())
+str(git2r::cred_token())
 message()
 
 
