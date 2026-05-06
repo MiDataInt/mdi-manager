@@ -171,6 +171,21 @@ downloadGitRepo <- Vectorize(function(dir, url, fork, ...) {
 })
 pullGit <- function(dir){
     checkGitConfigUser(dir)
+
+message()
+proxy_vars <- c("http_proxy", "https_proxy", "HTTP_PROXY", "HTTPS_PROXY", "no_proxy")
+Sys.getenv(proxy_vars)
+message()
+git2r::libgit2_features()
+message()
+try(curl::curl_fetch_memory("https://github.com"))
+message()
+print(dir)
+message()
+print(git2r::cred_token())
+message()
+
+
     tryCatch( { 
         git2r::pull(                                  
             repo = dir,
