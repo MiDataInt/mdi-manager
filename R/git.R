@@ -192,7 +192,7 @@ message()
     tryCatch( { 
         git2r::pull(                                  
             repo = dir,
-            credentials = git2r::cred_token()
+            credentials = NULL # git2r::cred_token()
         ) 
     }, error = function(e) {
         message(e$message)
