@@ -176,8 +176,9 @@ pullGit <- function(dir, is_proxied, git2r_supports_proxy){
     tryCatch( { 
         if(is_proxied && git2r_supports_proxy){
             repo <- git2r::repository(dir)
-            git2r::fetch(                                  
+            git2r::fetch(
                 repo = repo,
+                name = Remotes$origin,
                 credentials = git2r::cred_token(),
                 proxy = TRUE # git2r:pull() does not expose the proxy option
             )
