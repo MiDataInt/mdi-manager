@@ -184,7 +184,8 @@ print(dir)
 message()
 str(git2r::cred_token())
 message()
-print(git2r::config(dir))
+repo <- git2r::repository(dir)
+print(git2r::config(repo))
 message()
 
 
