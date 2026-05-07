@@ -146,6 +146,8 @@ mergeGitRepoLists <- function(repos1, repos2){ # rbind repo lists, preserving th
 #---------------------------------------------------------------------------
 downloadGitRepo <- Vectorize(function(dir, url, fork, ...) { 
     if(is.null(url) || is.na(url)) return()
+    is_proxied <- Sys.getenv("HTTP_PROXY") != "" 
+    git2r_supports_proxy <- packageVersion("git2r") >= "0.36.0"
 
     # get up-to-date repo from the server
     #   definitive repos set to tip of 'main' prior to pulling
@@ -154,7 +156,7 @@ downloadGitRepo <- Vectorize(function(dir, url, fork, ...) {
         if(gitRepoMatches(dir, url)) {
             message(paste('pulling', url))
             if(fork == Forks$definitive) checkoutGitBranch(dir, silent = TRUE)
-            pullGit(dir)
+            pullGit(dir, is_proxied, git2r_supports_proxy)
         } else {
             message(paste('skipping pull:', dir, 'is not a usable clone of', url))
         }
@@ -163,50 +165,54 @@ downloadGitRepo <- Vectorize(function(dir, url, fork, ...) {
     #   all repos set to tip of 'main' on first installation
     } else {
         message(paste('attempting to clone', url))
-        if(cloneGit(dir, url)) { # will fails if developer has not forked a specific repo
+        if(cloneGit(dir, url, is_proxied, git2r_supports_proxy)) { # will fails if developer has not forked a specific repo
             checkoutGitBranch(dir, silent = TRUE)
             initializeRepo(dir, url, fork)
         }
     }
 })
-pullGit <- function(dir){
+pullGit <- function(dir, is_proxied, git2r_supports_proxy){
     checkGitConfigUser(dir)
-
-message()
-proxy_vars <- c("http_proxy", "https_proxy", "HTTP_PROXY", "HTTPS_PROXY", "no_proxy")
-print(Sys.getenv(proxy_vars))
-message()
-print(git2r::libgit2_features())
-message()
-try(str(curl::curl_fetch_memory("https://github.com")))
-message()
-print(dir)
-message()
-str(git2r::cred_token())
-message()
-repo <- git2r::repository(dir)
-print(git2r::config(repo))
-message()
-
-
     tryCatch( { 
-        git2r::pull(                                  
-            repo = dir,
-            credentials = NULL # git2r::cred_token()
-        ) 
+        if(is_proxied && git2r_supports_proxy){
+            repo <- git2r::repository(dir)
+            git2r::fetch(                                  
+                repo = repo,
+                credentials = git2r::cred_token(),
+                proxy = TRUE # git2r:pull() does not expose the proxy option
+            )
+            repo_branch <- git2r::repository_head(repo)
+            upstream_branch <- git2r::branch_get_upstream(repo_branch)
+            git2r::merge(upstream_branch) # merged into HEAD, i.e., into repo_branch
+        } else {
+            git2r::pull(                                  
+                repo = dir,
+                credentials = git2r::cred_token()
+            ) 
+        }
     }, error = function(e) {
         message(e$message)
         NULL
     }) 
 }
-cloneGit  <- function(dir, url){
+cloneGit  <- function(dir, url, is_proxied, git2r_supports_proxy){
     tryCatch( { 
-        git2r::clone(
-            url = url,
-            local_path = dir,
-            credentials = git2r::cred_token(),
-            progress = TRUE
-        )
+        if(is_proxied && git2r_supports_proxy){
+            git2r::clone(
+                url = url,
+                local_path = dir,
+                credentials = git2r::cred_token(),
+                progress = TRUE,
+                proxy = TRUE
+            )
+        } else {
+            git2r::clone(
+                url = url,
+                local_path = dir,
+                credentials = git2r::cred_token(),
+                progress = TRUE
+            )
+        }
         TRUE
     }, error = function(e) {
         if(grepl("404", e$message)) message("  repository does not exist")
