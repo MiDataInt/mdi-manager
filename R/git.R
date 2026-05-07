@@ -184,6 +184,8 @@ print(dir)
 message()
 str(git2r::cred_token())
 message()
+print(git2r::config(dir))
+message()
 
 
     tryCatch( { 
