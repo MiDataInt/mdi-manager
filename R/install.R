@@ -115,7 +115,7 @@ install <- function(
     installPackages = TRUE,
     confirm = TRUE,                
     clone = TRUE,
-    cranRepo = 'https://repo.miserver.it.umich.edu/cran/',                    
+    cranRepo = 'https://mirror.its.umich.edu/cran/',                    
     packages = NULL,
     force = FALSE,
     checkout = NULL

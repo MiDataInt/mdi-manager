@@ -12,7 +12,7 @@
 extend <- function(staticMdiDir){
     message("extending MDI installation using 'mdi-singularity-base' container")
     activeMdiDir <- '/srv/active/mdi' # this path is fixed by build-suite-common.def
-    cranRepo <- 'https://repo.miserver.it.umich.edu/cran/'
+    cranRepo <- 'https://mirror.its.umich.edu/cran/'
     force <- FALSE
 
     # parse needed versions and file paths

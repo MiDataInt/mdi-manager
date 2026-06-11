@@ -204,7 +204,7 @@ run <- function(
     # install any missing R packages if not hosted (hosts are expected to keep their installations up to date)
     if(install && !isHosted){
         collectAndInstallPackages( 
-            cranRepo = 'https://repo.miserver.it.umich.edu/cran/', 
+            cranRepo = 'https://mirror.its.umich.edu/cran/', 
             force = FALSE, 
             versions = versions, 
             dirs = dirs$user, 
